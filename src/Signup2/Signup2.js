@@ -2,10 +2,19 @@ import React from 'react'
 import { useState } from 'react'
 import {Link} from 'react-router-dom'
 import VerificationModal from '../VerificationModal/VerificationModal'
+import CongratulationModal from '../VerificationModal/CongratulationModal'
 
 const Signup2 = () => {
+    const [showCongratulationModal, setShowCongratulationModal] = useState(false);
+     
+       const [showModal, setShowModal] = useState(false);
 
-    const [showModal, setShowModal] = useState(false);
+    const handleVerify = () => {
+      // Perform verification logic
+      // If verification is successful, show the congratulations modal
+      setShowCongratulationModal(true);
+    };
+
 
     const handleSignUp = () => {
       // Perform signup logic
@@ -109,8 +118,12 @@ const Signup2 = () => {
     </section>
 
     {/* Modal Component */}
-    <VerificationModal isOpen={showModal} onClose={handleCloseModal} />
+    <VerificationModal isOpen={showModal} onClose={handleCloseModal} handleVerify={handleVerify} />
+
+    {/* Congratulations Modal */}
+    <CongratulationModal isOpen={showCongratulationModal} />
     </>
+    
   )
 }
 

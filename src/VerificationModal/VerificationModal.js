@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-function VerificationModal({ isOpen, onClose }) {
+function VerificationModal({ isOpen, onClose, handleVerify }) {
   const [secondsRemaining, setSecondsRemaining] = useState(120); // Initial time in seconds
   const [verificationCode, setVerificationCode] = useState(['', '', '', '', '', '']);
   const [resendDisabled, setResendDisabled] = useState(false);
@@ -49,7 +49,9 @@ function VerificationModal({ isOpen, onClose }) {
     // Validate verification code
     // Send verification code to server for validation
     // Close modal after verification
-    onClose();
+    onClose();  
+    handleVerify();
+    
   };
 
   const handleResendCode = () => {
@@ -89,7 +91,7 @@ function VerificationModal({ isOpen, onClose }) {
                     />
                   ))}
                 </div>
-                <button className='bg-gray-200 py-3 w-[25rem] rounded-3xl mt-3 font-bold text-gray-600' type="submit">Verify</button>
+                <button className='bg-gray-200 py-3 w-[25rem] rounded-3xl mt-3 font-bold text-gray-600' onClick={handleSubmit} type="submit">Verify</button>
               </form>
               <p>
                 Didn’t receive code? 
