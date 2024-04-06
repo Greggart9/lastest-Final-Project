@@ -73,7 +73,7 @@ function VerificationModal({ isOpen, onClose, handleVerify }) {
         <div className='fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm flex justify-center items-center'>
           <div className='bg-white p-2 rounded'>
             <div className="modal-content flex flex-col px-7 py-4 justify-center items-center">
-              <span className="close" onClick={onClose}>&times;</span>
+              <div className='w-[25rem] flex justify-end'><span className=" close cursor-pointer text-gray-600 font-bold" onClick={onClose}>close</span></div>
               <h2 className='text-blue-400 font-bold text-xl'>OTP Verification</h2>
               <p>Please enter the 6-digit verification code sent to your email.</p>
               <form onSubmit={handleSubmit}>
