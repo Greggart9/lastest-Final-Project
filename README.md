@@ -1,70 +1,28 @@
-# Getting Started with Create React App
+**Centralized Platform for Sharing Educational Materials**
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+**Overview:**
+The Centralized Platform for Sharing Educational Materials is a web-based platform designed to facilitate the sharing of educational resources, particularly past questions, among students within universities. The platform aims to promote collaboration and enhance learning experiences by providing a centralized repository for accessing and sharing academic materials.
 
-## Available Scripts
+**Features:**
+- User-friendly Interface: The platform offers an intuitive and accessible user interface, making it easy for users to navigate and interact with educational materials.
+- Upload and Download: Users can upload past questions and other educational materials to the platform. Uploaded materials are subject to moderation by administrators before being made available for download by other users.
+- Categorization: Educational materials are organized by university, college/faculty, department, and course level, allowing users to easily locate relevant resources.
+- Search Functionality: The platform includes a search feature that enables users to quickly search for specific educational materials based on keywords or course codes.
+- User Authentication: To ensure security and accountability, users are required to create an account and log in before accessing the platform's features.
 
-In the project directory, you can run:
 
-### `npm start`
+**Usage:**
+1. Register an account on the platform using your email address and password.
+2. Log in to the platform using your credentials.
+3. Navigate through the platform to browse or search for educational materials.
+4. Upload past questions or other educational resources if you have them.
+5. Download educational materials uploaded by other users if needed.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+**Contributing:**
+Contributions to the Centralized Platform for Sharing Educational Materials are welcome! If you would like to contribute to the project, please follow these steps:
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
 
-### `npm test`
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+**Contact:**
+For questions or inquiries about the project, please contact ogundaredami20@gmail.com.
 
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
