@@ -1,4 +1,5 @@
 import React from 'react';
+import {Link} from 'react-router-dom'
 
 function CongratulationModal({ isOpen, onClose }) {
   return (
@@ -11,7 +12,7 @@ function CongratulationModal({ isOpen, onClose }) {
               <h2 className='text-blue-400 font-bold text-xl'>Congratulations!</h2>
               <img className='h-32 py-3' src='/Images/tick.png' alt='tick logo' />
               <p className='text-gray-600'>Your account has been created</p>
-              <button className='bg-blue-400 py-3 w-[20rem] rounded-3xl mt-3 font-bold text-white' onClick={onClose}>Proceed</button>
+              <Link to='/Dashboard' ><button className='bg-blue-400 py-3 w-[20rem] rounded-3xl mt-3 font-bold text-white' onClick={onClose}>Proceed</button></Link>
             </div>
           </div>
         </div>
