@@ -7,6 +7,7 @@ import Signup2 from './Pages/Signup2/Signup2';
 import Dashboard from './Pages/Dashboard/Dashboard';
 import Collegeboard from './Pages/Dashboard/Collegeboard';
 import Colphysdept from './Pages/Dashboard/Colphysdept';
+import Level from './Pages/Dashboard/Level';
 import { BrowserRouter, Route, Routes, } from 'react-router-dom';
 import { useState } from 'react';
 
@@ -29,6 +30,7 @@ function App() {
           <Route element={<Dashboard/>} path='/Dashboard'/>
           <Route element={<Collegeboard showDashboard={showDashboard} />} path='/Collegeboard' />
           <Route element={<Colphysdept showDashboard={showDashboard} />} path='/Colphysdept' />
+          <Route element={<Level showDashboard={showDashboard} />} path='/Level' />
           
         </Routes>
       </BrowserRouter>
