@@ -18,7 +18,7 @@ const Level = ({showDashboard}) => {
                     <p className='font-medium text-gray-800'>Home
                     <Link to='/Collegeboard'><span className='hover:text-blue-400'> > Dashboard </span></Link>
                     <Link to='/Colphysdept'><span className='hover:text-blue-400'> > Departments </span></Link>
-                    <span className='text-blue-400'> > Levels </span>
+                    <span className='text-blue-400 cursor-pointer'> > Level </span>
                      </p>
 
                     <img className='' src='images/icon6.png' alt='notification logo' />
@@ -64,12 +64,12 @@ const Level = ({showDashboard}) => {
                       </div>
 
                       {/* DIV 4 */}
-                      <div className="bg-gray-100 flex flex-col justify-center items-center cursor-pointer
+                      <Link to='/Fourhundred'><div className="bg-gray-100 flex flex-col justify-center items-center cursor-pointer
                         text-center py-4 rounded hover:-translate-y-3 transition-transform duration-300">
                         <img src='Images\img15.png' alt='400' />
                         
                         <p className='text-gray-500 font-medium mt-1'>400L</p>
-                      </div>
+                      </div></Link>
 
                    </div>
                     

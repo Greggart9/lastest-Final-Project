@@ -6,6 +6,8 @@ import Signup from './Pages/Signup/Signup';
 import Signup2 from './Pages/Signup2/Signup2';
 import Dashboard from './Pages/Dashboard/Dashboard';
 import Collegeboard from './Pages/Dashboard/Collegeboard';
+import Fourhundred from './Pages/Dashboard/Fourhundred';
+import FormalMethod from './Pages/Dashboard/FormalMethod';
 import Colphysdept from './Pages/Dashboard/Colphysdept';
 import Level from './Pages/Dashboard/Level';
 import { BrowserRouter, Route, Routes, } from 'react-router-dom';
@@ -30,7 +32,9 @@ function App() {
           <Route element={<Dashboard/>} path='/Dashboard'/>
           <Route element={<Collegeboard showDashboard={showDashboard} />} path='/Collegeboard' />
           <Route element={<Colphysdept showDashboard={showDashboard} />} path='/Colphysdept' />
-          <Route element={<Level showDashboard={showDashboard} />} path='/Level' />
+          <Route element={<Fourhundred showDashboard={showDashboard} />} path='/Fourhundred' />
+          <Route element={<FormalMethod showDashboard={showDashboard} />} path='/FormalMethod' />
+          <Route element={<Level showDashboard={showDashboard} />} path='/Level'/>
           
         </Routes>
       </BrowserRouter>
