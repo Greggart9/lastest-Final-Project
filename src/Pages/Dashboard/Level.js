@@ -64,8 +64,9 @@ const Level = ({showDashboard}) => {
                       </div>
 
                       {/* DIV 4 */}
-                      <Link to='/Fourhundred'><div className="bg-gray-100 flex flex-col justify-center items-center cursor-pointer
-                        text-center py-4 rounded hover:-translate-y-3 transition-transform duration-300">
+                      <Link to='/Fourhundred'>
+                        <div className="bg-gray-100 flex flex-col justify-center items-center cursor-pointer
+                        text-center py-16 rounded hover:-translate-y-3 transition-transform duration-300">
                         <img src='Images\img15.png' alt='400' />
                         
                         <p className='text-gray-500 font-medium mt-1'>400L</p>
