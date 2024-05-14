@@ -13,9 +13,9 @@ const Dashboard = () => {
             <img src='\Images\dashboard.png' alt='dashboard logo'/> <p>Dashboard</p>    
             </div></Link>
 
-            <div className=' flex gap-3 mt-5 items-center h-[1.5rem] hover:bg-blue-400 p-5 rounded active:bg-violet-700 cursor-pointer'>
+            <Link to='/Settings'><div className=' flex gap-3 mt-5 items-center h-[1.5rem] hover:bg-blue-400 p-5 rounded active:bg-violet-700 cursor-pointer'>
             <img src='\Images\settings.png' alt='settings logo'/> <p>Settings</p>    
-            </div>
+            </div></Link>
         </div>
 
 

@@ -10,6 +10,8 @@ import Fourhundred from './Pages/Dashboard/Fourhundred';
 import FormalMethod from './Pages/Dashboard/FormalMethod';
 import Colphysdept from './Pages/Dashboard/Colphysdept';
 import Level from './Pages/Dashboard/Level';
+import Settings from './Pages/Settings/Settings';
+import Manageprofile from './Pages/Settings/Manageprofile';
 import { BrowserRouter, Route, Routes, } from 'react-router-dom';
 import { useState } from 'react';
 
@@ -35,6 +37,8 @@ function App() {
           <Route element={<Fourhundred showDashboard={showDashboard} />} path='/Fourhundred' />
           <Route element={<FormalMethod showDashboard={showDashboard} />} path='/FormalMethod' />
           <Route element={<Level showDashboard={showDashboard} />} path='/Level'/>
+          <Route element={<Settings showDashboard={showDashboard} />} path='/Settings' />
+          <Route element={<Manageprofile showDashboard={showDashboard} />} path='/Manageprofile' />
           
         </Routes>
       </BrowserRouter>

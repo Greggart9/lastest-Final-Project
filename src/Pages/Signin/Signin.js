@@ -20,7 +20,7 @@ const Signin = () => {
 
                 <p className='text-blue-400 font-bold mt-2'>Forgot Password?</p>
 
-                <button className='bg-gray-200 py-3 w-[21rem] rounded-3xl mt-3 font-bold text-gray-600'>Sign In</button>
+                <Link to='/Dashboard'><button className='bg-gray-200 py-3 w-[21rem] rounded-3xl mt-3 font-bold text-gray-600 hover:bg-blue-400 hover:text-white'>Sign In</button></Link>
 
                 <p className='text-gray-400 text-sm font-bold mt-1'>Don't have an Account? <Link to='/Signup' ><span className='text-blue-400'>Sign Up</span></Link></p>
           </div>

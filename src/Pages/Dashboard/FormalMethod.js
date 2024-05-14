@@ -17,11 +17,11 @@ const FormalMethod = ({showDashboard}) => {
                 {/* HOME> DASHBOARD> .... AND NOTIFICATION */}
                 <section className='w-100 flex justify-between pb-5 items-center'>
                     <p className='font-medium text-gray-800'>Home
-                        <Link to='/Collegeboard'><span className='hover:text-blue-400'> > Dashboard </span></Link>
-                        <Link to='/Colphysdept'><span className='hover:text-blue-400'> > Departments </span></Link>
-                        <Link to='/Level'><span className='hover:text-blue-400'> > Level </span></Link>
-                        <Link to='/Fourhundred'><span className='hover:text-blue-400'> > 400L </span></Link>
-                        <span className='text-blue-400 cursor-pointer'> > Formal Methods </span>
+                        <Link to='/Collegeboard'><span className='hover:text-blue-400'> &gt; Dashboard </span></Link>
+                        <Link to='/Colphysdept'><span className='hover:text-blue-400'> &gt; Departments </span></Link>
+                        <Link to='/Level'><span className='hover:text-blue-400'> &gt; Level </span></Link>
+                        <Link to='/Fourhundred'><span className='hover:text-blue-400'> &gt; 400L </span></Link>
+                        <span className='text-blue-400 cursor-pointer'> &gt; Formal Methods </span>
                         </p>
 
                     <img className='' src='images/icon6.png' alt='notification logo' />
