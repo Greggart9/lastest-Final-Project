@@ -7,7 +7,7 @@ import {Link} from 'react-router-dom'
 const Manageprofile = ({showDashboard}) => {
   return (
     <>
-    <div className='bg-green-100 flex justify-end'>
+    <div className='flex justify-end'>
 
       <div className='fixed top-0 left-0 h-full overflow-y-auto '>
          { showDashboard && <Dashboard/>}
@@ -34,7 +34,7 @@ const Manageprofile = ({showDashboard}) => {
                       
                       {/* NAME */}
 
-                    <div className='bg-gray-100 py-5 px-8 flex items-center justify-between cursor-pointer'>
+                    <div className='bg-gray-100 py-5 px-8 flex items-center justify-between cursor-pointer rounded'>
                         <div className='flex items-center gap-4'>
                             <img className='h-10' src='Images\img24.png' alt='profile logo' />
                             <p className='text-gray-400 font-medium'>Name</p>
@@ -46,7 +46,7 @@ const Manageprofile = ({showDashboard}) => {
 
                     {/* EMAIL */}
 
-                    <div className='bg-gray-100 py-5 px-8 flex items-center justify-between cursor-pointer'>
+                    <div className='bg-gray-100 py-5 px-8 flex items-center justify-between cursor-pointer rounded'>
                         <div className='flex items-center gap-4'>
                             <img className='h-10' src='Images\img24.png' alt='profile logo' />
                             <p className='text-gray-400 font-medium'>Email</p>
@@ -58,7 +58,7 @@ const Manageprofile = ({showDashboard}) => {
 
                     {/* University */}
 
-                    <div className='bg-gray-100 py-5 px-8 flex items-center justify-between cursor-pointer'>
+                    <div className='bg-gray-100 py-5 px-8 flex items-center justify-between cursor-pointer rounded'>
                         <div className='flex items-center gap-4'>
                             <img className='h-10' src='Images\img24.png' alt='profile logo' />
                             <p className='text-gray-400 font-medium'>Funaab</p>
@@ -70,7 +70,7 @@ const Manageprofile = ({showDashboard}) => {
 
                     {/* ROLE */}
 
-                    <div className='bg-gray-100 py-5 px-8 flex items-center justify-between cursor-pointer'>
+                    <div className='bg-gray-100 py-5 px-8 flex items-center justify-between cursor-pointer rounded'>
                         <div className='flex items-center gap-4'>
                             <img className='h-10' src='Images\img24.png' alt='profile logo' />
                             <p className='text-gray-400 font-medium'>Role</p>
@@ -82,7 +82,7 @@ const Manageprofile = ({showDashboard}) => {
 
                     {/* College/Faculty */}
 
-                    <div className='bg-gray-100 py-5 px-8 flex items-center justify-between cursor-pointer'>
+                    <div className='bg-gray-100 py-5 px-8 flex items-center justify-between cursor-pointer rounded'>
                         <div className='flex items-center gap-4'>
                             <img className='h-10' src='Images\img24.png' alt='profile logo' />
                             <p className='text-gray-400 font-medium'>College/Faculty</p>
@@ -94,7 +94,7 @@ const Manageprofile = ({showDashboard}) => {
 
                     {/* DEPARTMENT */}
 
-                    <div className='bg-gray-100 py-5 px-8 flex items-center justify-between cursor-pointer'>
+                    <div className='bg-gray-100 py-5 px-8 flex items-center justify-between cursor-pointer rounded'>
                         <div className='flex items-center gap-4'>
                             <img className='h-10' src='Images\img24.png' alt='profile logo' />
                             <p className='text-gray-400 font-medium'>Department</p>
@@ -104,7 +104,7 @@ const Manageprofile = ({showDashboard}) => {
                         </div>
                     </div>
 
-                    <div className='bg-gray-100 py-5 px-8 flex items-center justify-between cursor-pointer'>
+                    <div className='bg-gray-100 py-5 px-8 flex items-center justify-between cursor-pointer rounded'>
                         <div className='flex items-center gap-4'>
                             <img className='h-10' src='Images\img24.png' alt='profile logo' />
                             <p className='text-gray-400 font-medium'>Academic Level</p>

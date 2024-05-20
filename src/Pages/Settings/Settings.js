@@ -7,7 +7,7 @@ import {Link} from 'react-router-dom'
 const Settings = ({showDashboard}) => {
   return (
     <>
-    <div className='bg-green-100 flex justify-end'>
+    <div className=' flex justify-end'>
 
       <div className='fixed top-0 left-0 h-full overflow-y-auto '>
          { showDashboard && <Dashboard/>}
@@ -33,8 +33,8 @@ const Settings = ({showDashboard}) => {
                       
                       {/* MANAGE PROFILE */}
 
-                    <Link to='/Manageprofile'><div className='bg-gray-100 py-5 px-8 flex items-center justify-between cursor-pointer'>
-                        <div className='flex items-center gap-4'>
+                    <Link to='/Manageprofile'><div className='bg-gray-100 py-5 px-8 flex items-center justify-between cursor-pointer rounded'>
+                        <div className='flex items-center gap-4 '>
                             <img className='h-10' src='Images\img24.png' alt='profile logo' />
                             <p className='text-gray-600 font-medium'>Manage Profile</p>
                         </div>
@@ -45,7 +45,7 @@ const Settings = ({showDashboard}) => {
 
                     {/* UPDATE PASSWORD */}
                       
-                    <div className='bg-gray-100 py-5 px-8 flex items-center justify-between cursor-pointer'>
+                    <Link to='/UpdatePw'><div className='bg-gray-100 py-5 px-8 flex items-center justify-between cursor-pointer rounded'>
                         <div className='flex items-center gap-4'>
                             <img className='h-10' src='Images\img25.png' alt='profile logo' />
                             <p className='text-gray-600 font-medium'>Update Password</p>
@@ -53,7 +53,7 @@ const Settings = ({showDashboard}) => {
                         <div>
                             &gt;
                         </div>
-                    </div>
+                    </div></Link>
                     
                     
                 </section>
