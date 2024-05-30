@@ -5,10 +5,10 @@ const Signin = () => {
   return (
     <>
     <section className='flex h-screen justify-center items-center'>
-      <div className='flex w-full'>
+      <div className='flex'>
 
         {/* SIGNIN PART */}
-        <div className='w-3/5 flex flex-col justify-center items-center'>
+        <div className='w-[75rem] flex flex-col justify-center items-center'>
           <div>
             <p className='text-blue-400 font-bold text-3xl'>Sign In</p>
 
@@ -28,8 +28,8 @@ const Signin = () => {
 
         {/* IMAGE */}
 
-        <div className='w-2/5 flex justify-end'>
-            <img className='h-screen justify-left w-11/12' src='/Images/img11.png' alt='sign in' />
+        <div className='w-[25rem] justify-right'>
+            <img className='h-screen' src='/Images/img11.png' alt='sign in' />
 
         </div>
 

@@ -10,8 +10,8 @@ const Signup = () => {
             
             {/* IMAGE */}
 
-            <div className='w-2/5 flex'>
-                <img className='h-screen justify-left w-10/12' src='/Images/img12.png' alt='sign up' />
+            <div className='w-[25rem] flex'>
+                <img className='h-screen justify-left w-[100rem]' src='/Images/img12.png' alt='sign up' />
 
             </div>
 
@@ -33,7 +33,7 @@ const Signup = () => {
                     
                          {/* NAME */}
                         <p className='text-gray-400 text-md font-bold'>Name</p>
-                        <input className='bg-gray-100 h-10 w-[23rem] rounded outline-gray-400' type='text' id='name' name='name' required />
+                        <input className='bg-gray-100 h-10 w-[23rem] rounded outline-gray-400 px-4' type='text' id='name' name='name' required />
                           
                          {/* EMAIL */}
                         <p className='text-gray-400 mt-1 text-md font-bold'>Email</p>
@@ -47,17 +47,16 @@ const Signup = () => {
 
                          {/* PASSWORD */}
                         <p className='text-gray-400 mt-1 text-md font-bold'>Password</p>
-                        <input className='bg-gray-100 h-10 w-[23rem] rounded outline-gray-400' type='password' id='password' name='password' />
+                        <input className='bg-gray-100 h-10 w-[23rem] rounded outline-gray-400 px-4' type='password' id='password' name='password' />
                          
                         {/* COFNFIRM PASSWORD */}
                         <p className='text-gray-400 mt-1 text-md font-bold'>Confirm Password</p>
-                        <input className='bg-gray-100 h-10 w-[23rem] rounded outline-gray-400' type='confirmpassword' id='confirmpassword' name='confirmpassword' />
+                        <input className='bg-gray-100 h-10 w-[23rem] rounded outline-gray-400 px-4' type='password' id='confirmpassword' name='confirmpassword' />
                          
-                          {/* FORGOT PASSWORD */}
-                        <p className='text-blue-400 font-bold mt-2 cursor-pointer'>Forgot Password?</p>
+                       
                          
                           {/* SIGNIN */}
-                        <Link to='/Signup2' ><button className='bg-gray-100 py-3 w-[23rem] rounded-3xl mt-3 font-bold text-gray-600  hover:bg-blue-400 hover:text-white'>Next</button></Link>
+                        <div><Link to='/Signup2' ><button className='bg-gray-100 py-3 w-[23rem] rounded-3xl mt-3 font-bold text-gray-600  hover:bg-blue-400 hover:text-white'>Next</button></Link></div>
                          
                          {/* SIGNUP */}
                         <p className='text-gray-400 text-sm font-bold mt-1'>Already have an Account? <Link to='/Signin'> <span className='text-blue-400 cursor-pointer'>Sign In</span></Link></p>

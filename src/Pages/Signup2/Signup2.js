@@ -36,8 +36,8 @@ const Signup2 = () => {
             
             {/* IMAGE */}
 
-            <div className='w-2/5 flex'>
-                <img className='h-screen justify-left w-10/12' src='/Images/img12.png' alt='sign up' />
+            <div className='w-[25rem] flex'>
+                <img className='h-screen justify-left w-[100rem]' src='/Images/img12.png' alt='sign up' />
 
             </div>
 
@@ -50,8 +50,8 @@ const Signup2 = () => {
 
                         <div className='flex flex-col'>
                             <div className='flex gap-2'>
-                                <p className='border-[0.2rem] w-[11rem] border-gray-200 mt-3 rounded'></p>
-                                <p className='border-[0.2rem] w-[11rem] border-blue-400 mt-3 rounded'></p> 
+                                <p className='border-[0.2rem] w-[12rem] border-gray-200 mt-3 rounded'></p>
+                                <p className='border-[0.2rem] w-[12rem] border-blue-400 mt-3 rounded'></p> 
                             </div>
                             <p className='text-sm text-gray-400 flex mt-1 pr-2 justify-end'>2 of 2</p>
                         </div>
@@ -60,55 +60,81 @@ const Signup2 = () => {
                          {/* UNIVERSITY */}
                         <p className='text-gray-400 text-sm'>University</p>
 
-                        <select className='mt-1 h-10 w-[23rem] border border-gray rounded outline-gray-400 '>
-                            <option></option>
-                            <option>Federal University of Agriculture Abeokuta</option>
-                            <option>Harvard Law University</option>
-                            <option>Columbia Law University</option>
-                            <option>Greggart9 Art University</option>
-                        </select>
+                        <div className='flex justify-between items-center bg-gray-50 border border-gray-400 mt-2 px-1 rounded'>
+
+                          <select className='h-10 w-[23rem] bg-transparent outline-none'>
+                              <option></option>
+                              <option>Federal University of Agriculture Abeokuta</option>
+                              <option>Harvard Law University</option>
+                              <option>Columbia Law University</option>
+                              <option>Greggart9 Art University</option>
+                          </select>
+
+                        </div>
+
                           
                          {/* COLLEGE/FACULTY */}
                         <p className='text-gray-400 mt-3 text-sm '>College/Faculty</p>
+
+                        <div className='flex justify-between items-center bg-gray-50 border border-gray-400 mt-2 px-1 rounded'>
                         
-                        <select className=' mt-1 h-10 w-[23rem] rounded border border-gray outline-gray-400 '>
-                            <option></option>
-                            <option>COLPHYS</option>
-                            <option>COLPHEC</option>
-                            <option>COLENG</option>
-                            <option>COPLANT</option>
-                        </select>
+                            <select className='h-10 w-[23rem] bg-transparent outline-none '>
+                                <option></option>
+                                <option>COLPHYS</option>
+                                <option>COLPHEC</option>
+                                <option>COLENG</option>
+                                <option>COPLANT</option>
+                            </select>
+
+                        </div>
 
 
                          {/* DEPARTMENT */}
                         <p className='text-gray-400 mt-3 text-sm'>Department</p>
 
-                        <select className=' mt-1 h-10 w-[23rem] rounded border border-gray outline-gray-400 '>
-                            <option></option>
-                            <option>COMPUTER SCIENCE</option>
-                            <option>CHEMISTRY</option>
-                            <option>PHYSICS</option>
-                            <option>STATISTICS</option>
-                            <option></option>
-                        </select>
+                        <div className='flex justify-between items-center bg-gray-50 border border-gray-400 mt-2 px-1 rounded'>
+
+                          <select className='h-10 w-[23rem] bg-transparent outline-none'>
+                              <option></option>
+                              <option>COMPUTER SCIENCE</option>
+                              <option>CHEMISTRY</option>
+                              <option>PHYSICS</option>
+                              <option>STATISTICS</option>
+                              <option></option>
+                          </select>
+
+                        </div>
 
                          
                         {/* ACADEMIC LEVEL*/}
                         <p className='text-gray-400 mt-3 text-sm'>Academic Level</p>
 
-                        <select className=' mt-1 h-10 w-[23rem] rounded border border-gray outline-gray-400 '>
-                            <option></option>
-                            <option>100 Level</option>
-                            <option>200 Level</option>
-                            <option>300 Level</option>
-                            <option>400 Level</option>
-                        </select><br/>
+                        <div className='flex justify-between items-center bg-gray-50 border border-gray-400 mt-2 px-1 rounded'>
+
+                          <select className='h-10 w-[23rem] bg-transparent outline-none '>
+                              <option></option>
+                              <option>100 Level</option>
+                              <option>200 Level</option>
+                              <option>300 Level</option>
+                              <option>400 Level</option>
+                          </select><br/>
+
+                        </div>
 
                          
-                          {/* SIGNIN */}
-                        <button onClick={handleSignUp} className='bg-gray-100 py-3 w-[23rem] rounded-3xl mt-3 font-bold text-gray-600 hover:bg-blue-400 hover:text-white'  >Sign Up</button>
+                          {/* SIGNUP */}
+                        <button onClick={handleSignUp} 
+                        className='bg-gray-200 py-3 w-[23rem] 
+                        rounded-3xl mt-3 font-bold text-gray-400
+                         hover:bg-blue-400 hover:text-white'  >Sign Up</button>
+
+                         {/* REGISTER NEW UNIVERSITY */}
+
+                         <Link to='/RegisterUni'><div><button className='border border-blue-400 py-3 w-[23rem] 
+                        rounded-3xl mt-3 font-bold text-blue-400
+                         '>Register New University</button></div></Link>
                          
-                         {/* SIGNUP */}
+                         {/* SIGNIN */}
                         <p className='text-gray-400 text-sm font-bold mt-1'>Already have an Account? <Link to='/Signin'><span className='text-blue-400 cursor-pointer'>Sign In</span></Link></p>
                 </div>
             </div>

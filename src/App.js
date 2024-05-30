@@ -14,6 +14,8 @@ import Settings from './Pages/Settings/Settings';
 import Manageprofile from './Pages/Settings/Manageprofile';
 import UpdatePw from './Pages/Settings/UpdatePw';
 import PasswordModal from './Pages/Settings/PasswordModal';
+import RegisterUni from './Pages/Signup2/RegisterUni';
+import RegisterModal from './Pages/Signup2/RegisterModal';
 import { BrowserRouter, Route, Routes, } from 'react-router-dom';
 import { useState } from 'react';
 
@@ -43,6 +45,8 @@ function App() {
           <Route element={<Manageprofile showDashboard={showDashboard} />} path='/Manageprofile' />
           <Route element={<UpdatePw showDashboard={showDashboard} />} path='/UpdatePw' />
           <Route element={< PasswordModal showDashboard={showDashboard} />} path='/PasswordModal' />
+          <Route element={<RegisterUni/>} path='/RegisterUni'/>
+          <Route element={<RegisterModal/>} path='/RegisterModal'/>
           
         </Routes>
       </BrowserRouter>
