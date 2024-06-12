@@ -12,17 +12,17 @@ const Landing = () => {
                {/* The Logo Div */}
 
            <div className='flex items-center ml-4'>
-               <img src='/Images/Logo.png' className='h-16' alt='Website Logo' />
+               <img src='/Images/Logo.png' className='lg:h-16 md:h-8' alt='Website Logo' />
            </div>
 
            {/* The Navbar Div */}
 
            <nav>
-               <ul className='flex space-x-4'>
-                  <Link to='/' > <li className='hover:bg-blue-400 text-black hover:text-white text-xl py-2 px-5 rounded-3xl cursor-pointer'>Home</li></Link>
-                   <li className='hover:bg-blue-400 text-black hover:text-white text-xl py-2 px-5 rounded-3xl cursor-pointer '>About Us</li>
-                   <li className='hover:bg-blue-400 text-black hover:text-white text-xl py-2 px-5 rounded-3xl cursor-pointer'>University</li>
-                   <li className='hover:bg-blue-400 text-black hover:text-white text-xl py-2 px-5 rounded-3xl cursor-pointer'>Contact Us</li>
+               <ul className='flex lg:space-x-4 md:space-x-2'>
+                  <Link to='/' > <li className='hover:bg-blue-400 text-black hover:text-white lg:text-xl md:text-l py-2 px-5 rounded-3xl cursor-pointer'>Home</li></Link>
+                   <li className='hover:bg-blue-400 text-black hover:text-white lg:text-xl md:text-l py-2 px-5 rounded-3xl cursor-pointer '>About Us</li>
+                   <li className='hover:bg-blue-400 text-black hover:text-white lg:text-xl md:text-l py-2 px-5 rounded-3xl cursor-pointer'>University</li>
+                   <li className='hover:bg-blue-400 text-black hover:text-white lg:text-xl md:text-l py-2 px-5 rounded-3xl cursor-pointer'>Contact Us</li>
                </ul>
 
            </nav>
@@ -39,13 +39,13 @@ const Landing = () => {
 
     {/* This is beginning of the body to the landing page */}
 
-    <section className='w-100 h-[33.4rem]  flex items-center'>
-       <div className='container mx-auto w-10/12 flex items-center justify-between'>
+    <section className='w-100 h-[33.4rem]  flex items-center '>
+       <div className='container mx-auto lg:w-10/12 md:w-11/12 flex lg:items-center md:items-start justify-between'>
 
             {/* The content by the left hand side THE TEXT*/}
-           <div className='space-y-8 '>
-               <p className='text-6xl font-bold'><span className='text-blue-400'>Power Your</span><br/> Education, <span  className='text-blue-400'>Elevate</span><br/> Your Learning <br/>Journey</p>
-               <p className='text-xl'>The Ultimate Collaboration Hub for Students <br/>and Lecturers to Expand Knowledge and Sharpen Skills.</p>
+           <div className='space-y-8  '>
+               <p className='lg:text-6xl md:text-5xl sm:text-6xl font-bold'><span className='text-blue-400'>Power Your</span><br/> Education, <span  className='text-blue-400'>Elevate</span><br/> Your Learning <br/>Journey</p>
+               <p className='lg:text-xl md:text-l'>The Ultimate Collaboration Hub for Students <br/>and Lecturers to Expand Knowledge and Sharpen Skills.</p>
                <button className='text-white bg-blue-400  py-3 px-7 rounded-3xl hover:bg-white hover:text-blue-400 hover:border-2 hover:border-blue-400 cursor-pointer'>Get Started</button>
 
            </div>
@@ -53,13 +53,13 @@ const Landing = () => {
             {/* The content by the left hand side THE IMAGE*/}
             
             <div className=''>
-               <img className='h-[25rem]' src='/Images/img1.png' alt='A passionate lady' />
+               <img className='lg:h-[25rem] md:h-[20rem]' src='/Images/img1.png' alt='A passionate lady' />
             </div>
             
             {/* The ring image by the bottom THE IMAGE*/}
 
             <div className='absolute bottom-0 left-[35rem]'>
-               <img className='h-[20rem] -z-3' src='Images/img2.png' alt='The ring' />
+               <img className='lg:h-[20rem] md:h-[15rem] -z-3' src='Images/img2.png' alt='The ring' />
             </div>
        </div>
 

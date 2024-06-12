@@ -71,11 +71,11 @@ function VerificationModal({ isOpen, onClose, handleVerify }) {
     <div className={`modal ${isOpen ? 'show' : ''}`}>
       {isOpen && (
         <div className='fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center'>
-          <div className='bg-white p-2 rounded'>
-            <div className="modal-content flex flex-col px-7 py-4 justify-center items-center">
-              <div className='w-[25rem] flex justify-end'><span className=" close cursor-pointer text-gray-600 font-bold" onClick={onClose}>close</span></div>
+          <div className='bg-white p-1 md:p-2 rounded'>
+            <div className="modal-content flex flex-col px-5 text-center md:px-7 py-2 md:py-4 justify-center items-center">
+              <div className='md:w-[25rem] w-[20rem] flex justify-end'><span className=" close cursor-pointer text-gray-600 font-bold" onClick={onClose}>close</span></div>
               <h2 className='text-blue-400 font-bold text-xl'>OTP Verification</h2>
-              <p>Please enter the 6-digit verification code sent to your email.</p>
+              <p className='p-2'>Please enter the 6-digit code sent to your email.</p>
               <form onSubmit={handleSubmit}>
                 <div className="flex justify-between">
                   {verificationCode.map((digit, index) => (
@@ -87,11 +87,11 @@ function VerificationModal({ isOpen, onClose, handleVerify }) {
                       value={digit}
                       onChange={(e) => handleInputChange(index, e)}
                       onKeyDown={(e) => handleKeyDown(index, e)}
-                      className="w-12 h-12 text-center border border-gray-300 rounded"
+                      className="w-11 md:w-12 h-11 md:h-12 text-center border border-gray-300 rounded"
                     />
                   ))}
                 </div>
-                <button className='bg-gray-200 py-3 w-[25rem] rounded-3xl mt-3 font-bold text-gray-600' onClick={handleSubmit} type="submit">Verify</button>
+                <button className='bg-gray-100 py-3 w-[18rem] md:w-[25rem] rounded-3xl mt-3 font-bold text-gray-400' onClick={handleSubmit} type="submit">Verify</button>
               </form>
               <p>
                 Didn’t receive code? 
