@@ -101,7 +101,7 @@ const Signup = () => {
 
            <div className=' h-screen lg:w-[60rem] md:w-[55rem] w-[80rem] flex justify-center items-center relative'>
 
-            <div className='p-3 bg-white md:bg-none md:bg-transparent rounded'>
+            <div className='p-3 py-8 bg-white md:bg-none md:bg-transparent rounded'>
                               
                 {/* CREATE ACCOUNT  */}
 
@@ -197,7 +197,7 @@ const Signup = () => {
 
                 {/* SIGNUP */}
                 <p className='text-gray-400 text-sm font-bold mt-1'>
-                  Already have an Account? <span className='text-blue-400 cursor-pointer'>Sign In</span></p>
+                  Already have an Account? <Link to='/Signin'><span className='text-blue-400 cursor-pointer'>Sign In</span></Link></p>
               </form>
 
               

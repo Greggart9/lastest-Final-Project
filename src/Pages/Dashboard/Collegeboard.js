@@ -7,7 +7,7 @@ import {Link} from 'react-router-dom'
 const Collegeboard = ({showDashboard}) => {
   return (
     <>
-    <div className='bg-yellow-100 flex justify-end'>
+    <div className='flex justify-end'>
 
       <div className='fixed top-0 left-0 h-full overflow-y-auto '>
          { showDashboard && <Dashboard/>}

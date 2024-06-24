@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 
 const Dashboard = () => {
   // State to keep track of the active button
@@ -17,33 +18,30 @@ const Dashboard = () => {
           <img src='Images/funaab.png' alt='funaab logo' />
 
            
-           {/* DASHBOARD */}
-          <div 
-            className={`flex items-center gap-3 h-[1.3rem] mt-5 p-5 rounded cursor-pointer ${activeButton === 'Dashboard' ? 'bg-blue-400' : 'hover:bg-blue-400 '}`}
+          <NavLink 
+            to='/Collegeboard' 
+            className='flex items-center gap-3 h-[1.3rem] mt-5 p-5 rounded cursor-pointer hover:bg-blue-400 '
             onClick={() => handleButtonClick('Dashboard')}
           >
-            <Link to='/Collegeboard' className='flex items-center gap-3 w-full'>
-              <img src='Images/dashboard.png' alt='dashboard logo' /> 
-              <p>Dashboard</p>
-            </Link>
-          </div>
- 
-           {/* SETTINGS */}
+            <img src='Images/dashboard.png' alt='dashboard logo' /> 
+            <p>Dashboard</p>
+          </NavLink>
+        </div>
+
+
           <div 
-            className={`flex items-center gap-3 h-[1.5rem] mt-5 p-5 rounded cursor-pointer ${activeButton === 'Settings' ? 'bg-blue-400' : 'hover:bg-blue-400 '}`}
+            className= 'flex items-center gap-3 h-[1.5rem] mt-5 p-5 rounded cursor-pointer hover:bg-blue-400 '
             onClick={() => handleButtonClick('Settings')}
           >
-            <Link to='/Settings' className='flex items-center gap-3 w-full'>
+            <NavLink to='/Settings' className='flex items-center gap-3 w-full'>
               <img src='Images/settings.png' alt='settings logo' /> 
               <p>Settings</p>
-            </Link>
+            </NavLink>
           </div>
-        </div>
-           
 
-           {/* LOGOUT */}
+
         <div 
-          className={`flex items-center gap-3 h-[1.3rem] mt-5 p-5 rounded cursor-pointer ${activeButton === 'Logout' ? 'bg-blue-400' : 'hover:bg-blue-400 '}`}
+          className='flex items-center gap-3 h-[1.3rem] mt-5 p-5 rounded cursor-pointer hover:bg-blue-400'
           onClick={() => handleButtonClick('Logout')}
         >
           <img src='Images/logout.png' alt='logout logo' /> 

@@ -96,8 +96,8 @@ const Signup2 = () => {
           <label htmlFor='college' className='text-gray-400 text-sm md:text-[1.1rem] font-medium'>College/Faculty</label><br />
           <select
             className='bg-gray-100 h-10 lg:w-[30rem] md:w-[25rem] w-[17rem] rounded outline-gray-400 px-4'
-            id='university'
-            name='university'
+            id='college'
+            name='college'
             required
           >
             <option value="" disabled selected>Select your college</option>
@@ -113,8 +113,8 @@ const Signup2 = () => {
           <label htmlFor='department' className='text-gray-400 text-sm md:text-[1.1rem] font-medium'>Department</label><br />
           <select
             className='bg-gray-100 h-10 lg:w-[30rem] md:w-[25rem] w-[17rem] rounded outline-gray-400 px-4'
-            id='university'
-            name='university'
+            id='department'
+            name='department'
             required
           >
             <option value="" disabled selected>Select your department</option>
@@ -127,11 +127,11 @@ const Signup2 = () => {
 
           {/* ACADEMIC LEVEL */}
           <div className='space-y-1 items-start'>
-          <label htmlFor='university' className='text-gray-400 text-sm md:text-[1.1rem] font-medium'>Academic level</label><br />
+          <label htmlFor='level' className='text-gray-400 text-sm md:text-[1.1rem] font-medium'>Academic level</label><br />
           <select
             className='bg-gray-100 h-10 lg:w-[30rem] md:w-[25rem] w-[17rem] rounded outline-gray-400 px-4'
-            id='university'
-            name='university'
+            id='level'
+            name='level'
             required
           >
             <option value="" disabled selected>Select your university</option>
@@ -159,8 +159,8 @@ const Signup2 = () => {
            rounded-3xl mt-3 font-bold text-blue-400
           '>Register New University</button></div></Link>
 
-                    {/* SIGNUP */}
-                    <p className='text-gray-400 text-sm font-bold mt-1'>
+            {/* SIGNUP */}
+            <p className='text-gray-400 text-sm font-bold mt-1'>
             Already have an Account? <span className='text-blue-400 cursor-pointer'>Sign In</span></p>
 
         </form>
