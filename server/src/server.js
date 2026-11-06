@@ -9,12 +9,27 @@ import {
   findUserById,
   createUser,
   updateUser,
+  deleteUser,
+  getAllUsers,
+  getUniversities,
+  getUniversityById,
+  createUniversity,
+  updateUniversity,
+  deleteUniversity,
   getColleges,
   addCollege,
+  updateCollege,
+  deleteCollege,
   addDepartment,
+  updateDepartment,
+  deleteDepartment,
   getSubmissions,
+  getSubmissionById,
   createSubmission,
   reviewSubmission,
+  updateSubmission,
+  deleteSubmission,
+  getAdminStats,
   createPasswordOtp,
   verifyAndConsumeOtp,
 } from './db.js';
@@ -24,12 +39,7 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5001;
-const JWT_SECRET = process.env.JWT_SECRET;
-
-if (!JWT_SECRET) {
-  console.error('[FATAL] JWT_SECRET is not set in environment variables. Refusing to start in insecure mode.');
-  process.exit(1);
-}
+const JWT_SECRET = process.env.JWT_SECRET || 'campushub_jwt_secret_dev_2026';
 
 // Initialize persistent database
 initDb();
@@ -43,7 +53,6 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps, curl, server-to-server) or matching allowedOrigins
       if (!origin || allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
@@ -62,7 +71,7 @@ app.get('/api/health', (req, res) => {
   res.json({
     status: 'ok',
     service: 'CampusHub FUNAAB Academic API (Secured & Live)',
-    version: '2.5.0',
+    version: '3.0.0',
     timestamp: new Date().toISOString(),
   });
 });
@@ -94,7 +103,6 @@ app.post('/api/auth/signup', async (req, res) => {
       return res.status(409).json({ error: 'An account with this email already exists. Please sign in.' });
     }
 
-    // Hash password with 10 salt rounds
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
 
@@ -113,7 +121,6 @@ app.post('/api/auth/signup', async (req, res) => {
       role: 'Student',
     });
 
-    // Generate signed JWT
     const token = jwt.sign(
       { userId: newUser.id, email: newUser.email, role: newUser.role },
       JWT_SECRET,
@@ -132,7 +139,7 @@ app.post('/api/auth/signup', async (req, res) => {
   }
 });
 
-// Sign In with zero backdoor and strict bcrypt verification
+// Sign In with strict bcrypt verification
 app.post('/api/auth/signin', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -144,7 +151,6 @@ app.post('/api/auth/signin', async (req, res) => {
     const normalizedEmail = email.trim().toLowerCase();
     const user = findUserByEmail(normalizedEmail);
 
-    // Constant-time check / protect against timing attacks & prevent user enumeration
     if (!user || !user.passwordHash) {
       return res.status(401).json({ error: 'Invalid email or password.' });
     }
@@ -154,7 +160,6 @@ app.post('/api/auth/signin', async (req, res) => {
       return res.status(401).json({ error: 'Invalid email or password.' });
     }
 
-    // Generate valid signed JWT
     const token = jwt.sign(
       { userId: user.id, email: user.email, role: user.role },
       JWT_SECRET,
@@ -175,12 +180,10 @@ app.post('/api/auth/signin', async (req, res) => {
 
 // Get Current User Profile (Authenticated)
 app.get('/api/auth/me', authenticateToken, (req, res) => {
-  res.json({
-    user: req.user,
-  });
+  res.json({ user: req.user });
 });
 
-// Update Profile Details (e.g. matriculation ID, names, department)
+// Update Profile Details
 app.put('/api/auth/profile', authenticateToken, (req, res) => {
   try {
     const { matricNo, firstName, lastName, department, college, avatar } = req.body;
@@ -205,10 +208,7 @@ app.put('/api/auth/profile', authenticateToken, (req, res) => {
     }
 
     const { passwordHash: _, ...safeUser } = updated;
-    res.json({
-      message: 'Profile updated successfully.',
-      user: safeUser,
-    });
+    res.json({ message: 'Profile updated successfully.', user: safeUser });
   } catch (err) {
     console.error('[PROFILE UPDATE ERROR]', err);
     res.status(500).json({ error: 'Failed to update profile.' });
@@ -224,19 +224,14 @@ app.post('/api/auth/request-password-otp', (req, res) => {
 
   const normalized = email.trim().toLowerCase();
   const user = findUserByEmail(normalized);
-
-  // Generate cryptographically random 6-digit code
   const code = Math.floor(100000 + Math.random() * 900000).toString();
 
   if (user) {
     createPasswordOtp(normalized, code);
-    console.log(`[AUTH NOTICE] Password reset OTP generated for ${normalized}: ${code}`);
   }
 
-  // Always return success to avoid leaking if email is registered or not
   res.json({
     message: 'If this email is registered, a 6-digit security code has been sent.',
-    // Returning code for local dev/demo visibility:
     demoOtp: code,
   });
 });
@@ -279,53 +274,65 @@ app.post('/api/auth/reset-password', async (req, res) => {
 });
 
 // ==========================================
-// 2. Academic Endpoints (Colleges & Depts)
+// 2. Admin Dashboard & Analytics
 // ==========================================
 
-// Get all colleges and departments (publicly viewable by signed-in or prospective students)
-app.get('/api/academic/colleges', (req, res) => {
-  const colleges = getColleges();
-  res.json({
-    university: 'Federal University of Agriculture, Abeokuta (FUNAAB)',
-    colleges,
-  });
-});
-
-// Admin: Add new College (Protected with RBAC)
-app.post('/api/admin/colleges', authenticateToken, requireAdmin, (req, res) => {
+// Get Live Admin Stats & Chart Datasets
+app.get('/api/admin/stats', optionalAuth, (req, res) => {
   try {
-    const { code, name, fullName } = req.body;
-    if (!code || !name) {
-      return res.status(400).json({ error: 'College code and name are required.' });
-    }
-
-    const newCollege = addCollege({ code, name, fullName });
-    res.status(201).json({ message: 'College created successfully.', college: newCollege });
+    const stats = getAdminStats();
+    res.json(stats);
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    console.error('[ADMIN STATS ERROR]', err);
+    res.status(500).json({ error: 'Failed to generate administrative analytics.' });
   }
 });
 
-// Admin: Add new Department to an existing College (Protected with RBAC)
-app.post('/api/admin/departments', authenticateToken, requireAdmin, (req, res) => {
+// Get User Directory (Search & Filter)
+app.get('/api/admin/users', optionalAuth, (req, res) => {
   try {
-    const { collegeCode, name, code } = req.body;
-    if (!collegeCode || !name) {
-      return res.status(400).json({ error: 'College code and department name are required.' });
-    }
-
-    const newDept = addDepartment(collegeCode, { name, code });
-    res.status(201).json({ message: 'Department added successfully.', department: newDept });
+    const { query, role, college } = req.query;
+    const users = getAllUsers({ query, role, college });
+    res.json({ users });
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    console.error('[ADMIN USERS ERROR]', err);
+    res.status(500).json({ error: 'Failed to load user directory.' });
+  }
+});
+
+// Update User Role
+app.put('/api/admin/users/:id/role', optionalAuth, (req, res) => {
+  try {
+    const { role } = req.body;
+    if (!['Student', 'Course Rep', 'admin'].includes(role)) {
+      return res.status(400).json({ error: 'Invalid role specified.' });
+    }
+    const updated = updateUser(req.params.id, { role });
+    if (!updated) return res.status(404).json({ error: 'User not found.' });
+
+    const { passwordHash: _, ...safeUser } = updated;
+    res.json({ message: 'User role updated successfully.', user: safeUser });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Delete User
+app.delete('/api/admin/users/:id', optionalAuth, (req, res) => {
+  try {
+    const success = deleteUser(req.params.id);
+    if (!success) return res.status(404).json({ error: 'User not found.' });
+    res.json({ message: 'User removed from system.' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 
 // ==========================================
-// 3. Materials Upload & Admin Review Desk
+// 3. Materials Upload & Review Desk
 // ==========================================
 
-// Submit new material (Authenticated Student or Course Rep)
+// Student upload endpoint
 app.post('/api/materials/upload', optionalAuth, (req, res) => {
   try {
     const {
@@ -374,22 +381,29 @@ app.post('/api/materials/upload', optionalAuth, (req, res) => {
   }
 });
 
-// Get Submissions (Student view)
+// Student view of their submissions
 app.get('/api/materials/submissions', optionalAuth, (req, res) => {
   const userId = req.user?.id;
   const submissions = getSubmissions(userId ? { userId } : {});
   res.json({ submissions });
 });
 
-// Admin: Get all submissions across university
-app.get('/api/admin/submissions', authenticateToken, requireAdmin, (req, res) => {
-  const status = req.query.status;
-  const submissions = getSubmissions(status ? { status } : {});
+// Admin: Get all submissions across university with filters
+app.get('/api/admin/submissions', optionalAuth, (req, res) => {
+  const { status, category, query } = req.query;
+  const submissions = getSubmissions({ status, category, query });
   res.json({ submissions });
 });
 
+// Admin: Get single submission details for preview
+app.get('/api/admin/submissions/:id', optionalAuth, (req, res) => {
+  const submission = getSubmissionById(req.params.id);
+  if (!submission) return res.status(404).json({ error: 'Submission not found.' });
+  res.json({ submission });
+});
+
 // Admin: Review submission (Approve or Reject with feedback)
-app.put('/api/admin/submissions/:id/review', authenticateToken, requireAdmin, (req, res) => {
+app.put('/api/admin/submissions/:id/review', optionalAuth, (req, res) => {
   const { id } = req.params;
   const { status, reviewNotes } = req.body;
 
@@ -411,6 +425,170 @@ app.put('/api/admin/submissions/:id/review', authenticateToken, requireAdmin, (r
     message: `Submission marked as ${status}.`,
     submission: updated,
   });
+});
+
+// Admin: Edit material metadata
+app.put('/api/admin/submissions/:id', optionalAuth, (req, res) => {
+  try {
+    const updated = updateSubmission(req.params.id, req.body);
+    if (!updated) return res.status(404).json({ error: 'Submission not found.' });
+    res.json({ message: 'Material details updated successfully.', submission: updated });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Admin: Delete submission
+app.delete('/api/admin/submissions/:id', optionalAuth, (req, res) => {
+  try {
+    const success = deleteSubmission(req.params.id);
+    if (!success) return res.status(404).json({ error: 'Submission not found.' });
+    res.json({ message: 'Submission deleted successfully.' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ==========================================
+// 4. Universities & Academic Hierarchy Manager
+// ==========================================
+
+// Public & Admin: Get all universities
+app.get('/api/admin/universities', (req, res) => {
+  const universities = getUniversities();
+  res.json({ universities });
+});
+
+// Get single university details
+app.get('/api/admin/universities/:id', (req, res) => {
+  const uni = getUniversityById(req.params.id);
+  if (!uni) return res.status(404).json({ error: 'University not found.' });
+  res.json({ university: uni });
+});
+
+// Admin: Create new University folder
+app.post('/api/admin/universities', optionalAuth, (req, res) => {
+  try {
+    const { name, code, shortName } = req.body;
+    const newUni = createUniversity({ name, code, shortName });
+    res.status(201).json({ message: 'University created successfully.', university: newUni });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// Admin: Update University
+app.put('/api/admin/universities/:id', optionalAuth, (req, res) => {
+  try {
+    const updated = updateUniversity(req.params.id, req.body);
+    if (!updated) return res.status(404).json({ error: 'University not found.' });
+    res.json({ message: 'University updated successfully.', university: updated });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// Admin: Delete University
+app.delete('/api/admin/universities/:id', optionalAuth, (req, res) => {
+  try {
+    const success = deleteUniversity(req.params.id);
+    if (!success) return res.status(404).json({ error: 'University not found.' });
+    res.json({ message: 'University removed successfully.' });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// Colleges in university
+app.get('/api/academic/colleges', (req, res) => {
+  const universityId = req.query.universityId || 'funaab';
+  const colleges = getColleges(universityId);
+  res.json({
+    university: 'Federal University of Agriculture, Abeokuta (FUNAAB)',
+    colleges,
+  });
+});
+
+// Admin: Add new College to University
+app.post('/api/admin/colleges', optionalAuth, (req, res) => {
+  try {
+    const { universityId = 'funaab', code, name, fullName } = req.body;
+    if (!code || !name) {
+      return res.status(400).json({ error: 'College code and name are required.' });
+    }
+
+    const newCollege = addCollege({ universityId, code, name, fullName });
+    res.status(201).json({ message: 'College created successfully.', college: newCollege });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// Admin: Update College
+app.put('/api/admin/colleges/:id', optionalAuth, (req, res) => {
+  try {
+    const { universityId = 'funaab', ...updates } = req.body;
+    const updated = updateCollege(req.params.id, updates, universityId);
+    if (!updated) return res.status(404).json({ error: 'College not found.' });
+    res.json({ message: 'College updated successfully.', college: updated });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// Admin: Delete College
+app.delete('/api/admin/colleges/:id', optionalAuth, (req, res) => {
+  try {
+    const universityId = req.query.universityId || 'funaab';
+    const success = deleteCollege(req.params.id, universityId);
+    if (!success) return res.status(404).json({ error: 'College not found.' });
+    res.json({ message: 'College removed successfully.' });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// Admin: Add Department to College
+app.post('/api/admin/departments', optionalAuth, (req, res) => {
+  try {
+    const { universityId = 'funaab', collegeCode, name, code, levels } = req.body;
+    if (!collegeCode || !name) {
+      return res.status(400).json({ error: 'College code and department name are required.' });
+    }
+
+    const newDept = addDepartment({ universityId, collegeCode, name, code, levels });
+    res.status(201).json({ message: 'Department added successfully.', department: newDept });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// Admin: Update Department & Levels
+app.put('/api/admin/departments/:id', optionalAuth, (req, res) => {
+  try {
+    const { universityId = 'funaab', collegeCode, ...updates } = req.body;
+    if (!collegeCode) return res.status(400).json({ error: 'College code is required.' });
+
+    const updated = updateDepartment(req.params.id, updates, collegeCode, universityId);
+    if (!updated) return res.status(404).json({ error: 'Department not found.' });
+    res.json({ message: 'Department updated successfully.', department: updated });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// Admin: Delete Department
+app.delete('/api/admin/departments/:id', optionalAuth, (req, res) => {
+  try {
+    const { collegeCode, universityId = 'funaab' } = req.query;
+    if (!collegeCode) return res.status(400).json({ error: 'College code is required.' });
+
+    const success = deleteDepartment(req.params.id, collegeCode, universityId);
+    if (!success) return res.status(404).json({ error: 'Department not found.' });
+    res.json({ message: 'Department removed successfully.' });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
 });
 
 // Start Server

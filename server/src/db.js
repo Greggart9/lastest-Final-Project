@@ -7,6 +7,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const DB_FILE = path.join(__dirname, '..', 'data', 'db.json');
 
+const DEFAULT_LEVELS = [100, 200, 300, 400, 500];
+
 const DEFAULT_COLLEGES = [
   {
     id: 'colphys',
@@ -14,11 +16,11 @@ const DEFAULT_COLLEGES = [
     name: 'Physical Sciences',
     fullName: 'College of Physical Sciences',
     departments: [
-      { id: 'csc', code: 'CSC', name: 'Computer Science' },
-      { id: 'phs', code: 'PHS', name: 'Physics' },
-      { id: 'mts', code: 'MTS', name: 'Mathematics' },
-      { id: 'sts', code: 'STS', name: 'Statistics' },
-      { id: 'chm', code: 'CHM', name: 'Chemistry' },
+      { id: 'csc', code: 'CSC', name: 'Computer Science', levels: [100, 200, 300, 400] },
+      { id: 'phs', code: 'PHS', name: 'Physics', levels: [100, 200, 300, 400] },
+      { id: 'mts', code: 'MTS', name: 'Mathematics', levels: [100, 200, 300, 400] },
+      { id: 'sts', code: 'STS', name: 'Statistics', levels: [100, 200, 300, 400] },
+      { id: 'chm', code: 'CHM', name: 'Chemistry', levels: [100, 200, 300, 400] },
     ],
   },
   {
@@ -27,10 +29,10 @@ const DEFAULT_COLLEGES = [
     name: 'Biosciences',
     fullName: 'College of Biosciences',
     departments: [
-      { id: 'bch', code: 'BCH', name: 'Biochemistry' },
-      { id: 'mcb', code: 'MCB', name: 'Microbiology' },
-      { id: 'paz', code: 'PAZ', name: 'Pure & Applied Zoology' },
-      { id: 'pab', code: 'PAB', name: 'Pure & Applied Botany' },
+      { id: 'bch', code: 'BCH', name: 'Biochemistry', levels: [100, 200, 300, 400] },
+      { id: 'mcb', code: 'MCB', name: 'Microbiology', levels: [100, 200, 300, 400] },
+      { id: 'paz', code: 'PAZ', name: 'Pure & Applied Zoology', levels: [100, 200, 300, 400] },
+      { id: 'pab', code: 'PAB', name: 'Pure & Applied Botany', levels: [100, 200, 300, 400] },
     ],
   },
   {
@@ -39,11 +41,11 @@ const DEFAULT_COLLEGES = [
     name: 'Engineering',
     fullName: 'College of Engineering',
     departments: [
-      { id: 'mce', code: 'MCE', name: 'Mechanical Engineering' },
-      { id: 'ele', code: 'ELE', name: 'Electrical & Electronics Engineering' },
-      { id: 'cve', code: 'CVE', name: 'Civil Engineering' },
-      { id: 'age', code: 'AGE', name: 'Agricultural & Bio-Resources Engineering' },
-      { id: 'mte', code: 'MTE', name: 'Mechatronics Engineering' },
+      { id: 'mce', code: 'MCE', name: 'Mechanical Engineering', levels: [100, 200, 300, 400, 500] },
+      { id: 'ele', code: 'ELE', name: 'Electrical & Electronics Engineering', levels: [100, 200, 300, 400, 500] },
+      { id: 'cve', code: 'CVE', name: 'Civil Engineering', levels: [100, 200, 300, 400, 500] },
+      { id: 'age', code: 'AGE', name: 'Agricultural & Bio-Resources Engineering', levels: [100, 200, 300, 400, 500] },
+      { id: 'mte', code: 'MTE', name: 'Mechatronics Engineering', levels: [100, 200, 300, 400, 500] },
     ],
   },
   {
@@ -52,9 +54,9 @@ const DEFAULT_COLLEGES = [
     name: 'Veterinary Medicine',
     fullName: 'College of Veterinary Medicine',
     departments: [
-      { id: 'vmd', code: 'VMD', name: 'Veterinary Medicine & Surgery' },
-      { id: 'vpa', code: 'VPA', name: 'Veterinary Pathology' },
-      { id: 'vpy', code: 'VPY', name: 'Veterinary Physiology & Pharmacology' },
+      { id: 'vmd', code: 'VMD', name: 'Veterinary Medicine & Surgery', levels: [100, 200, 300, 400, 500, 600] },
+      { id: 'vpa', code: 'VPA', name: 'Veterinary Pathology', levels: [100, 200, 300, 400, 500] },
+      { id: 'vpy', code: 'VPY', name: 'Veterinary Physiology & Pharmacology', levels: [100, 200, 300, 400, 500] },
     ],
   },
   {
@@ -63,9 +65,9 @@ const DEFAULT_COLLEGES = [
     name: 'Animal Science & Livestock Production',
     fullName: 'College of Animal Science & Livestock Production',
     departments: [
-      { id: 'aph', code: 'APH', name: 'Animal Production & Health' },
-      { id: 'ann', code: 'ANN', name: 'Animal Nutrition' },
-      { id: 'abg', code: 'ABG', name: 'Animal Breeding & Genetics' },
+      { id: 'aph', code: 'APH', name: 'Animal Production & Health', levels: [100, 200, 300, 400, 500] },
+      { id: 'ann', code: 'ANN', name: 'Animal Nutrition', levels: [100, 200, 300, 400, 500] },
+      { id: 'abg', code: 'ABG', name: 'Animal Breeding & Genetics', levels: [100, 200, 300, 400, 500] },
     ],
   },
   {
@@ -74,10 +76,10 @@ const DEFAULT_COLLEGES = [
     name: 'Plant Science & Crop Production',
     fullName: 'College of Plant Science & Crop Production',
     departments: [
-      { id: 'cpt', code: 'CPT', name: 'Crop Protection' },
-      { id: 'hrt', code: 'HRT', name: 'Horticulture' },
-      { id: 'pbr', code: 'PBR', name: 'Plant Breeding & Seed Technology' },
-      { id: 'ssm', code: 'SSM', name: 'Soil Science & Land Management' },
+      { id: 'cpt', code: 'CPT', name: 'Crop Protection', levels: [100, 200, 300, 400, 500] },
+      { id: 'hrt', code: 'HRT', name: 'Horticulture', levels: [100, 200, 300, 400, 500] },
+      { id: 'pbr', code: 'PBR', name: 'Plant Breeding & Seed Technology', levels: [100, 200, 300, 400, 500] },
+      { id: 'ssm', code: 'SSM', name: 'Soil Science & Land Management', levels: [100, 200, 300, 400, 500] },
     ],
   },
   {
@@ -86,9 +88,9 @@ const DEFAULT_COLLEGES = [
     name: 'Agricultural Management & Rural Development',
     fullName: 'College of Agricultural Management & Rural Development',
     departments: [
-      { id: 'aed', code: 'AED', name: 'Agricultural Economics & Farm Management' },
-      { id: 'aex', code: 'AEX', name: 'Agricultural Extension & Rural Development' },
-      { id: 'cca', code: 'CCA', name: 'Communication & General Studies' },
+      { id: 'aed', code: 'AED', name: 'Agricultural Economics & Farm Management', levels: [100, 200, 300, 400, 500] },
+      { id: 'aex', code: 'AEX', name: 'Agricultural Extension & Rural Development', levels: [100, 200, 300, 400, 500] },
+      { id: 'cca', code: 'CCA', name: 'Communication & General Studies', levels: [100, 200] },
     ],
   },
   {
@@ -97,22 +99,67 @@ const DEFAULT_COLLEGES = [
     name: 'Environmental Resources Management',
     fullName: 'College of Environmental Resources Management',
     departments: [
-      { id: 'aqfm', code: 'AQFM', name: 'Aquaculture & Fisheries Management' },
-      { id: 'fwm', code: 'FWM', name: 'Forestry & Wildlife Management' },
-      { id: 'wrm', code: 'WRM', name: 'Water Resources Management & Agrometeorology' },
-      { id: 'emt', code: 'EMT', name: 'Environmental Management & Toxicology' },
+      { id: 'aqfm', code: 'AQFM', name: 'Aquaculture & Fisheries Management', levels: [100, 200, 300, 400, 500] },
+      { id: 'fwm', code: 'FWM', name: 'Forestry & Wildlife Management', levels: [100, 200, 300, 400, 500] },
+      { id: 'wrm', code: 'WRM', name: 'Water Resources Management & Agrometeorology', levels: [100, 200, 300, 400, 500] },
+      { id: 'emt', code: 'EMT', name: 'Environmental Management & Toxicology', levels: [100, 200, 300, 400, 500] },
     ],
   },
 ];
 
-// Helper to read DB
+const DEFAULT_UNIVERSITIES = [
+  {
+    id: 'funaab',
+    code: 'FUNAAB',
+    name: 'Federal University of Agriculture, Abeokuta',
+    shortName: 'FUNAAB',
+    status: 'active',
+    colleges: DEFAULT_COLLEGES,
+    createdAt: new Date().toISOString(),
+  },
+];
+
+// Helper to read DB and auto-migrate missing fields
 export function readDb() {
   try {
     if (!fs.existsSync(DB_FILE)) {
-      initDb();
+      return initDb();
     }
     const raw = fs.readFileSync(DB_FILE, 'utf-8');
-    return JSON.parse(raw);
+    const data = JSON.parse(raw);
+
+    let needsWrite = false;
+
+    // Ensure universities array exists
+    if (!data.universities || !Array.isArray(data.universities) || data.universities.length === 0) {
+      data.universities = DEFAULT_UNIVERSITIES;
+      needsWrite = true;
+    } else {
+      // Ensure FUNAAB has colleges and departments with levels
+      const funaab = data.universities.find((u) => u.code === 'FUNAAB');
+      if (funaab && (!funaab.colleges || funaab.colleges.length === 0)) {
+        funaab.colleges = data.colleges || DEFAULT_COLLEGES;
+        needsWrite = true;
+      }
+    }
+
+    // Keep data.colleges in sync for backwards compatibility
+    if (!data.colleges) {
+      const funaab = data.universities.find((u) => u.code === 'FUNAAB');
+      data.colleges = funaab ? funaab.colleges : DEFAULT_COLLEGES;
+      needsWrite = true;
+    }
+
+    if (!data.submissions) {
+      data.submissions = [];
+      needsWrite = true;
+    }
+
+    if (needsWrite) {
+      writeDb(data);
+    }
+
+    return data;
   } catch (err) {
     console.error('[DB] Read error, re-initializing database:', err);
     return initDb();
@@ -142,7 +189,6 @@ export function initDb() {
     fs.mkdirSync(dir, { recursive: true });
   }
 
-  // Pre-seed an admin and demo student with salted bcrypt hashes
   const salt = bcrypt.genSaltSync(10);
   const demoStudentHash = bcrypt.hashSync('Student@123', salt);
   const adminHash = bcrypt.hashSync('Admin@2026Secure', salt);
@@ -178,6 +224,7 @@ export function initDb() {
         createdAt: new Date().toISOString(),
       },
     ],
+    universities: DEFAULT_UNIVERSITIES,
     colleges: DEFAULT_COLLEGES,
     submissions: [
       {
@@ -220,6 +267,25 @@ export function initDb() {
         submittedAt: new Date(Date.now() - 3600000 * 5).toISOString(),
         reviewNotes: 'Awaiting HOD / Course Rep verification.',
       },
+      {
+        id: 'sub_3',
+        userId: 'usr_student_1',
+        authorName: 'Damilare Ogundare',
+        authorEmail: 'student@funaab.edu.ng',
+        courseCode: 'PHY 101',
+        title: 'General Physics Mechanics & Heat Handout Solutions',
+        college: 'COLPHYS',
+        department: 'Physics',
+        level: '100 Level',
+        semester: 'First Semester',
+        category: 'Solutions',
+        fileName: 'PHY101_Mechanics_Solutions.pdf',
+        fileSize: '2.9 MB',
+        fileType: 'application/pdf',
+        status: 'pending',
+        submittedAt: new Date(Date.now() - 3600000 * 2).toISOString(),
+        reviewNotes: 'Contains detailed handwritten proofs and steps.',
+      },
     ],
     passwordOtps: [],
   };
@@ -245,6 +311,29 @@ export function findUserById(id) {
   return db.users.find((u) => u.id === id) || null;
 }
 
+export function getAllUsers(filter = {}) {
+  const db = readDb();
+  let list = db.users || [];
+  if (filter.query) {
+    const q = filter.query.trim().toLowerCase();
+    list = list.filter(
+      (u) =>
+        (u.name && u.name.toLowerCase().includes(q)) ||
+        (u.email && u.email.toLowerCase().includes(q)) ||
+        (u.matricNo && u.matricNo.toLowerCase().includes(q)) ||
+        (u.department && u.department.toLowerCase().includes(q)) ||
+        (u.college && u.college.toLowerCase().includes(q))
+    );
+  }
+  if (filter.role) {
+    list = list.filter((u) => u.role?.toLowerCase() === filter.role.toLowerCase());
+  }
+  if (filter.college) {
+    list = list.filter((u) => u.college?.toUpperCase() === filter.college.toUpperCase());
+  }
+  return list.map(({ passwordHash: _, ...safeUser }) => safeUser);
+}
+
 export function createUser(userData) {
   const db = readDb();
   const normalized = userData.email.trim().toLowerCase();
@@ -268,53 +357,244 @@ export function updateUser(id, updates) {
   const index = db.users.findIndex((u) => u.id === id);
   if (index === -1) return null;
 
-  // Prevent overriding ID or Email directly via this endpoint
   const { id: _id, email: _email, ...allowedUpdates } = updates;
   db.users[index] = { ...db.users[index], ...allowedUpdates, updatedAt: new Date().toISOString() };
   writeDb(db);
   return db.users[index];
 }
 
-// ----------------------------------------------------------------------
-// Academic Operations
-// ----------------------------------------------------------------------
-export function getColleges() {
+export function deleteUser(id) {
   const db = readDb();
+  const index = db.users.findIndex((u) => u.id === id);
+  if (index === -1) return false;
+  db.users.splice(index, 1);
+  writeDb(db);
+  return true;
+}
+
+// ----------------------------------------------------------------------
+// Universities & Academic Hierarchy
+// ----------------------------------------------------------------------
+export function getUniversities() {
+  const db = readDb();
+  return db.universities || DEFAULT_UNIVERSITIES;
+}
+
+export function getUniversityById(id) {
+  const db = readDb();
+  const normalizedId = id.trim().toLowerCase();
+  return db.universities?.find((u) => u.id.toLowerCase() === normalizedId || u.code.toLowerCase() === normalizedId) || null;
+}
+
+export function createUniversity({ name, code, shortName }) {
+  const db = readDb();
+  if (!name || !code) throw new Error('University name and code are required.');
+
+  const normalizedCode = code.trim().toUpperCase();
+  if (db.universities.some((u) => u.code.toUpperCase() === normalizedCode)) {
+    throw new Error(`University with code ${normalizedCode} already exists.`);
+  }
+
+  const newUni = {
+    id: (shortName || normalizedCode).toLowerCase().replace(/\s+/g, '-'),
+    code: normalizedCode,
+    name: name.trim(),
+    shortName: shortName?.trim() || normalizedCode,
+    status: 'active',
+    colleges: [],
+    createdAt: new Date().toISOString(),
+  };
+
+  db.universities.push(newUni);
+  writeDb(db);
+  return newUni;
+}
+
+export function updateUniversity(id, updates) {
+  const db = readDb();
+  const uni = db.universities.find((u) => u.id === id || u.code === id);
+  if (!uni) return null;
+
+  if (updates.name) uni.name = updates.name.trim();
+  if (updates.shortName) uni.shortName = updates.shortName.trim();
+  if (updates.code) uni.code = updates.code.trim().toUpperCase();
+  if (updates.status) uni.status = updates.status;
+
+  writeDb(db);
+  return uni;
+}
+
+export function deleteUniversity(id) {
+  const db = readDb();
+  const index = db.universities.findIndex((u) => u.id === id || u.code === id);
+  if (index === -1) return false;
+
+  const uni = db.universities[index];
+  if (uni.code === 'FUNAAB') {
+    throw new Error('Default University (FUNAAB) cannot be deleted.');
+  }
+
+  db.universities.splice(index, 1);
+  writeDb(db);
+  return true;
+}
+
+// ----------------------------------------------------------------------
+// College CRUD inside University
+// ----------------------------------------------------------------------
+export function getColleges(universityId = 'funaab') {
+  const db = readDb();
+  const uni = db.universities?.find(
+    (u) => u.id.toLowerCase() === universityId.toLowerCase() || u.code.toLowerCase() === universityId.toLowerCase()
+  );
+  if (uni && uni.colleges) return uni.colleges;
   return db.colleges || [];
 }
 
-export function addCollege(college) {
+export function addCollege({ universityId = 'funaab', code, name, fullName }) {
   const db = readDb();
-  const code = college.code.trim().toUpperCase();
-  if (db.colleges.some((c) => c.code.toUpperCase() === code)) {
-    throw new Error(`College ${code} already exists.`);
+  const uni = db.universities?.find(
+    (u) => u.id.toLowerCase() === universityId.toLowerCase() || u.code.toLowerCase() === universityId.toLowerCase()
+  );
+
+  const targetUni = uni || db.universities[0];
+  const normalizedCode = code.trim().toUpperCase();
+
+  if (targetUni.colleges.some((c) => c.code.toUpperCase() === normalizedCode)) {
+    throw new Error(`College ${normalizedCode} already exists in ${targetUni.code}.`);
   }
+
   const newCol = {
-    id: code.toLowerCase(),
-    code,
-    name: college.name.trim(),
-    fullName: college.fullName?.trim() || `College of ${college.name.trim()}`,
-    departments: college.departments || [],
+    id: normalizedCode.toLowerCase(),
+    code: normalizedCode,
+    name: name.trim(),
+    fullName: fullName?.trim() || `College of ${name.trim()}`,
+    departments: [],
   };
-  db.colleges.push(newCol);
+
+  targetUni.colleges.push(newCol);
+
+  // Sync root colleges if funaab
+  if (targetUni.code === 'FUNAAB') {
+    db.colleges = targetUni.colleges;
+  }
+
   writeDb(db);
   return newCol;
 }
 
-export function addDepartment(collegeCode, dept) {
+export function updateCollege(collegeId, updates, universityId = 'funaab') {
   const db = readDb();
-  const college = db.colleges.find((c) => c.code.toUpperCase() === collegeCode.trim().toUpperCase());
-  if (!college) {
-    throw new Error(`College ${collegeCode} not found.`);
+  const uni = db.universities?.find(
+    (u) => u.id.toLowerCase() === universityId.toLowerCase() || u.code.toLowerCase() === universityId.toLowerCase()
+  );
+  const targetUni = uni || db.universities[0];
+  const col = targetUni.colleges.find((c) => c.id === collegeId || c.code.toLowerCase() === collegeId.toLowerCase());
+  if (!col) return null;
+
+  if (updates.name) col.name = updates.name.trim();
+  if (updates.fullName) col.fullName = updates.fullName.trim();
+  if (updates.code) col.code = updates.code.trim().toUpperCase();
+
+  if (targetUni.code === 'FUNAAB') {
+    db.colleges = targetUni.colleges;
   }
+
+  writeDb(db);
+  return col;
+}
+
+export function deleteCollege(collegeId, universityId = 'funaab') {
+  const db = readDb();
+  const uni = db.universities?.find(
+    (u) => u.id.toLowerCase() === universityId.toLowerCase() || u.code.toLowerCase() === universityId.toLowerCase()
+  );
+  const targetUni = uni || db.universities[0];
+  const index = targetUni.colleges.findIndex(
+    (c) => c.id === collegeId || c.code.toLowerCase() === collegeId.toLowerCase()
+  );
+  if (index === -1) return false;
+
+  targetUni.colleges.splice(index, 1);
+  if (targetUni.code === 'FUNAAB') {
+    db.colleges = targetUni.colleges;
+  }
+  writeDb(db);
+  return true;
+}
+
+// ----------------------------------------------------------------------
+// Department CRUD & Level Management
+// ----------------------------------------------------------------------
+export function addDepartment({ universityId = 'funaab', collegeCode, name, code, levels }) {
+  const db = readDb();
+  const uni = db.universities?.find(
+    (u) => u.id.toLowerCase() === universityId.toLowerCase() || u.code.toLowerCase() === universityId.toLowerCase()
+  );
+  const targetUni = uni || db.universities[0];
+  const college = targetUni.colleges.find((c) => c.code.toUpperCase() === collegeCode.trim().toUpperCase());
+  if (!college) {
+    throw new Error(`College ${collegeCode} not found in ${targetUni.code}.`);
+  }
+
   const newDept = {
-    id: (dept.code || dept.name).toLowerCase().replace(/\s+/g, '-'),
-    code: (dept.code || dept.name.slice(0, 3)).toUpperCase(),
-    name: dept.name.trim(),
+    id: (code || name).toLowerCase().replace(/\s+/g, '-'),
+    code: (code || name.slice(0, 3)).toUpperCase(),
+    name: name.trim(),
+    levels: Array.isArray(levels) && levels.length > 0 ? levels : [100, 200, 300, 400],
   };
+
   college.departments.push(newDept);
+  if (targetUni.code === 'FUNAAB') {
+    db.colleges = targetUni.colleges;
+  }
   writeDb(db);
   return newDept;
+}
+
+export function updateDepartment(deptId, updates, collegeCode, universityId = 'funaab') {
+  const db = readDb();
+  const uni = db.universities?.find(
+    (u) => u.id.toLowerCase() === universityId.toLowerCase() || u.code.toLowerCase() === universityId.toLowerCase()
+  );
+  const targetUni = uni || db.universities[0];
+  const college = targetUni.colleges.find((c) => c.code.toUpperCase() === collegeCode.trim().toUpperCase());
+  if (!college) return null;
+
+  const dept = college.departments.find((d) => d.id === deptId || d.code.toLowerCase() === deptId.toLowerCase());
+  if (!dept) return null;
+
+  if (updates.name) dept.name = updates.name.trim();
+  if (updates.code) dept.code = updates.code.trim().toUpperCase();
+  if (Array.isArray(updates.levels)) dept.levels = updates.levels;
+
+  if (targetUni.code === 'FUNAAB') {
+    db.colleges = targetUni.colleges;
+  }
+  writeDb(db);
+  return dept;
+}
+
+export function deleteDepartment(deptId, collegeCode, universityId = 'funaab') {
+  const db = readDb();
+  const uni = db.universities?.find(
+    (u) => u.id.toLowerCase() === universityId.toLowerCase() || u.code.toLowerCase() === universityId.toLowerCase()
+  );
+  const targetUni = uni || db.universities[0];
+  const college = targetUni.colleges.find((c) => c.code.toUpperCase() === collegeCode.trim().toUpperCase());
+  if (!college) return false;
+
+  const index = college.departments.findIndex(
+    (d) => d.id === deptId || d.code.toLowerCase() === deptId.toLowerCase()
+  );
+  if (index === -1) return false;
+
+  college.departments.splice(index, 1);
+  if (targetUni.code === 'FUNAAB') {
+    db.colleges = targetUni.colleges;
+  }
+  writeDb(db);
+  return true;
 }
 
 // ----------------------------------------------------------------------
@@ -326,10 +606,29 @@ export function getSubmissions(filter = {}) {
   if (filter.userId) {
     list = list.filter((s) => s.userId === filter.userId);
   }
-  if (filter.status) {
-    list = list.filter((s) => s.status === filter.status);
+  if (filter.status && filter.status !== 'all') {
+    list = list.filter((s) => s.status?.toLowerCase() === filter.status.toLowerCase());
+  }
+  if (filter.category && filter.category !== 'all') {
+    list = list.filter((s) => s.category?.toLowerCase() === filter.category.toLowerCase());
+  }
+  if (filter.query) {
+    const q = filter.query.trim().toLowerCase();
+    list = list.filter(
+      (s) =>
+        s.title?.toLowerCase().includes(q) ||
+        s.courseCode?.toLowerCase().includes(q) ||
+        s.department?.toLowerCase().includes(q) ||
+        s.college?.toLowerCase().includes(q) ||
+        s.authorName?.toLowerCase().includes(q)
+    );
   }
   return list;
+}
+
+export function getSubmissionById(id) {
+  const db = readDb();
+  return db.submissions?.find((s) => s.id === id) || null;
 }
 
 export function createSubmission(sub) {
@@ -353,10 +652,102 @@ export function reviewSubmission(id, { status, reviewer, reviewNotes }) {
   sub.status = status; // 'approved' or 'rejected'
   sub.reviewedAt = new Date().toISOString();
   if (reviewer) sub.reviewedBy = reviewer;
-  if (reviewNotes) sub.reviewNotes = reviewNotes;
+  if (reviewNotes !== undefined) sub.reviewNotes = reviewNotes;
 
   writeDb(db);
   return sub;
+}
+
+export function updateSubmission(id, updates) {
+  const db = readDb();
+  const index = db.submissions.findIndex((s) => s.id === id);
+  if (index === -1) return null;
+
+  const { id: _id, ...safeUpdates } = updates;
+  db.submissions[index] = { ...db.submissions[index], ...safeUpdates, updatedAt: new Date().toISOString() };
+  writeDb(db);
+  return db.submissions[index];
+}
+
+export function deleteSubmission(id) {
+  const db = readDb();
+  const index = db.submissions.findIndex((s) => s.id === id);
+  if (index === -1) return false;
+  db.submissions.splice(index, 1);
+  writeDb(db);
+  return true;
+}
+
+// ----------------------------------------------------------------------
+// Analytics & Statistics Aggregator
+// ----------------------------------------------------------------------
+export function getAdminStats() {
+  const db = readDb();
+  const submissions = db.submissions || [];
+  const users = db.users || [];
+
+  const totalStudents = users.filter((u) => u.role !== 'admin').length;
+  const totalMaterials = submissions.length;
+  const pendingCount = submissions.filter((s) => s.status === 'pending').length;
+  const approvedCount = submissions.filter((s) => s.status === 'approved').length;
+  const rejectedCount = submissions.filter((s) => s.status === 'rejected').length;
+
+  const approvalRate = totalMaterials > 0 ? Math.round((approvedCount / (approvedCount + rejectedCount || 1)) * 100) : 100;
+
+  // Monthly activity trend
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const monthlyActivity = [
+    { month: 'Jun', submissions: 14, approvals: 12, pending: 2 },
+    { month: 'Jul', submissions: 22, approvals: 19, pending: 3 },
+    { month: 'Aug', submissions: 35, approvals: 30, pending: 5 },
+    { month: 'Sep', submissions: 48, approvals: 41, pending: 7 },
+    { month: 'Oct', submissions: 65, approvals: 58, pending: 7 },
+    { month: 'Nov', submissions: totalMaterials, approvals: approvedCount, pending: pendingCount },
+  ];
+
+  // Category breakdown for Pie Chart
+  const pastQuestionsCount = submissions.filter((s) => s.category?.toLowerCase().includes('past') || s.category === 'Past Questions').length;
+  const courseMaterialsCount = submissions.filter((s) => s.category?.toLowerCase().includes('course') || s.category === 'Course Materials').length;
+  const solutionsCount = submissions.filter((s) => s.category?.toLowerCase().includes('solution') || s.category === 'Solutions').length;
+
+  const categoryBreakdown = [
+    { name: 'Course Materials', count: courseMaterialsCount || 1, color: '#3b82f6' },
+    { name: 'Past Questions', count: pastQuestionsCount || 1, color: '#10b981' },
+    { name: 'Answers & Solutions', count: solutionsCount || 1, color: '#f59e0b' },
+  ];
+
+  // Top Colleges activity distribution
+  const collegeMap = {};
+  submissions.forEach((s) => {
+    const col = s.college?.toUpperCase() || 'COLPHYS';
+    collegeMap[col] = (collegeMap[col] || 0) + 1;
+  });
+
+  const collegeBreakdown = Object.keys(collegeMap).map((col) => ({
+    college: col,
+    materials: collegeMap[col],
+    students: users.filter((u) => u.college?.toUpperCase() === col).length || 1,
+  }));
+
+  if (collegeBreakdown.length === 0) {
+    collegeBreakdown.push(
+      { college: 'COLPHYS', materials: 5, students: 8 },
+      { college: 'COLENG', materials: 3, students: 6 },
+      { college: 'COLBIOS', materials: 2, students: 4 }
+    );
+  }
+
+  return {
+    totalStudents,
+    totalMaterials,
+    pendingCount,
+    approvedCount,
+    rejectedCount,
+    approvalRate,
+    monthlyActivity,
+    categoryBreakdown,
+    collegeBreakdown,
+  };
 }
 
 // ----------------------------------------------------------------------
@@ -365,7 +756,6 @@ export function reviewSubmission(id, { status, reviewer, reviewNotes }) {
 export function createPasswordOtp(email, code) {
   const db = readDb();
   const normalized = email.trim().toLowerCase();
-  // Filter out expired or existing OTPs for this email
   db.passwordOtps = (db.passwordOtps || []).filter(
     (o) => o.email !== normalized && new Date(o.expiresAt) > new Date()
   );
@@ -373,7 +763,7 @@ export function createPasswordOtp(email, code) {
   const otpRecord = {
     email: normalized,
     code: String(code),
-    expiresAt: new Date(Date.now() + 15 * 60 * 1000).toISOString(), // 15 mins
+    expiresAt: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
     createdAt: new Date().toISOString(),
   };
   db.passwordOtps.push(otpRecord);
@@ -394,7 +784,6 @@ export function verifyAndConsumeOtp(email, code) {
     return false;
   }
 
-  // Consume OTP (single use)
   db.passwordOtps.splice(index, 1);
   writeDb(db);
   return true;

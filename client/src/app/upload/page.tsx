@@ -25,7 +25,7 @@ import {
 import DashboardSidebar from '@/components/sections/DashboardSidebar';
 import { useAuth } from '@/hooks/useAuth';
 import { ALL_COLLEGES, College, Department } from '@/data/funaabStructure';
-import { apiUploadMaterial } from '@/lib/api';
+import { apiUploadMaterial, apiGetSubmissions } from '@/lib/api';
 
 export interface StudentSubmission {
   id: string;
@@ -88,77 +88,111 @@ export default function MaterialUploadPage() {
   // Submissions State (persisted to localStorage)
   const [submissions, setSubmissions] = useState<StudentSubmission[]>([]);
 
-  // Initialize sample submissions or load from localStorage
+  // Initialize submissions from live backend API or fallback to localStorage
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem('funaab_student_uploads');
-      if (stored) {
-        setSubmissions(JSON.parse(stored));
-      } else {
-        const initialSubmissions: StudentSubmission[] = [
-          {
-            id: 'sub-sample-1',
-            title: 'CSC 102 - Complete Modern JavaScript Handbook & DOM Guide',
-            courseCode: 'CSC 102',
-            courseTitle: 'Web Fundamentals & JavaScript',
-            fileName: 'CSC_102_JavaScript_Guide.pdf',
-            fileSize: '3.8 MB',
-            collegeCode: 'COLPHYS',
-            departmentName: 'Computer Science',
-            departmentId: 'computer-science',
-            level: 100,
-            semester: 'Second Semester',
-            category: 'course_materials',
-            academicYear: '2025/2026',
-            uploadedAt: 'Today at 09:30 AM',
-            status: 'approved',
-            progress: 100,
-            adminComment: 'Approved by Course Rep. Document verified against FUNAAB curriculum and published to the vault.',
-          },
-          {
-            id: 'sub-sample-2',
-            title: 'MTS 101 - 2023/2024 First Semester Examination Paper Archive',
-            courseCode: 'MTS 101',
-            courseTitle: 'Elementary Mathematics I (Calculus & Algebra)',
-            fileName: 'MTS_101_Exam_2023_2024.pdf',
-            fileSize: '2.1 MB',
-            collegeCode: 'COLPHYS',
-            departmentName: 'Computer Science',
-            departmentId: 'computer-science',
-            level: 100,
-            semester: 'First Semester',
-            category: 'past_questions',
-            academicYear: '2024/2025',
-            uploadedAt: 'Yesterday at 04:15 PM',
-            status: 'in_progress',
-            progress: 65,
-          },
-          {
-            id: 'sub-sample-3',
-            title: 'PHS 105 - 2022 General Physics Exam Paper & Solutions Draft',
-            courseCode: 'PHS 105',
-            courseTitle: 'General Physics I',
-            fileName: 'PHS_105_Exam_Draft_2022.pdf',
-            fileSize: '1.9 MB',
-            collegeCode: 'COLPHYS',
-            departmentName: 'Physics',
-            departmentId: 'physics',
-            level: 100,
-            semester: 'First Semester',
-            category: 'solutions',
-            academicYear: '2023/2024',
-            uploadedAt: '2 days ago',
-            status: 'rejected',
-            progress: 100,
-            adminComment: 'Rejected: Pages 3 and 4 are blurry and illegible. Please scan with adequate lighting and re-upload.',
-          },
-        ];
-        setSubmissions(initialSubmissions);
-        localStorage.setItem('funaab_student_uploads', JSON.stringify(initialSubmissions));
+    async function loadLiveSubmissions() {
+      try {
+        const data = await apiGetSubmissions();
+        if (data && data.submissions && data.submissions.length > 0) {
+          const mapped: StudentSubmission[] = data.submissions.map((s: any) => ({
+            id: s.id,
+            title: s.title,
+            courseCode: s.courseCode,
+            courseTitle: s.title,
+            fileName: s.fileName,
+            fileSize: s.fileSize || '2.4 MB',
+            collegeCode: s.college || s.collegeCode || 'COLPHYS',
+            departmentName: s.department || s.departmentName || 'Computer Science',
+            departmentId: s.departmentId || 'computer-science',
+            level: Number(s.level) || 100,
+            semester: s.semester || 'First Semester',
+            category: s.category || 'course_materials',
+            academicYear: s.academicYear || '2025/2026',
+            uploadedAt: s.uploadedAt || 'Recently',
+            status: s.status === 'pending' ? 'in_progress' : s.status,
+            progress: s.status === 'approved' ? 100 : s.status === 'rejected' ? 100 : 65,
+            adminComment: s.reviewNotes || s.adminComment,
+          }));
+          setSubmissions(mapped);
+          localStorage.setItem('funaab_student_uploads', JSON.stringify(mapped));
+          return;
+        }
+      } catch {
+        // Fallback to local storage
       }
-    } catch {
-      // Fallback
+
+      try {
+        const stored = localStorage.getItem('funaab_student_uploads');
+        if (stored) {
+          setSubmissions(JSON.parse(stored));
+        } else {
+          const initialSubmissions: StudentSubmission[] = [
+            {
+              id: 'sub-sample-1',
+              title: 'CSC 102 - Complete Modern JavaScript Handbook & DOM Guide',
+              courseCode: 'CSC 102',
+              courseTitle: 'Web Fundamentals & JavaScript',
+              fileName: 'CSC_102_JavaScript_Guide.pdf',
+              fileSize: '3.8 MB',
+              collegeCode: 'COLPHYS',
+              departmentName: 'Computer Science',
+              departmentId: 'computer-science',
+              level: 100,
+              semester: 'Second Semester',
+              category: 'course_materials',
+              academicYear: '2025/2026',
+              uploadedAt: 'Today at 09:30 AM',
+              status: 'approved',
+              progress: 100,
+              adminComment: 'Approved by Course Rep. Document verified against FUNAAB curriculum and published to the vault.',
+            },
+            {
+              id: 'sub-sample-2',
+              title: 'MTS 101 - 2023/2024 First Semester Examination Paper Archive',
+              courseCode: 'MTS 101',
+              courseTitle: 'Elementary Mathematics I (Calculus & Algebra)',
+              fileName: 'MTS_101_Exam_2023_2024.pdf',
+              fileSize: '2.1 MB',
+              collegeCode: 'COLPHYS',
+              departmentName: 'Computer Science',
+              departmentId: 'computer-science',
+              level: 100,
+              semester: 'First Semester',
+              category: 'past_questions',
+              academicYear: '2024/2025',
+              uploadedAt: 'Yesterday at 04:15 PM',
+              status: 'in_progress',
+              progress: 65,
+            },
+            {
+              id: 'sub-sample-3',
+              title: 'PHS 105 - 2022 General Physics Exam Paper & Solutions Draft',
+              courseCode: 'PHS 105',
+              courseTitle: 'General Physics I',
+              fileName: 'PHS_105_Exam_Draft_2022.pdf',
+              fileSize: '1.9 MB',
+              collegeCode: 'COLPHYS',
+              departmentName: 'Physics',
+              departmentId: 'physics',
+              level: 100,
+              semester: 'First Semester',
+              category: 'solutions',
+              academicYear: '2023/2024',
+              uploadedAt: '2 days ago',
+              status: 'rejected',
+              progress: 100,
+              adminComment: 'Rejected: Pages 3 and 4 are blurry and illegible. Please scan with adequate lighting and re-upload.',
+            },
+          ];
+          setSubmissions(initialSubmissions);
+          localStorage.setItem('funaab_student_uploads', JSON.stringify(initialSubmissions));
+        }
+      } catch {
+        // Fallback
+      }
     }
+
+    loadLiveSubmissions();
   }, []);
 
   const saveSubmissions = (newItems: StudentSubmission[]) => {

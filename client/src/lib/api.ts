@@ -178,3 +178,260 @@ export async function apiGetSubmissions() {
   }
   return res.json();
 }
+
+// --------------------------------------------------------
+// Admin Services
+// --------------------------------------------------------
+export async function apiGetAdminStats() {
+  const res = await apiFetch('/api/admin/stats');
+  if (!res.ok) {
+    throw new Error('Failed to fetch admin stats.');
+  }
+  return res.json();
+}
+
+export async function apiGetAdminSubmissions(params?: {
+  status?: string;
+  category?: string;
+  query?: string;
+}) {
+  const q = new URLSearchParams();
+  if (params?.status && params.status !== 'all') q.set('status', params.status);
+  if (params?.category && params.category !== 'all') q.set('category', params.category);
+  if (params?.query) q.set('query', params.query);
+
+  const queryStr = q.toString() ? `?${q.toString()}` : '';
+  const res = await apiFetch(`/api/admin/submissions${queryStr}`);
+  if (!res.ok) {
+    throw new Error('Failed to fetch admin submissions.');
+  }
+  return res.json();
+}
+
+export async function apiGetAdminSubmissionById(id: string) {
+  const res = await apiFetch(`/api/admin/submissions/${id}`);
+  if (!res.ok) {
+    throw new Error('Failed to fetch submission details.');
+  }
+  return res.json();
+}
+
+export async function apiReviewSubmission(
+  id: string,
+  status: 'approved' | 'rejected' | 'pending',
+  reviewNotes?: string
+) {
+  const res = await apiFetch(`/api/admin/submissions/${id}/review`, {
+    method: 'PUT',
+    body: JSON.stringify({ status, reviewNotes }),
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.error || 'Failed to review submission.');
+  }
+  return data;
+}
+
+export async function apiUpdateSubmission(id: string, updates: Record<string, any>) {
+  const res = await apiFetch(`/api/admin/submissions/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(updates),
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.error || 'Failed to update submission.');
+  }
+  return data;
+}
+
+export async function apiDeleteSubmission(id: string) {
+  const res = await apiFetch(`/api/admin/submissions/${id}`, {
+    method: 'DELETE',
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.error || 'Failed to delete submission.');
+  }
+  return data;
+}
+
+export async function apiGetAdminUsers(params?: {
+  query?: string;
+  role?: string;
+  college?: string;
+}) {
+  const q = new URLSearchParams();
+  if (params?.query) q.set('query', params.query);
+  if (params?.role && params.role !== 'all') q.set('role', params.role);
+  if (params?.college && params.college !== 'all') q.set('college', params.college);
+
+  const queryStr = q.toString() ? `?${q.toString()}` : '';
+  const res = await apiFetch(`/api/admin/users${queryStr}`);
+  if (!res.ok) {
+    throw new Error('Failed to load user directory.');
+  }
+  return res.json();
+}
+
+export async function apiUpdateUserRole(id: string, role: string) {
+  const res = await apiFetch(`/api/admin/users/${id}/role`, {
+    method: 'PUT',
+    body: JSON.stringify({ role }),
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.error || 'Failed to update user role.');
+  }
+  return data;
+}
+
+export async function apiDeleteUser(id: string) {
+  const res = await apiFetch(`/api/admin/users/${id}`, {
+    method: 'DELETE',
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.error || 'Failed to delete user.');
+  }
+  return data;
+}
+
+export async function apiGetUniversities() {
+  const res = await apiFetch('/api/admin/universities');
+  if (!res.ok) {
+    throw new Error('Failed to load universities.');
+  }
+  return res.json();
+}
+
+export async function apiCreateUniversity(payload: { name: string; code: string; shortName?: string }) {
+  const res = await apiFetch('/api/admin/universities', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.error || 'Failed to create university.');
+  }
+  return data;
+}
+
+export async function apiUpdateUniversity(id: string, payload: Record<string, any>) {
+  const res = await apiFetch(`/api/admin/universities/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(payload),
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.error || 'Failed to update university.');
+  }
+  return data;
+}
+
+export async function apiDeleteUniversity(id: string) {
+  const res = await apiFetch(`/api/admin/universities/${id}`, {
+    method: 'DELETE',
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.error || 'Failed to delete university.');
+  }
+  return data;
+}
+
+export async function apiCreateCollege(payload: {
+  universityId?: string;
+  code: string;
+  name: string;
+  fullName?: string;
+}) {
+  const res = await apiFetch('/api/admin/colleges', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.error || 'Failed to create college.');
+  }
+  return data;
+}
+
+export async function apiUpdateCollege(
+  id: string,
+  payload: Record<string, any>,
+  universityId?: string
+) {
+  const res = await apiFetch(`/api/admin/colleges/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify({ ...payload, universityId }),
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.error || 'Failed to update college.');
+  }
+  return data;
+}
+
+export async function apiDeleteCollege(id: string, universityId: string = 'funaab') {
+  const res = await apiFetch(`/api/admin/colleges/${id}?universityId=${encodeURIComponent(universityId)}`, {
+    method: 'DELETE',
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.error || 'Failed to delete college.');
+  }
+  return data;
+}
+
+export async function apiCreateDepartment(payload: {
+  universityId?: string;
+  collegeCode: string;
+  name: string;
+  code?: string;
+  levels?: number[];
+}) {
+  const res = await apiFetch('/api/admin/departments', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.error || 'Failed to create department.');
+  }
+  return data;
+}
+
+export async function apiUpdateDepartment(
+  id: string,
+  payload: Record<string, any>,
+  collegeCode: string,
+  universityId: string = 'funaab'
+) {
+  const res = await apiFetch(`/api/admin/departments/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify({ ...payload, collegeCode, universityId }),
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.error || 'Failed to update department.');
+  }
+  return data;
+}
+
+export async function apiDeleteDepartment(
+  id: string,
+  collegeCode: string,
+  universityId: string = 'funaab'
+) {
+  const res = await apiFetch(
+    `/api/admin/departments/${id}?collegeCode=${encodeURIComponent(collegeCode)}&universityId=${encodeURIComponent(universityId)}`,
+    {
+      method: 'DELETE',
+    }
+  );
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.error || 'Failed to delete department.');
+  }
+  return data;
+}
