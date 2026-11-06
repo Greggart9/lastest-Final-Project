@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { CheckCircle2 } from 'lucide-react';
 
 interface CongratulationModalProps {
   isOpen: boolean;
@@ -21,7 +22,9 @@ export default function CongratulationModal({ isOpen, onClose }: CongratulationM
             </button>
           </div>
           <h2 className="text-primary font-bold text-2xl">Congratulations!</h2>
-          <img className="h-28 py-3 object-contain" src="/Images/tick.png" alt="tick logo" />
+          <div className="my-5 w-20 h-20 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shadow-sm">
+            <CheckCircle2 className="w-12 h-12" />
+          </div>
           <p className="text-text-muted font-medium">Your account has been created successfully</p>
           <Link href="/collegeboard" className="w-full">
             <button

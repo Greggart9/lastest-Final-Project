@@ -3,7 +3,16 @@
 import React from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Sparkles, ArrowRight, CheckCircle2 } from 'lucide-react';
+import {
+  Sparkles,
+  ArrowRight,
+  CheckCircle2,
+  GraduationCap,
+  BookOpen,
+  FileText,
+  Users2,
+  ShieldCheck,
+} from 'lucide-react';
 
 export default function HeroSection() {
   return (
@@ -68,50 +77,88 @@ export default function HeroSection() {
             </div>
           </motion.div>
 
-          {/* Right Hero Image */}
+          {/* Right Hero Interactive Visual Hub (Replaced raster images) */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.7, delay: 0.1 }}
             className="flex-1 relative flex items-center justify-center w-full max-w-lg lg:max-w-none"
           >
-            {/* Decorative Ring Background */}
-            <div className="absolute inset-0 flex items-center justify-center -z-10 pointer-events-none opacity-40">
-              <img
-                src="/Images/img2.png"
-                alt="Decorative Halo Ring"
-                className="w-full max-w-md lg:max-w-lg object-contain"
-              />
+            <div className="relative w-full max-w-md lg:max-w-lg">
+              {/* Outer Glow Halo */}
+              <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 to-blue-400/20 rounded-3xl blur-2xl -z-10" />
+
+              {/* Main Interactive Hub Card */}
+              <div className="bg-surface-card border border-border-subtle rounded-3xl p-6 sm:p-8 shadow-xl space-y-6">
+                {/* Header */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-11 h-11 rounded-2xl bg-primary flex items-center justify-center text-white shadow-md">
+                      <GraduationCap className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h3 className="font-extrabold text-text-main text-base sm:text-lg">EduCollab Academic Desk</h3>
+                      <p className="text-xs text-text-muted">FUNAAB • Multi-Faculty Repository</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <span>Active 2026</span>
+                  </div>
+                </div>
+
+                {/* Level Quick Badges */}
+                <div className="grid grid-cols-4 gap-2 pt-2">
+                  {['100L', '200L', '300L', '400L'].map((lvl) => (
+                    <div key={lvl} className="p-2.5 rounded-xl bg-surface-bg border border-border-light text-center">
+                      <p className="font-extrabold text-xs text-primary">{lvl}</p>
+                      <p className="text-[10px] text-text-muted mt-0.5">Courses</p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Feed Items */}
+                <div className="space-y-3 pt-1">
+                  <div className="flex items-center justify-between p-3.5 rounded-2xl bg-surface-bg border border-border-subtle">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2.5 rounded-xl bg-primary-light text-primary">
+                        <BookOpen className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-text-main">Lecture Notes & Handouts</p>
+                        <p className="text-[11px] text-text-muted">Verified departmental syllabi</p>
+                      </div>
+                    </div>
+                    <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
+                  </div>
+
+                  <div className="flex items-center justify-between p-3.5 rounded-2xl bg-surface-bg border border-border-subtle">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2.5 rounded-xl bg-amber-50 text-amber-600">
+                        <FileText className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-text-main">Past Examination Solutions</p>
+                        <p className="text-[11px] text-text-muted">Step-by-step marking schemes</p>
+                      </div>
+                    </div>
+                    <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
+                  </div>
+                </div>
+
+                {/* Trust Footer */}
+                <div className="pt-2 flex items-center justify-between text-xs text-text-muted border-t border-border-subtle">
+                  <span className="flex items-center gap-1.5 font-medium">
+                    <ShieldCheck className="w-4 h-4 text-primary" />
+                    Zero-Trust Verified Files
+                  </span>
+                  <span className="flex items-center gap-1.5 font-medium">
+                    <Users2 className="w-4 h-4 text-emerald-600" />
+                    100% Peer-Reviewed
+                  </span>
+                </div>
+              </div>
             </div>
-
-            {/* Main Student Visual with gentle floating bob */}
-            <motion.div
-              animate={{ y: [-6, 6, -6] }}
-              transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-              className="relative"
-            >
-              <img
-                src="/Images/img1.png"
-                alt="Passionate Student Learning"
-                className="max-h-[22rem] sm:max-h-[30rem] lg:max-h-[36rem] w-auto object-contain drop-shadow-xl"
-              />
-
-              {/* Micro-Interaction Floating Pill: Verified Notes */}
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4 }}
-                className="absolute -left-2 sm:left-4 bottom-8 bg-surface-elevated/95 backdrop-blur-md border border-border-subtle p-3 rounded-2xl shadow-lg flex items-center gap-3"
-              >
-                <div className="h-10 w-10 rounded-xl bg-primary-light flex items-center justify-center text-primary">
-                  <CheckCircle2 className="w-5 h-5 text-primary" />
-                </div>
-                <div className="text-left pr-2">
-                  <p className="text-xs font-bold text-text-main">Verified Resources</p>
-                  <p className="text-[11px] text-text-muted">Updated for 2026 Curriculum</p>
-                </div>
-              </motion.div>
-            </motion.div>
           </motion.div>
         </div>
       </div>

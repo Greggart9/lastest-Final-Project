@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { Clock } from 'lucide-react';
 
 interface RegisterModalProps {
   show: boolean;
@@ -25,7 +26,9 @@ export default function RegisterModal({ show, onClose }: RegisterModalProps) {
             </button>
           </div>
           <h2 className="text-amber-500 font-bold text-2xl mt-1">Pending Approval</h2>
-          <img className="h-28 py-3 object-contain" src="/Images/img27.png" alt="pending status" />
+          <div className="my-5 w-20 h-20 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center shadow-sm">
+            <Clock className="w-12 h-12" />
+          </div>
           <p className="text-text-muted font-medium text-sm px-2">
             The registered University will be reviewed and approved by the administrator. A confirmation message will be sent to your email.
           </p>

@@ -180,11 +180,9 @@ export default function DashboardSidebar() {
 
                 {/* Campus Student Badge */}
                 <div className="mb-6 flex items-center gap-3 px-3.5 py-2.5 rounded-2xl bg-slate-900 border border-slate-800 text-xs text-slate-300 shadow-2xs">
-                  <img
-                    src="/Images/funaab.png"
-                    alt="FUNAAB logo"
-                    className="h-5 w-auto object-contain shrink-0"
-                  />
+                  <div className="w-7 h-7 rounded-lg bg-primary/20 text-primary-accent flex items-center justify-center shrink-0 border border-primary/30">
+                    <GraduationCap className="w-4 h-4" />
+                  </div>
                   <div className="overflow-hidden">
                     <p className="font-bold text-white truncate">FUNAAB Campus</p>
                     <p className="text-[11px] text-slate-400 truncate">
@@ -281,11 +279,9 @@ export default function DashboardSidebar() {
 
           {/* FUNAAB Campus Badge */}
           <div className="mb-6 flex items-center gap-2.5 px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-300 shadow-2xs">
-            <img
-              src="/Images/funaab.png"
-              alt="FUNAAB logo"
-              className="h-4 w-auto object-contain shrink-0"
-            />
+            <div className="w-6 h-6 rounded-lg bg-primary/20 text-primary-accent flex items-center justify-center shrink-0 border border-primary/30">
+              <GraduationCap className="w-3.5 h-3.5" />
+            </div>
             <div className="overflow-hidden">
               <p className="font-semibold text-white truncate">FUNAAB Campus</p>
               <p className="text-[10px] text-slate-400 truncate">

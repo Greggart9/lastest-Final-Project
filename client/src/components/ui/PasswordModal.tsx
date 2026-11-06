@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { CheckCircle2 } from 'lucide-react';
 
 interface PasswordModalProps {
   show: boolean;
@@ -22,7 +23,9 @@ export default function PasswordModal({ show, onClose }: PasswordModalProps) {
             Close
           </span>
           <h2 className="text-primary font-bold text-2xl mt-1">Congratulations!</h2>
-          <img className="h-28 py-3 object-contain" src="/Images/tick.png" alt="tick logo" />
+          <div className="my-5 w-20 h-20 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shadow-sm">
+            <CheckCircle2 className="w-12 h-12" />
+          </div>
           <p className="text-text-muted font-medium">Your password has been updated</p>
           <Link href="/settings" className="w-full">
             <button

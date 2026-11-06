@@ -112,8 +112,8 @@ export default function CollegesIndexPage() {
                     )}
 
                     <div>
-                      <div className="h-16 w-16 mx-auto rounded-2xl bg-primary-light flex items-center justify-center mb-4 group-hover:scale-105 transition-transform shadow-2xs">
-                        <img src="/Images/funaab.png" alt="FUNAAB logo" className="h-10 w-10 object-contain" />
+                      <div className="h-16 w-16 mx-auto rounded-2xl bg-primary-light flex items-center justify-center mb-4 group-hover:scale-105 transition-transform shadow-2xs text-primary">
+                        <Building2 className="h-8 w-8 text-primary" />
                       </div>
 
                       <h3 className="text-text-main font-bold text-lg group-hover:text-primary transition-colors">
