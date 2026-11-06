@@ -1,0 +1,120 @@
+@import "tailwindcss";
+
+@theme {
+  /* Brand Primary Blues */
+  --color-primary: #3b82f6;          /* Primary vibrant brand blue */
+  --color-primary-hover: #2563eb;    /* Hover state blue */
+  --color-primary-active: #1d4ed8;   /* Active / pressed state */
+  --color-primary-light: #eff6ff;    /* Soft brand background tint */
+  --color-primary-subtle: #dbeafe;   /* Light brand border & chip */
+  --color-primary-accent: #60a5fa;   /* Secondary bright highlight */
+
+  /* Neutral Surface & Background Colors */
+  --color-surface-bg: #ffffff;       /* Pure white page background */
+  --color-surface-card: #f8fafc;     /* Clean soft card surface */
+  --color-surface-elevated: #ffffff; /* Floating cards & modals */
+  --color-surface-muted: #f1f5f9;    /* Form inputs and soft badges */
+
+  /* Text & Typography Colors */
+  --color-text-main: #0f172a;        /* Deep slate for headings & primary text */
+  --color-text-body: #334155;        /* Balanced slate for paragraphs */
+  --color-text-muted: #64748b;       /* Muted captions and secondary labels */
+  --color-text-placeholder: #94a3b8; /* Form placeholder text */
+
+  /* Borders & Dividers */
+  --color-border-subtle: #e2e8f0;    /* Standard card & section borders */
+  --color-border-light: #f1f5f9;     /* Subtle divider lines */
+
+  /* Dark Theme & Footer Accents */
+  --color-dark-bg: #0b0f19;          /* Premium dark footer background */
+  --color-dark-surface: #111827;     /* Dark cards */
+  --color-dark-border: #1f2937;      /* Dark dividers */
+}
+
+:root {
+  --background: var(--color-surface-bg);
+  --foreground: var(--color-text-main);
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+/* 1380px Site Container Utility */
+.site-container {
+  width: 100%;
+  max-width: 1380px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .site-container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .site-container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+/* Custom subtle scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Infinite Vertical Marquee Keyframes */
+@keyframes marquee-up {
+  0% {
+    transform: translateY(0%);
+  }
+  100% {
+    transform: translateY(-50%);
+  }
+}
+
+@keyframes marquee-down {
+  0% {
+    transform: translateY(-50%);
+  }
+  100% {
+    transform: translateY(0%);
+  }
+}
+
+.animate-marquee-up {
+  animation: marquee-up 34s linear infinite;
+  will-change: transform;
+}
+
+.animate-marquee-down {
+  animation: marquee-down 34s linear infinite;
+  will-change: transform;
+}
+
+.animate-marquee-up:hover,
+.animate-marquee-down:hover {
+  animation-play-state: paused;
+}
