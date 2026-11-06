@@ -31,6 +31,7 @@ uploads/
 out/
 client/.next/
 client/out/
+*.tsbuildinfo
 
 # Logs & Debugging
 npm-debug.log*

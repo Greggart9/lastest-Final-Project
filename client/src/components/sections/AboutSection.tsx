@@ -3,14 +3,14 @@
 import React from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ArrowRight, GraduationCap, Building2, BookOpenCheck, ShieldCheck } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
 export default function AboutSection() {
   return (
     <section id="about" className="py-20 md:py-28 bg-surface-bg scroll-mt-20">
       <div className="site-container">
         <div className="flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-16">
-          {/* Visual Showcase (Replaced raster image) */}
+          {/* Visual */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -18,40 +18,13 @@ export default function AboutSection() {
             transition={{ duration: 0.6 }}
             className="flex-1 flex justify-center w-full"
           >
-            <div className="relative w-full max-w-md lg:max-w-lg">
+            <div className="relative max-w-md lg:max-w-lg">
               <div className="absolute -inset-4 bg-primary/10 rounded-3xl blur-2xl -z-10" />
-
-              <div className="bg-surface-card border border-border-subtle rounded-3xl p-6 sm:p-8 shadow-lg space-y-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-2xl bg-primary-light flex items-center justify-center text-primary shadow-xs">
-                    <Building2 className="w-8 h-8" />
-                  </div>
-                  <div>
-                    <h3 className="font-extrabold text-text-main text-lg">FUNAAB Digital Repository</h3>
-                    <p className="text-xs text-text-muted">Federated Across 8 Academic Colleges</p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3 pt-2">
-                  <div className="p-4 rounded-2xl bg-surface-bg border border-border-subtle text-left">
-                    <BookOpenCheck className="w-6 h-6 text-primary mb-2" />
-                    <p className="text-2xl font-black text-text-main">1,000+</p>
-                    <p className="text-xs text-text-muted font-medium mt-0.5">Verified Documents</p>
-                  </div>
-                  <div className="p-4 rounded-2xl bg-surface-bg border border-border-subtle text-left">
-                    <GraduationCap className="w-6 h-6 text-emerald-600 mb-2" />
-                    <p className="text-2xl font-black text-text-main">40+</p>
-                    <p className="text-xs text-text-muted font-medium mt-0.5">Departments Supported</p>
-                  </div>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-primary/20 flex items-center gap-3">
-                  <ShieldCheck className="w-5 h-5 text-primary shrink-0" />
-                  <p className="text-xs text-text-main font-medium">
-                    Strict review pipeline before lecture materials or past questions become publicly accessible.
-                  </p>
-                </div>
-              </div>
+              <img
+                src="/Images/img6.png"
+                alt="About Platform"
+                className="max-h-[24rem] sm:max-h-[30rem] w-auto object-contain rounded-2xl drop-shadow-md"
+              />
             </div>
           </motion.div>
 

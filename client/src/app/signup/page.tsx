@@ -242,11 +242,12 @@ export default function SignUpPage() {
           LEFT SIDE: Fixed Branding & Feature Showcase Panel
       ====================================================================== */}
       <div className="hidden lg:block lg:w-1/2 relative bg-slate-950 overflow-hidden">
-        {/* Modern dark mesh gradient pattern */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(59,130,246,0.2),transparent_70%)] pointer-events-none" />
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#33415518_1px,transparent_1px),linear-gradient(to_bottom,#33415518_1px,transparent_1px)] bg-[size:3rem_3rem] pointer-events-none" />
-
-        <div className="relative h-full flex flex-col justify-between p-12 text-white z-10">
+        <img
+          src="/Images/img10.png"
+          alt="EduCollab Sign up"
+          className="w-full h-full object-cover opacity-80"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent flex flex-col justify-between p-12 text-white">
           <Link href="/" className="inline-block">
             <BrandLogo className="h-10 w-10" showText={true} textClassName="text-2xl font-bold tracking-tight text-white" />
           </Link>

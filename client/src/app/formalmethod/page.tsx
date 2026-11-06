@@ -2,40 +2,31 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import {
-  Bell,
-  Search,
-  UploadCloud,
-  Download,
-  FileText,
-  FileArchive,
-  ArrowLeft,
-  CheckCircle2,
-} from 'lucide-react';
+import { Bell, Search, UploadCloud, Download } from 'lucide-react';
 import DashboardSidebar from '@/components/sections/DashboardSidebar';
 import { useAuth } from '@/hooks/useAuth';
 
 const topics = [
-  { id: 1, title: 'Architectural Design', isZip: false, size: '2.4 MB', type: 'PDF' },
-  { id: 2, title: 'Software Reuse', isZip: false, size: '1.8 MB', type: 'PDF' },
-  { id: 3, title: 'Configuration Management', isZip: false, size: '3.1 MB', type: 'PDF' },
-  { id: 4, title: 'Formal Specification', isZip: false, size: '4.0 MB', type: 'PDF' },
-  { id: 5, title: 'Z Notation & Proofs', isZip: false, size: '2.9 MB', type: 'PDF' },
-  { id: 6, title: 'Formal Methods Past Questions', isZip: true, size: '5.2 MB', type: 'ZIP' },
+  { id: 1, title: 'Architectural Design', img: '/Images/img16.png', size: '2.4 MB', type: 'PDF' },
+  { id: 2, title: 'Software Reuse', img: '/Images/img17.png', size: '1.8 MB', type: 'PDF' },
+  { id: 3, title: 'Configuration Management', img: '/Images/img18.png', size: '3.1 MB', type: 'PDF' },
+  { id: 4, title: 'Formal Specification', img: '/Images/img19.png', size: '4.0 MB', type: 'PDF' },
+  { id: 5, title: 'Z Notation & Proofs', img: '/Images/img20.png', size: '2.9 MB', type: 'PDF' },
+  { id: 6, title: 'Formal Methods Past Questions', img: '/Images/img21.png', size: '5.2 MB', type: 'ZIP' },
 ];
 
 export default function FormalMethodPage() {
   const { user, loading } = useAuth(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [downloadSuccess, setDownloadSuccess] = useState<string | null>(null);
+  const [downloadSuccess, setDownloadSuccess] = useState('');
 
   const filtered = topics.filter((t) =>
     t.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleDownload = (topicTitle: string) => {
-    setDownloadSuccess(`Downloaded "${topicTitle}" successfully.`);
-    setTimeout(() => setDownloadSuccess(null), 4000);
+  const handleDownload = (title: string) => {
+    setDownloadSuccess(`Downloaded "${title}" successfully.`);
+    setTimeout(() => setDownloadSuccess(''), 3000);
   };
 
   if (loading) {
@@ -68,10 +59,14 @@ export default function FormalMethodPage() {
               Departments
             </Link>{' '}
             &gt;{' '}
+            <Link href="/level" className="hover:text-blue-500">
+              Level
+            </Link>{' '}
+            &gt;{' '}
             <Link href="/fourhundred" className="hover:text-blue-500">
               400L
             </Link>{' '}
-            &gt; <span className="text-blue-500 font-semibold">CSC 405 (Formal Methods)</span>
+            &gt; <span className="text-blue-500 font-semibold">Formal Methods (CSC 405)</span>
           </p>
 
           <div className="flex items-center gap-3">
@@ -103,19 +98,19 @@ export default function FormalMethodPage() {
               />
             </div>
 
-            <Link href="/upload">
-              <button className="bg-blue-500 hover:bg-blue-600 px-4 py-2.5 rounded-full flex items-center gap-2 text-white font-semibold text-sm shadow-sm transition cursor-pointer shrink-0">
-                <UploadCloud className="h-4 w-4" />
-                Upload Note
-              </button>
-            </Link>
+            <button
+              onClick={() => alert('Upload modal: select lecture note or PDF document to contribute.')}
+              className="bg-blue-500 hover:bg-blue-600 px-4 py-2.5 rounded-full flex items-center gap-2 text-white font-semibold text-sm shadow-sm transition cursor-pointer shrink-0"
+            >
+              <UploadCloud className="h-4 w-4" />
+              Upload Note
+            </button>
           </div>
         </section>
 
         {downloadSuccess && (
-          <div className="mb-6 p-3 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-xl text-sm font-medium flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-            <span>{downloadSuccess}</span>
+          <div className="mb-6 p-3 bg-green-50 border border-green-200 text-green-700 rounded-xl text-sm font-medium">
+            ✓ {downloadSuccess}
           </div>
         )}
 
@@ -127,8 +122,8 @@ export default function FormalMethodPage() {
                 key={topic.id}
                 className="bg-white border border-gray-100 rounded-2xl p-6 flex flex-col justify-between items-center text-center shadow-sm hover:shadow-lg transition-all"
               >
-                <div className={`h-20 w-20 rounded-2xl flex items-center justify-center mb-3 ${topic.isZip ? 'bg-amber-50 text-amber-600' : 'bg-blue-50 text-blue-500'}`}>
-                  {topic.isZip ? <FileArchive className="h-10 w-10" /> : <FileText className="h-10 w-10" />}
+                <div className="h-20 w-20 rounded-2xl bg-blue-50 flex items-center justify-center mb-3">
+                  <img src={topic.img} alt={topic.title} className="h-14 w-14 object-contain" />
                 </div>
                 <h3 className="text-gray-800 font-bold text-base line-clamp-1">{topic.title}</h3>
                 <p className="text-gray-400 text-xs mt-1 font-mono">
@@ -137,7 +132,7 @@ export default function FormalMethodPage() {
 
                 <button
                   onClick={() => handleDownload(topic.title)}
-                  className="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2.5 rounded-full mt-4 font-semibold text-xs flex items-center gap-2 shadow-sm transition cursor-pointer"
+                  className="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded-full mt-4 font-semibold text-xs flex items-center gap-2 shadow-sm transition cursor-pointer"
                 >
                   <Download className="h-3.5 w-3.5" />
                   Download File

@@ -2,30 +2,19 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import {
-  Bell,
-  Search,
-  BookOpen,
-  Database,
-  Code2,
-  Layers,
-  Cpu,
-  Brain,
-  Boxes,
-  Terminal,
-} from 'lucide-react';
+import { Bell, Search } from 'lucide-react';
 import DashboardSidebar from '@/components/sections/DashboardSidebar';
 import { useAuth } from '@/hooks/useAuth';
 
 const courses = [
-  { id: 'csc405', code: 'CSC 405', title: 'Formal Methods', icon: Terminal, link: '/formalmethod', color: 'text-primary bg-primary-light' },
-  { id: 'csc407', code: 'CSC 407', title: 'Database Systems', icon: Database, link: '/formalmethod', color: 'text-emerald-600 bg-emerald-50' },
-  { id: 'csc403', code: 'CSC 403', title: 'Object Oriented Programming', icon: Code2, link: '/formalmethod', color: 'text-amber-600 bg-amber-50' },
-  { id: 'csc447', code: 'CSC 447', title: 'Org. of Programming Languages', icon: Layers, link: '/formalmethod', color: 'text-purple-600 bg-purple-50' },
-  { id: 'csc431', code: 'CSC 431', title: 'Logic Programming', icon: Cpu, link: '/formalmethod', color: 'text-indigo-600 bg-indigo-50' },
-  { id: 'csc439', code: 'CSC 439', title: 'System Performance Evaluation', icon: Boxes, link: '/formalmethod', color: 'text-rose-600 bg-rose-50' },
-  { id: 'csc435', code: 'CSC 435', title: 'Special Topics in CS', icon: BookOpen, link: '/formalmethod', color: 'text-teal-600 bg-teal-50' },
-  { id: 'csc433', code: 'CSC 433', title: 'Artificial Intelligence', icon: Brain, link: '/formalmethod', color: 'text-sky-600 bg-sky-50' },
+  { id: 'csc405', code: 'CSC 405', title: 'Formal Methods', img: '/Images/img16.png', link: '/formalmethod', active: true },
+  { id: 'csc407', code: 'CSC 407', title: 'Database Systems', img: '/Images/img17.png', link: '/formalmethod', active: false },
+  { id: 'csc403', code: 'CSC 403', title: 'Object Oriented Programming', img: '/Images/img18.png', link: '/formalmethod', active: false },
+  { id: 'csc447', code: 'CSC 447', title: 'Org. of Programming Languages', img: '/Images/img19.png', link: '/formalmethod', active: false },
+  { id: 'csc431', code: 'CSC 431', title: 'Logic Programming', img: '/Images/img20.png', link: '/formalmethod', active: false },
+  { id: 'csc439', code: 'CSC 439', title: 'System Performance Evaluation', img: '/Images/img21.png', link: '/formalmethod', active: false },
+  { id: 'csc435', code: 'CSC 435', title: 'Special Topics in CS', img: '/Images/img18.png', link: '/formalmethod', active: false },
+  { id: 'csc433', code: 'CSC 433', title: 'Artificial Intelligence', img: '/Images/img17.png', link: '/formalmethod', active: false },
 ];
 
 export default function FourHundredPage() {
@@ -106,25 +95,22 @@ export default function FourHundredPage() {
         {/* Courses Grid */}
         <section className="mt-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filtered.map((course) => {
-              const Icon = course.icon;
-              return (
-                <Link key={course.id} href={course.link}>
-                  <div className="bg-white border border-gray-100 rounded-2xl p-6 flex flex-col justify-center items-center text-center shadow-sm hover:shadow-lg hover:-translate-y-1.5 transition-all duration-300 cursor-pointer group">
-                    <div className={`h-20 w-20 rounded-2xl flex items-center justify-center mb-4 transition ${course.color}`}>
-                      <Icon className="h-9 w-9" />
-                    </div>
-                    <h3 className="text-gray-800 font-bold text-base group-hover:text-blue-500 transition line-clamp-1">
-                      {course.title}
-                    </h3>
-                    <p className="text-blue-500 font-semibold text-xs mt-1">({course.code})</p>
-                    <span className="mt-4 text-xs font-semibold text-blue-500 bg-blue-50 px-3 py-1 rounded-full group-hover:bg-blue-500 group-hover:text-white transition">
-                      Access Materials →
-                    </span>
+            {filtered.map((course) => (
+              <Link key={course.id} href={course.link}>
+                <div className="bg-white border border-gray-100 rounded-2xl p-6 flex flex-col justify-center items-center text-center shadow-sm hover:shadow-lg hover:-translate-y-1.5 transition-all duration-300 cursor-pointer group">
+                  <div className="h-20 w-20 rounded-2xl bg-blue-50 flex items-center justify-center mb-4 group-hover:bg-blue-100 transition">
+                    <img src={course.img} alt={course.title} className="h-14 w-14 object-contain" />
                   </div>
-                </Link>
-              );
-            })}
+                  <h3 className="text-gray-800 font-bold text-base group-hover:text-blue-500 transition line-clamp-1">
+                    {course.title}
+                  </h3>
+                  <p className="text-blue-500 font-semibold text-xs mt-1">({course.code})</p>
+                  <span className="mt-4 text-xs font-semibold text-blue-500 bg-blue-50 px-3 py-1 rounded-full group-hover:bg-blue-500 group-hover:text-white transition">
+                    Access Materials →
+                  </span>
+                </div>
+              </Link>
+            ))}
           </div>
         </section>
       </main>
