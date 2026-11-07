@@ -31,6 +31,7 @@ export default function ManageProfilePage() {
   const [lastName, setLastName] = useState(user?.lastName || '');
   const [matricNo, setMatricNo] = useState(user?.matricNo || '');
   const [savedSuccess, setSavedSuccess] = useState(false);
+  const [toastMsg, setToastMsg] = useState<string | null>(null);
 
   // Sync state once user loads
   React.useEffect(() => {
@@ -46,7 +47,8 @@ export default function ManageProfilePage() {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 2 * 1024 * 1024) {
-        alert('File size too large. Please select an image under 2MB.');
+        setToastMsg('File size too large. Please select an image under 2MB.');
+        setTimeout(() => setToastMsg(null), 3500);
         return;
       }
       const reader = new FileReader();
@@ -324,6 +326,14 @@ export default function ManageProfilePage() {
           </form>
         </div>
       </main>
+
+      {/* Floating Toast Notification */}
+      {toastMsg && (
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 bg-slate-900 text-white text-xs font-semibold rounded-2xl shadow-2xl border border-slate-700 animate-in fade-in slide-in-from-bottom-3 duration-200">
+          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+          <span>{toastMsg}</span>
+        </div>
+      )}
     </div>
   );
 }

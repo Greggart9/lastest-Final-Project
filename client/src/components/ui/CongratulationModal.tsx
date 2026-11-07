@@ -26,7 +26,7 @@ export default function CongratulationModal({ isOpen, onClose }: CongratulationM
             <CheckCircle2 className="w-12 h-12" />
           </div>
           <p className="text-text-muted font-medium">Your account has been created successfully</p>
-          <Link href="/collegeboard" className="w-full">
+          <Link href="/dashboard" className="w-full">
             <button
               onClick={onClose}
               className="bg-primary hover:bg-primary-hover text-white font-bold py-3 w-full rounded-3xl mt-5 shadow-md transition-all cursor-pointer"

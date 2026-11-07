@@ -13,10 +13,10 @@ interface NavLink {
 
 const navLinks: NavLink[] = [
   { label: 'Home', href: '/' },
-  { label: 'About Us', href: '#about' },
-  { label: 'FAQ', href: '#faq' },
-  { label: 'Testimonials', href: '#testimonials' },
-  { label: 'Contact Us', href: '#contact' },
+  { label: 'About Us', href: '/#about' },
+  { label: 'FAQ', href: '/#faq' },
+  { label: 'Testimonials', href: '/#testimonials' },
+  { label: 'Contact Us', href: '/#contact' },
 ];
 
 export default function Navbar() {
@@ -37,7 +37,7 @@ export default function Navbar() {
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center space-x-1 lg:space-x-2 bg-surface-card px-3 py-1.5 rounded-full border border-border-subtle shadow-xs">
+        <nav className="hidden md:flex items-center space-x-1 lg:space-x-2 px-3 py-1.5">
           {navLinks.map((link) => (
             <Link
               key={link.label}
@@ -56,7 +56,7 @@ export default function Navbar() {
             <motion.button
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
-              className="text-primary hover:text-primary-hover border border-primary/30 hover:border-primary py-2.5 px-6 text-sm font-semibold rounded-full hover:bg-primary-light transition-all cursor-pointer"
+              className="text-primary hover:text-primary-hover border border-primary/30 hover:border-primary py-2.5 px-6 text-sm font-semibold rounded-4xl hover:bg-primary-light transition-all cursor-pointer"
             >
               Login
             </motion.button>
@@ -65,7 +65,7 @@ export default function Navbar() {
             <motion.button
               whileHover={{ scale: 1.03, boxShadow: '0 10px 20px -10px rgba(59, 130, 246, 0.5)' }}
               whileTap={{ scale: 0.97 }}
-              className="text-white bg-primary hover:bg-primary-hover py-2.5 px-6 text-sm font-semibold rounded-full shadow-sm transition-all cursor-pointer flex items-center gap-1.5"
+              className="text-white bg-primary hover:bg-primary-hover py-2.5 px-6 text-sm font-semibold rounded-4xl shadow-sm transition-all cursor-pointer flex items-center gap-1.5"
             >
               <span>Sign up</span>
               <ArrowRight className="w-4 h-4" />

@@ -1,0 +1,8 @@
+
+> server@1.0.0 start
+> node src/server.js
+
+[DB] Using existing database file at /Users/mac/Developer/lastest-Final-Project/server/data/db.json
+[CampusHub Backend] Server secured and running live on http://localhost:5001
+[Supabase] Client initialized successfully for https://azqzxjixefjvrxzqpteu.supabase.co
+[EMAIL SERVICE] Connected to SMTP server at smtp.resend.com:465

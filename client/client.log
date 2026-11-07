@@ -1,0 +1,848 @@
+
+> client@0.1.0 dev
+> next dev --port 3000
+
+▲ Next.js 16.4.5 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.0.160:3000
+✓ Ready in 293ms
+✓ Running next.config.mjs took 14ms
+
+ GET /admin/academic 200 in 293ms (next.js: 110ms, application-code: 183ms)
+ GET /colleges/COLVET/vpb 200 in 361ms (next.js: 289ms, application-code: 72ms)
+ GET /admin/academic 200 in 32ms (next.js: 0.7ms, application-code: 32ms)
+ GET /admin/academic 200 in 50ms (next.js: 1.6ms, application-code: 48ms)
+ GET /admin/academic 200 in 16ms (next.js: 4ms, application-code: 12ms)
+ GET /admin/academic 200 in 17ms (next.js: 1.5ms, application-code: 15ms)
+ GET /admin/academic 200 in 10ms (next.js: 2ms, application-code: 8ms)
+ GET /admin/academic 200 in 18ms (next.js: 1.5ms, application-code: 17ms)
+ GET /admin/academic 200 in 22ms (next.js: 2ms, application-code: 20ms)
+ GET /dashboard 200 in 18ms (next.js: 6ms, application-code: 12ms)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+ GET /colleges 200 in 17ms (next.js: 6ms, application-code: 11ms)
+ GET /manageprofile 200 in 16ms (next.js: 6ms, application-code: 10ms)
+ GET /settings 200 in 15ms (next.js: 6ms, application-code: 10ms)
+ GET /upload 200 in 16ms (next.js: 6ms, application-code: 10ms)
+[browser] React has detected a change in the order of Hooks called by MaterialUploadPage. This will lead to bugs and errors if not fixed. For more information, read the Rules of Hooks: https://react.dev/link/rules-of-hooks
+
+   Previous render            Next render
+   ------------------------------------------------------
+1. useContext                 useContext
+2. useContext                 useContext
+3. useMemo                    useMemo
+4. useState                   useState
+5. useState                   useState
+6. useEffect                  useEffect
+7. useCallback                useCallback
+8. useCallback                useCallback
+9. useState                   useState
+10. useState                  useState
+11. useEffect                 useEffect
+12. useState                  useState
+13. useState                  useState
+14. useState                  useState
+15. useState                  useState
+16. useState                  useState
+17. useState                  useState
+18. useState                  useState
+19. useState                  useState
+20. useState                  useState
+21. useRef                    useRef
+22. useState                  useState
+23. useState                  useState
+24. useState                  useState
+25. useState                  useState
+26. useState                  useState
+27. useEffect                 useEffect
+28. undefined                 useEffect
+   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 
+    at MaterialUploadPage (src/app/upload/page.tsx:386:12)
+  384 |
+  385 |   // Keep selected level valid whenever department or availableLevels changes
+> 386 |   useEffect(() => {
+      |            ^
+  387 |     if (availableLevels.length > 0 && !availableLevels.includes(level)) {
+  388 |       setLevel(availableLevels[0]);
+  389 |     } (src/app/upload/page.tsx:386:12)
+[browser] Uncaught Error: Rendered more hooks than during the previous render.
+    at MaterialUploadPage (src/app/upload/page.tsx:386:12)
+  384 |
+  385 |   // Keep selected level valid whenever department or availableLevels changes
+> 386 |   useEffect(() => {
+      |            ^
+  387 |     if (availableLevels.length > 0 && !availableLevels.includes(level)) {
+  388 |       setLevel(availableLevels[0]);
+  389 |     }
+ GET /upload 200 in 42ms (next.js: 1.5ms, application-code: 40ms)
+[browser] React has detected a change in the order of Hooks called by MaterialUploadPage. This will lead to bugs and errors if not fixed. For more information, read the Rules of Hooks: https://react.dev/link/rules-of-hooks
+
+   Previous render            Next render
+   ------------------------------------------------------
+1. useContext                 useContext
+2. useContext                 useContext
+3. useMemo                    useMemo
+4. useState                   useState
+5. useState                   useState
+6. useEffect                  useEffect
+7. useCallback                useCallback
+8. useCallback                useCallback
+9. useState                   useState
+10. useState                  useState
+11. useEffect                 useEffect
+12. useState                  useState
+13. useState                  useState
+14. useState                  useState
+15. useState                  useState
+16. useState                  useState
+17. useState                  useState
+18. useState                  useState
+19. useState                  useState
+20. useState                  useState
+21. useRef                    useRef
+22. useState                  useState
+23. useState                  useState
+24. useState                  useState
+25. useState                  useState
+26. useState                  useState
+27. useEffect                 useEffect
+28. undefined                 useEffect
+   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 
+    at MaterialUploadPage (src/app/upload/page.tsx:386:12)
+  384 |
+  385 |   // Keep selected level valid whenever department or availableLevels changes
+> 386 |   useEffect(() => {
+      |            ^
+  387 |     if (availableLevels.length > 0 && !availableLevels.includes(level)) {
+  388 |       setLevel(availableLevels[0]);
+  389 |     } (src/app/upload/page.tsx:386:12)
+[browser] Uncaught Error: Rendered more hooks than during the previous render.
+    at MaterialUploadPage (src/app/upload/page.tsx:386:12)
+  384 |
+  385 |   // Keep selected level valid whenever department or availableLevels changes
+> 386 |   useEffect(() => {
+      |            ^
+  387 |     if (availableLevels.length > 0 && !availableLevels.includes(level)) {
+  388 |       setLevel(availableLevels[0]);
+  389 |     }
+ GET /admin/upload 200 in 17ms (next.js: 6ms, application-code: 12ms)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+ GET /admin 200 in 20ms (next.js: 7ms, application-code: 14ms)
+ GET /admin/academic 200 in 17ms (next.js: 1.5ms, application-code: 16ms)
+ GET / 200 in 106ms (next.js: 5ms, application-code: 101ms)
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+✓ Compiled in 65ms
+ GET /upload 200 in 21ms (next.js: 1.0ms, application-code: 20ms)
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /upload 200 in 21ms (next.js: 0.6ms, application-code: 20ms)
+✓ Compiled in 92ms
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /upload 200 in 22ms (next.js: 0.9ms, application-code: 21ms)
+✓ Compiled in 53ms
+ GET /admin/upload 200 in 13ms (next.js: 1.4ms, application-code: 11ms)
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /upload 200 in 23ms (next.js: 1.7ms, application-code: 21ms)
+✓ Compiled in 370ms
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /upload 200 in 22ms (next.js: 1.5ms, application-code: 20ms)
+✓ Compiled in 134ms
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+✓ Compiled in 32ms
+ GET /upload 200 in 26ms (next.js: 0.9ms, application-code: 26ms)
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /upload 200 in 21ms (next.js: 0.8ms, application-code: 20ms)
+✓ Compiled in 49ms
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /upload 200 in 20ms (next.js: 0.8ms, application-code: 19ms)
+✓ Compiled in 27ms
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /upload 200 in 22ms (next.js: 1.7ms, application-code: 20ms)
+✓ Compiled in 52ms
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /upload 200 in 21ms (next.js: 1.3ms, application-code: 19ms)
+✓ Compiled in 40ms
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /upload 200 in 23ms (next.js: 1.2ms, application-code: 22ms)
+✓ Compiled in 27ms
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /upload 200 in 20ms (next.js: 0.8ms, application-code: 19ms)
+✓ Compiled in 37ms
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /upload 200 in 23ms (next.js: 1.6ms, application-code: 21ms)
+✓ Compiled in 42ms
+[browser] React has detected a change in the order of Hooks called by MaterialUploadPage. This will lead to bugs and errors if not fixed. For more information, read the Rules of Hooks: https://react.dev/link/rules-of-hooks
+
+   Previous render            Next render
+   ------------------------------------------------------
+1. useContext                 useContext
+2. useContext                 useContext
+3. useMemo                    useMemo
+4. useState                   useState
+5. useState                   useState
+6. useEffect                  useEffect
+7. useCallback                useCallback
+8. useCallback                useCallback
+9. useState                   useState
+10. useState                  useState
+11. useState                  useState
+12. useState                  useState
+13. useState                  useState
+14. useEffect                 useEffect
+15. useEffect                 useEffect
+16. useState                  useState
+17. useState                  useState
+18. useState                  useState
+19. useState                  useState
+20. useState                  useState
+21. useState                  useState
+22. useState                  useState
+23. useState                  useState
+24. useState                  useState
+25. useState                  useState
+26. useRef                    useRef
+27. useState                  useState
+28. useState                  useState
+29. useState                  useState
+30. useState                  useState
+31. useState                  useState
+32. useEffect                 useEffect
+33. undefined                 useEffect
+   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 
+    at MaterialUploadPage (src/app/upload/page.tsx:444:12)
+  442 |
+  443 |   // Keep selected level valid whenever department or availableLevels changes
+> 444 |   useEffect(() => {
+      |            ^
+  445 |     if (availableLevels.length > 0 && !availableLevels.includes(level)) {
+  446 |       setLevel(availableLevels[0]);
+  447 |     } (src/app/upload/page.tsx:444:12)
+[browser] Uncaught Error: Rendered more hooks than during the previous render.
+    at MaterialUploadPage (src/app/upload/page.tsx:444:12)
+  442 |
+  443 |   // Keep selected level valid whenever department or availableLevels changes
+> 444 |   useEffect(() => {
+      |            ^
+  445 |     if (availableLevels.length > 0 && !availableLevels.includes(level)) {
+  446 |       setLevel(availableLevels[0]);
+  447 |     }
+ GET /admin/upload 200 in 52ms (next.js: 1.7ms, application-code: 50ms)
+ GET /admin/upload 200 in 46ms (next.js: 0.8ms, application-code: 45ms)
+ GET /upload 200 in 31ms (next.js: 1.1ms, application-code: 30ms)
+[browser] React has detected a change in the order of Hooks called by MaterialUploadPage. This will lead to bugs and errors if not fixed. For more information, read the Rules of Hooks: https://react.dev/link/rules-of-hooks
+
+   Previous render            Next render
+   ------------------------------------------------------
+1. useContext                 useContext
+2. useContext                 useContext
+3. useMemo                    useMemo
+4. useState                   useState
+5. useState                   useState
+6. useEffect                  useEffect
+7. useCallback                useCallback
+8. useCallback                useCallback
+9. useState                   useState
+10. useState                  useState
+11. useState                  useState
+12. useState                  useState
+13. useState                  useState
+14. useEffect                 useEffect
+15. useEffect                 useEffect
+16. useState                  useState
+17. useState                  useState
+18. useState                  useState
+19. useState                  useState
+20. useState                  useState
+21. useState                  useState
+22. useState                  useState
+23. useState                  useState
+24. useState                  useState
+25. useState                  useState
+26. useRef                    useRef
+27. useState                  useState
+28. useState                  useState
+29. useState                  useState
+30. useState                  useState
+31. useState                  useState
+32. useEffect                 useEffect
+33. undefined                 useEffect
+   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 
+    at MaterialUploadPage (src/app/upload/page.tsx:444:12)
+  442 |
+  443 |   // Keep selected level valid whenever department or availableLevels changes
+> 444 |   useEffect(() => {
+      |            ^
+  445 |     if (availableLevels.length > 0 && !availableLevels.includes(level)) {
+  446 |       setLevel(availableLevels[0]);
+  447 |     } (src/app/upload/page.tsx:444:12)
+[browser] Uncaught Error: Rendered more hooks than during the previous render.
+    at MaterialUploadPage (src/app/upload/page.tsx:444:12)
+  442 |
+  443 |   // Keep selected level valid whenever department or availableLevels changes
+> 444 |   useEffect(() => {
+      |            ^
+  445 |     if (availableLevels.length > 0 && !availableLevels.includes(level)) {
+  446 |       setLevel(availableLevels[0]);
+  447 |     }
+ GET /settings 200 in 11ms (next.js: 1.4ms, application-code: 10ms)
+ GET /settings 200 in 36ms (next.js: 0.8ms, application-code: 35ms)
+ GET /dashboard 200 in 15ms (next.js: 1.9ms, application-code: 13ms)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+ GET /colleges 200 in 15ms (next.js: 1.7ms, application-code: 13ms)
+ GET /upload 200 in 17ms (next.js: 2ms, application-code: 15ms)
+[browser] React has detected a change in the order of Hooks called by MaterialUploadPage. This will lead to bugs and errors if not fixed. For more information, read the Rules of Hooks: https://react.dev/link/rules-of-hooks
+
+   Previous render            Next render
+   ------------------------------------------------------
+1. useContext                 useContext
+2. useContext                 useContext
+3. useMemo                    useMemo
+4. useState                   useState
+5. useState                   useState
+6. useEffect                  useEffect
+7. useCallback                useCallback
+8. useCallback                useCallback
+9. useState                   useState
+10. useState                  useState
+11. useState                  useState
+12. useState                  useState
+13. useState                  useState
+14. useEffect                 useEffect
+15. useEffect                 useEffect
+16. useState                  useState
+17. useState                  useState
+18. useState                  useState
+19. useState                  useState
+20. useState                  useState
+21. useState                  useState
+22. useState                  useState
+23. useState                  useState
+24. useState                  useState
+25. useState                  useState
+26. useRef                    useRef
+27. useState                  useState
+28. useState                  useState
+29. useState                  useState
+30. useState                  useState
+31. useState                  useState
+32. useEffect                 useEffect
+33. undefined                 useEffect
+   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 
+    at MaterialUploadPage (src/app/upload/page.tsx:444:12)
+  442 |
+  443 |   // Keep selected level valid whenever department or availableLevels changes
+> 444 |   useEffect(() => {
+      |            ^
+  445 |     if (availableLevels.length > 0 && !availableLevels.includes(level)) {
+  446 |       setLevel(availableLevels[0]);
+  447 |     } (src/app/upload/page.tsx:444:12)
+[browser] Uncaught Error: Rendered more hooks than during the previous render.
+    at MaterialUploadPage (src/app/upload/page.tsx:444:12)
+  442 |
+  443 |   // Keep selected level valid whenever department or availableLevels changes
+> 444 |   useEffect(() => {
+      |            ^
+  445 |     if (availableLevels.length > 0 && !availableLevels.includes(level)) {
+  446 |       setLevel(availableLevels[0]);
+  447 |     }
+ GET /colleges 200 in 34ms (next.js: 1.0ms, application-code: 33ms)
+ GET /manageprofile 200 in 11ms (next.js: 1.8ms, application-code: 9ms)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+ GET /settings 200 in 14ms (next.js: 0.9ms, application-code: 13ms)
+ GET /dashboard 200 in 21ms (next.js: 2ms, application-code: 18ms)
+ GET /colleges 200 in 20ms (next.js: 2ms, application-code: 18ms)
+ GET /colleges/COLVET?uni=funaab 200 in 278ms (next.js: 265ms, application-code: 13ms)
+ GET /colleges 200 in 18ms (next.js: 1.4ms, application-code: 17ms)
+ GET /admin/upload 200 in 44ms (next.js: 1.4ms, application-code: 43ms)
+ GET /admin/upload 200 in 31ms (next.js: 0.4ms, application-code: 30ms)
+ GET /admin/academic 200 in 13ms (next.js: 1.7ms, application-code: 12ms)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+ GET /admin/upload 200 in 12ms (next.js: 1.0ms, application-code: 11ms)
+ GET /admin 200 in 14ms (next.js: 2ms, application-code: 12ms)
+ GET /admin/users 200 in 16ms (next.js: 5ms, application-code: 11ms)
+✓ Compiled in 30ms
+✓ Compiled in 21ms
+✓ Compiled in 25ms
+✓ Compiled in 46ms
+✓ Compiled in 45ms
+✓ Compiled in 38ms
+✓ Compiled in 26ms
+✓ Compiled in 133ms
+✓ Compiled in 23ms
+ GET /admin/users 200 in 65ms (next.js: 3ms, application-code: 62ms)
+ GET /colleges 200 in 26ms (next.js: 1.6ms, application-code: 25ms)
+ GET /dashboard 200 in 16ms (next.js: 2ms, application-code: 14ms)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+ GET /colleges 200 in 15ms (next.js: 0.9ms, application-code: 14ms)
+ GET /admin 200 in 18ms (next.js: 3ms, application-code: 15ms)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+✓ Compiled in 50ms
+ GET /admin 200 in 147ms (next.js: 1.3ms, application-code: 146ms)
+ GET /upload 200 in 19ms (next.js: 3ms, application-code: 16ms)
+[browser] React has detected a change in the order of Hooks called by MaterialUploadPage. This will lead to bugs and errors if not fixed. For more information, read the Rules of Hooks: https://react.dev/link/rules-of-hooks
+
+   Previous render            Next render
+   ------------------------------------------------------
+1. useContext                 useContext
+2. useContext                 useContext
+3. useMemo                    useMemo
+4. useState                   useState
+5. useState                   useState
+6. useEffect                  useEffect
+7. useCallback                useCallback
+8. useCallback                useCallback
+9. useState                   useState
+10. useState                  useState
+11. useState                  useState
+12. useState                  useState
+13. useState                  useState
+14. useEffect                 useEffect
+15. useEffect                 useEffect
+16. useState                  useState
+17. useState                  useState
+18. useState                  useState
+19. useState                  useState
+20. useState                  useState
+21. useState                  useState
+22. useState                  useState
+23. useState                  useState
+24. useState                  useState
+25. useState                  useState
+26. useRef                    useRef
+27. useState                  useState
+28. useState                  useState
+29. useState                  useState
+30. useState                  useState
+31. useState                  useState
+32. useEffect                 useEffect
+33. undefined                 useEffect
+   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 
+    at MaterialUploadPage (src/app/upload/page.tsx:457:12)
+  455 |
+  456 |   // Keep selected level valid whenever department or availableLevels changes
+> 457 |   useEffect(() => {
+      |            ^
+  458 |     if (availableLevels.length > 0 && !availableLevels.includes(level)) {
+  459 |       setLevel(availableLevels[0]);
+  460 |     } (src/app/upload/page.tsx:457:12)
+[browser] Uncaught Error: Rendered more hooks than during the previous render.
+    at MaterialUploadPage (src/app/upload/page.tsx:457:12)
+  455 |
+  456 |   // Keep selected level valid whenever department or availableLevels changes
+> 457 |   useEffect(() => {
+      |            ^
+  458 |     if (availableLevels.length > 0 && !availableLevels.includes(level)) {
+  459 |       setLevel(availableLevels[0]);
+  460 |     }
+ GET /upload 200 in 32ms (next.js: 3ms, application-code: 30ms)
+ GET /admin/submissions 200 in 14ms (next.js: 5ms, application-code: 10ms)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+ GET /admin 200 in 20ms (next.js: 2ms, application-code: 18ms)
+ GET /admin 200 in 41ms (next.js: 0.8ms, application-code: 40ms)
+ GET /admin/submissions 200 in 21ms (next.js: 1.6ms, application-code: 19ms)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+ GET /colleges 200 in 23ms (next.js: 2ms, application-code: 21ms)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+ GET /upload 200 in 22ms (next.js: 3ms, application-code: 19ms)
+ GET /dashboard 200 in 17ms (next.js: 1.3ms, application-code: 16ms)
+ GET /colleges 200 in 21ms (next.js: 3ms, application-code: 18ms)
+ GET /colleges/COLPHYS 200 in 16ms (next.js: 5ms, application-code: 11ms)
+ GET /colleges/COLPHYS/csc 200 in 13ms (next.js: 4ms, application-code: 10ms)
+ GET /colleges/COLPHYS/csc/100 200 in 259ms (next.js: 246ms, application-code: 13ms)
+ GET /upload 200 in 20ms (next.js: 4ms, application-code: 15ms)
+ GET /colleges/COLPHYS/computer-science/100 200 in 23ms (next.js: 4ms, application-code: 19ms)
+✓ Compiled in 151ms
+✓ Compiled in 20ms
+✓ Compiled in 69ms
+ HEAD /colleges/colphys/computer-science/100 200 in 43ms (next.js: 3ms, application-code: 40ms)
+ HEAD /admin 200 in 46ms (next.js: 1.4ms, application-code: 44ms)
+ GET /colleges/COLPHYS/computer-science/100 200 in 40ms (next.js: 5ms, application-code: 35ms)
+[browser] Uncaught TypeError: Cannot read properties of undefined (reading 'toLocaleString')
+    at <unknown> (src/app/colleges/[collegeId]/[departmentId]/[level]/page.tsx:512:42)
+    at Array.map (<anonymous>)
+    at LevelRepositoryPage (src/app/colleges/[collegeId]/[departmentId]/[level]/page.tsx:470:24)
+  510 |                   <div className="flex items-center justify-between text-[11px] pt-1 border-t border-slate-200/60">
+  511 |                     <span>{doc.semester} {doc.year ? `• ${doc.year}` : ''}</span>
+> 512 |                     <span>{doc.downloads.toLocaleString()} downloads</span>
+      |                                          ^
+  513 |                   </div>
+  514 |                 </div>
+  515 |
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+✓ Compiled in 29ms
+ GET /colleges/COLPHYS/computer-science/100 200 in 30ms (next.js: 2ms, application-code: 27ms)
+✓ Compiled in 45ms
+ GET /admin/academic 200 in 15ms (next.js: 1.6ms, application-code: 14ms)
+ GET /colleges/colphys/computer-science/100 200 in 27ms (next.js: 4ms, application-code: 23ms)
+ GET /admin/upload 200 in 16ms (next.js: 2ms, application-code: 14ms)
+ GET /admin/users 200 in 17ms (next.js: 3ms, application-code: 14ms)
+ GET /admin/upload 200 in 19ms (next.js: 1.4ms, application-code: 17ms)
+ GET /admin/academic 200 in 17ms (next.js: 1.2ms, application-code: 16ms)
+ GET /admin/submissions 200 in 19ms (next.js: 2ms, application-code: 16ms)
+ GET /admin 200 in 19ms (next.js: 1.8ms, application-code: 17ms)
+ GET /admin/upload 200 in 18ms (next.js: 1.5ms, application-code: 17ms)
+ GET /admin/academic 200 in 18ms (next.js: 1.8ms, application-code: 16ms)
+ GET /admin/submissions 200 in 17ms (next.js: 2ms, application-code: 15ms)
+✓ Compiled in 50ms
+✓ Compiled in 40ms
+✓ Compiled in 56ms
+✓ Compiled in 87ms
+ GET /colleges/colphys/computer-science/100 200 in 68ms (next.js: 4ms, application-code: 64ms)
+ GET /upload 200 in 29ms (next.js: 1.1ms, application-code: 28ms)
+ GET /manageprofile 200 in 18ms (next.js: 3ms, application-code: 15ms)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+ GET /settings 200 in 16ms (next.js: 3ms, application-code: 13ms)
+ GET /settings 200 in 30ms (next.js: 0.8ms, application-code: 29ms)
+ GET /admin/submissions 200 in 42ms (next.js: 1.0ms, application-code: 41ms)
+ GET /dashboard 200 in 18ms (next.js: 3ms, application-code: 15ms)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+ GET /signin 200 in 16ms (next.js: 5ms, application-code: 10ms)
+ GET /signup 200 in 14ms (next.js: 4ms, application-code: 10ms)
+ GET /signin 200 in 39ms (next.js: 1.2ms, application-code: 37ms)
+ GET /signup 200 in 101ms (next.js: 1.7ms, application-code: 100ms)
+ GET /signin 200 in 22ms (next.js: 2ms, application-code: 20ms)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+ GET /signup 200 in 26ms (next.js: 2ms, application-code: 23ms)
+✓ Compiled in 345ms
+[browser] Uncaught ReferenceError: ShieldCheck is not defined
+    at SignUpPage (src/app/signup/page.tsx:322:16)
+    at Set.forEach (<anonymous>)
+  320 |           <div className="space-y-4 max-w-md">
+  321 |             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/20 border border-primary/40 text-primary-subtle text-xs font-semibold">
+> 322 |               <ShieldCheck className="w-4 h-4 text-primary-accent" />
+      |                ^
+  323 |               <span>FUNAAB Academic Repository</span>
+  324 |             </div>
+  325 |             <h2 className="text-3xl font-extrabold tracking-tight">
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+[browser] Uncaught ReferenceError: ShieldCheck is not defined
+    at SignUpPage (src/app/signup/page.tsx:322:16)
+    at Set.forEach (<anonymous>)
+  320 |           <div className="space-y-4 max-w-md">
+  321 |             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/20 border border-primary/40 text-primary-subtle text-xs font-semibold">
+> 322 |               <ShieldCheck className="w-4 h-4 text-primary-accent" />
+      |                ^
+  323 |               <span>FUNAAB Academic Repository</span>
+  324 |             </div>
+  325 |             <h2 className="text-3xl font-extrabold tracking-tight">
+⨯ ReferenceError: ShieldCheck is not defined
+    at SignUpPage (src/app/signup/page.tsx:322:16)
+  320 |           <div className="space-y-4 max-w-md">
+  321 |             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/20 border border-primary/40 text-primary-subtle text-xs font-semibold">
+> 322 |               <ShieldCheck className="w-4 h-4 text-primary-accent" />
+      |                ^
+  323 |               <span>FUNAAB Academic Repository</span>
+  324 |             </div>
+  325 |             <h2 className="text-3xl font-extrabold tracking-tight"> {
+  digest: '817542321'
+}
+✓ Compiled in 44ms
+ GET /signup 500 in 56ms (next.js: 1.3ms, application-code: 55ms)
+[browser] Uncaught ReferenceError: ShieldCheck is not defined
+    at SignUpPage (src/app/signup/page.tsx:322:16)
+  320 |           <div className="space-y-4 max-w-md">
+  321 |             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/20 border border-primary/40 text-primary-subtle text-xs font-semibold">
+> 322 |               <ShieldCheck className="w-4 h-4 text-primary-accent" />
+      |                ^
+  323 |               <span>FUNAAB Academic Repository</span>
+  324 |             </div>
+  325 |             <h2 className="text-3xl font-extrabold tracking-tight">
+ GET /signup 200 in 26ms (next.js: 1.5ms, application-code: 25ms)
+ GET /signup 200 in 34ms (next.js: 1.2ms, application-code: 32ms)
+ GET /signup 200 in 31ms (next.js: 1.4ms, application-code: 29ms)
+ GET /signin 200 in 18ms (next.js: 4ms, application-code: 14ms)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+ GET /signup 200 in 22ms (next.js: 1.8ms, application-code: 20ms)
+ GET /signin 200 in 21ms (next.js: 2ms, application-code: 19ms)
+✓ Compiled in 28ms
+ GET /admin 200 in 17ms (next.js: 3ms, application-code: 14ms)
+ GET /signin 200 in 37ms (next.js: 1.4ms, application-code: 35ms)
+✓ Compiled in 25ms
+✓ Compiled in 68ms
+[browser] ./client/src/app/signin/page.tsx:193:1
+Error: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+  191 |     </div>
+  192 |   );
+> 193 | }
+      | ^
+  194 |
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./client/src/app/signin/page.tsx [Client Component Browser]
+    ./client/src/app/signin/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./client/src/app/signin/page.tsx [Client Component SSR]
+    ./client/src/app/signin/page.tsx [Server Component] 
+[browser] ./client/src/app/signin/page.tsx:193:1
+Error: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+  191 |     </div>
+  192 |   );
+> 193 | }
+      | ^
+  194 |
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./client/src/app/signin/page.tsx [Client Component Browser]
+    ./client/src/app/signin/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./client/src/app/signin/page.tsx [Client Component SSR]
+    ./client/src/app/signin/page.tsx [Server Component] 
+✓ Compiled in 106ms
+ GET /admin/submissions 200 in 39ms (next.js: 3ms, application-code: 36ms)
+ GET /signin 200 in 14ms (next.js: 2ms, application-code: 12ms)
+[browser] ./client/src/app/signup/page.tsx:883:1
+Error: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+  881 |     </div>
+  882 |   );
+> 883 | }
+      | ^
+  884 |
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./client/src/app/signup/page.tsx [Client Component Browser]
+    ./client/src/app/signup/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./client/src/app/signup/page.tsx [Client Component SSR]
+    ./client/src/app/signup/page.tsx [Server Component] 
+[browser] ./client/src/app/signup/page.tsx:882:1
+Error: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+  880 |     </div>
+  881 |   );
+> 882 | }
+      | ^
+  883 |
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./client/src/app/signup/page.tsx [Client Component Browser]
+    ./client/src/app/signup/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./client/src/app/signup/page.tsx [Client Component SSR]
+    ./client/src/app/signup/page.tsx [Server Component] 
+✓ Compiled in 56ms
+ GET /admin/submissions 200 in 26ms (next.js: 0.8ms, application-code: 25ms)
+ GET /signin 200 in 14ms (next.js: 0.8ms, application-code: 13ms)
+ GET /signin 200 in 31ms (next.js: 0.6ms, application-code: 30ms)
+ GET /signup 200 in 32ms (next.js: 1.0ms, application-code: 31ms)
+[browser] ./client/src/app/signin/page.tsx:193:1
+Error: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+  191 |     </div>
+  192 |   );
+> 193 | }
+      | ^
+  194 |
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./client/src/app/signin/page.tsx [Client Component Browser]
+    ./client/src/app/signin/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./client/src/app/signin/page.tsx [Client Component SSR]
+    ./client/src/app/signin/page.tsx [Server Component] 
+[browser] ./client/src/app/signin/page.tsx:193:1
+Error: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+  191 |     </div>
+  192 |   );
+> 193 | }
+      | ^
+  194 |
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./client/src/app/signin/page.tsx [Client Component Browser]
+    ./client/src/app/signin/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./client/src/app/signin/page.tsx [Client Component SSR]
+    ./client/src/app/signin/page.tsx [Server Component] 
+[browser] ./client/src/app/signup/page.tsx:883:1
+Error: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+  881 |     </div>
+  882 |   );
+> 883 | }
+      | ^
+  884 |
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./client/src/app/signup/page.tsx [Client Component Browser]
+    ./client/src/app/signup/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./client/src/app/signup/page.tsx [Client Component SSR]
+    ./client/src/app/signup/page.tsx [Server Component] 
+[browser] ./client/src/app/signup/page.tsx:882:1
+Error: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+  880 |     </div>
+  881 |   );
+> 882 | }
+      | ^
+  883 |
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./client/src/app/signup/page.tsx [Client Component Browser]
+    ./client/src/app/signup/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./client/src/app/signup/page.tsx [Client Component SSR]
+    ./client/src/app/signup/page.tsx [Server Component] 
+ GET / 200 in 17ms (next.js: 3ms, application-code: 14ms)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+ GET / 200 in 54ms (next.js: 1.1ms, application-code: 53ms)
+✓ Compiled in 58ms
+ GET / 200 in 51ms (next.js: 2ms, application-code: 49ms)
+✓ Compiled in 35ms
+✓ Compiled in 32ms
+✓ Compiled in 37ms
+✓ Compiled in 63ms
+✓ Compiled in 34ms
+✓ Compiled in 31ms
+✓ Compiled in 34ms
+✓ Compiled in 48ms
+✓ Compiled in 38ms
+✓ Compiled in 31ms
+✓ Compiled in 37ms
+✓ Compiled in 26ms
+✓ Compiled in 32ms
+ GET /dashboard 200 in 20ms (next.js: 4ms, application-code: 16ms)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+ GET /signin 200 in 23ms (next.js: 1.0ms, application-code: 22ms)
+ GET /signin 200 in 13ms (next.js: 1.0ms, application-code: 12ms)
+ GET / 200 in 16ms (next.js: 2ms, application-code: 13ms)
+✓ Compiled in 49ms
+✓ Compiled in 37ms
+✓ Compiled in 50ms
+✓ Compiled in 33ms
+✓ Compiled in 46ms
+✓ Compiled in 34ms
+✓ Compiled in 33ms
+✓ Compiled in 34ms
+✓ Compiled in 34ms
+✓ Compiled in 37ms
+✓ Compiled in 49ms
+✓ Compiled in 45ms
+✓ Compiled in 28ms
+✓ Compiled in 35ms
+✓ Compiled in 36ms
+✓ Compiled in 36ms
+✓ Compiled in 32ms
+✓ Compiled in 37ms
+✓ Compiled in 36ms
+✓ Compiled in 23ms
+✓ Compiled in 30ms
+✓ Compiled in 39ms
+✓ Compiled in 36ms
+✓ Compiled in 46ms
+✓ Compiled in 39ms
+✓ Compiled in 33ms
+✓ Compiled in 39ms
+✓ Compiled in 54ms
+✓ Compiled in 31ms
+ GET / 200 in 7ms (next.js: 1.9ms, application-code: 5ms)
+ GET /signin 200 in 24ms (next.js: 4ms, application-code: 19ms)
+ GET /signup 200 in 19ms (next.js: 4ms, application-code: 15ms)
+ GET /signin 200 in 22ms (next.js: 1.7ms, application-code: 20ms)
+ GET /signup 200 in 21ms (next.js: 1.8ms, application-code: 19ms)
+ GET /signup 200 in 36ms (next.js: 2ms, application-code: 33ms)
+ GET /signin 200 in 16ms (next.js: 1.5ms, application-code: 15ms)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+ GET /dashboard 200 in 18ms (next.js: 1.9ms, application-code: 16ms)
+ GET /colleges 200 in 21ms (next.js: 4ms, application-code: 17ms)
+ GET /upload 200 in 19ms (next.js: 2ms, application-code: 17ms)
+ GET /manageprofile 200 in 23ms (next.js: 2ms, application-code: 20ms)
+ GET /upload 200 in 21ms (next.js: 3ms, application-code: 18ms)
+[browser] ./client/src/app/upload/page.tsx:1:4
+Error: Expected ';', '}' or <eof>
+> 1 | con'use client';
+    |    ^^^^^^^^^^^^
+  2 |
+  3 | import React, { useState, useEffect, useRef } from 'react';
+  4 | import Link from 'next/link';
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./client/src/app/upload/page.tsx [Client Component Browser]
+    ./client/src/app/upload/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./client/src/app/upload/page.tsx [Client Component SSR]
+    ./client/src/app/upload/page.tsx [Server Component] 
+✓ Compiled in 35ms
+ GET /upload 200 in 28ms (next.js: 1.9ms, application-code: 26ms)
+ GET /admin/submissions 200 in 15ms (next.js: 0.8ms, application-code: 14ms)
+ GET /manageprofile 200 in 22ms (next.js: 2ms, application-code: 20ms)
+ GET /settings 200 in 18ms (next.js: 2ms, application-code: 16ms)
+ GET /dashboard 200 in 16ms (next.js: 0.9ms, application-code: 15ms)
+ GET /colleges 200 in 18ms (next.js: 1.8ms, application-code: 16ms)
+ GET /colleges/art-mw5f7cdm 200 in 24ms (next.js: 8ms, application-code: 16ms)
+ GET /manageprofile 200 in 22ms (next.js: 3ms, application-code: 19ms)
+ GET /dashboard 200 in 21ms (next.js: 1.8ms, application-code: 20ms)
+ GET /dashboard 200 in 40ms (next.js: 3ms, application-code: 37ms)
+✓ Compiled in 39ms
+✓ Compiled in 32ms
+✓ Compiled in 29ms
+✓ Compiled in 34ms
+✓ Compiled in 33ms
+✓ Compiled in 33ms
+✓ Compiled in 24ms
+✓ Compiled in 34ms
+✓ Compiled in 30ms
+✓ Compiled in 31ms
+✓ Compiled in 33ms
+ GET /colleges 200 in 23ms (next.js: 2ms, application-code: 21ms)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+ GET /upload 200 in 21ms (next.js: 2ms, application-code: 19ms)
+ GET /manageprofile 200 in 14ms (next.js: 1.4ms, application-code: 12ms)
+[browser] ./client/src/app/upload/page.tsx:1:4
+Error: Expected ';', '}' or <eof>
+> 1 | con'use client';
+    |    ^^^^^^^^^^^^
+  2 |
+  3 | import React, { useState, useEffect, useRef } from 'react';
+  4 | import Link from 'next/link';
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./client/src/app/upload/page.tsx [Client Component Browser]
+    ./client/src/app/upload/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./client/src/app/upload/page.tsx [Client Component SSR]
+    ./client/src/app/upload/page.tsx [Server Component] 
+ GET /admin/academic 200 in 19ms (next.js: 1.9ms, application-code: 17ms)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+ GET /admin/upload 200 in 25ms (next.js: 5ms, application-code: 20ms)
+ GET /admin/users 200 in 21ms (next.js: 3ms, application-code: 18ms)

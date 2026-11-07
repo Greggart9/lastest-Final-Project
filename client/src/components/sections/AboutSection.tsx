@@ -53,7 +53,7 @@ export default function AboutSection() {
             </p>
 
             <div className="pt-2 flex justify-center lg:justify-start">
-              <Link href="/collegeboard">
+              <Link href="/colleges">
                 <motion.button
                   whileHover={{ scale: 1.04 }}
                   whileTap={{ scale: 0.98 }}

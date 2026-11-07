@@ -98,13 +98,13 @@ export default function FormalMethodPage() {
               />
             </div>
 
-            <button
-              onClick={() => alert('Upload modal: select lecture note or PDF document to contribute.')}
+            <Link
+              href="/upload"
               className="bg-blue-500 hover:bg-blue-600 px-4 py-2.5 rounded-full flex items-center gap-2 text-white font-semibold text-sm shadow-sm transition cursor-pointer shrink-0"
             >
               <UploadCloud className="h-4 w-4" />
-              Upload Note
-            </button>
+              <span>Upload Note</span>
+            </Link>
           </div>
         </section>
 

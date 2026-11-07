@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import {
@@ -23,6 +23,7 @@ import {
   getDepartmentBySlug,
   ALL_COLLEGES,
 } from '@/data/funaabStructure';
+import { apiGetColleges } from '@/lib/api';
 
 interface LevelDisplayItem {
   levelNumber: number;
@@ -39,25 +40,69 @@ interface LevelDisplayItem {
 export default function DashboardPage() {
   const { user, loading } = useAuth(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [liveColleges, setLiveColleges] = useState<any[]>(ALL_COLLEGES);
+  const [academicTerm, setAcademicTerm] = useState<'college' | 'faculty'>('college');
 
   const collegeCode = user?.college || 'COLPHYS';
   const departmentName = user?.department || 'Computer Science';
   const firstName = user?.firstName || user?.name?.split(' ')[0] || 'Student';
 
-  // Find user's resolved College and Department
-  const collegeObj = getCollegeByCodeOrId(collegeCode) || ALL_COLLEGES[0];
+  // Fetch live colleges, departments, and activated levels configured by admin in backend
+  useEffect(() => {
+    async function fetchLiveStructure() {
+      try {
+        const uniKey = user?.university?.toLowerCase() || 'funaab';
+        const data = await apiGetColleges(uniKey);
+        if (data?.colleges && data.colleges.length > 0) {
+          setLiveColleges(data.colleges);
+          if (data.academicTerm) {
+            setAcademicTerm(data.academicTerm === 'faculty' ? 'faculty' : 'college');
+          }
+        }
+      } catch {
+        // Retain ALL_COLLEGES fallback
+      }
+    }
+    fetchLiveStructure();
+  }, [user]);
+
+  // Find user's resolved College/Faculty and Department from live backend data
+  const collegeObj =
+    liveColleges.find(
+      (c) =>
+        (c.code && c.code.toLowerCase() === collegeCode.toLowerCase()) ||
+        (c.id && c.id.toLowerCase() === collegeCode.toLowerCase()) ||
+        (c.name && c.name.toLowerCase() === collegeCode.toLowerCase())
+    ) || liveColleges[0] || ALL_COLLEGES[0];
+
   const deptObj =
-    getDepartmentBySlug(collegeObj, departmentName) ||
-    collegeObj.departments[0] || {
+    collegeObj.departments?.find(
+      (d: any) =>
+        d.name?.toLowerCase() === departmentName.toLowerCase() ||
+        d.id?.toLowerCase() === departmentName.toLowerCase() ||
+        d.code?.toLowerCase() === departmentName.toLowerCase()
+    ) ||
+    collegeObj.departments?.[0] || {
       id: 'computer-science',
       code: 'CSC',
       name: 'Computer Science',
-      maxLevel: 400,
+      levels: [100, 200, 300, 400],
     };
 
-  const maxLevel = deptObj.maxLevel || 400;
-  const levelNumbers =
-    maxLevel === 500 ? [100, 200, 300, 400, 500] : [100, 200, 300, 400];
+  const isFaculty = academicTerm === 'faculty';
+  const termSingular = isFaculty ? 'Faculty' : 'College';
+  const termPlural = isFaculty ? 'Faculties' : 'Colleges';
+  const collegeKey = collegeObj.code || collegeObj.id;
+  const collegeDisplayName = collegeObj.code || collegeObj.name || collegeObj.fullName;
+
+  // Live active levels configured by admin in backend!
+  const levelNumbers: number[] = Array.isArray(deptObj.levels) && deptObj.levels.length > 0
+    ? [...deptObj.levels].sort((a: number, b: number) => a - b)
+    : deptObj.maxLevel === 500
+    ? [100, 200, 300, 400, 500]
+    : [100, 200, 300, 400];
+
+  const maxLevel = Math.max(...levelNumbers, 400);
 
   const levelMeta: Record<
     number,
@@ -103,6 +148,14 @@ export default function DashboardPage() {
       sols: 4,
       featured: `${deptObj.code} 501 • Research Capstone`,
     },
+    600: {
+      name: 'Clinical Rotations & Practicum',
+      desc: 'Advanced veterinary clinical rotations, surgical diagnostics, and institutional defense.',
+      coursesCount: 4,
+      pqs: 4,
+      sols: 4,
+      featured: `${deptObj.code} 601 • Clinical Practicum`,
+    },
   };
 
   const departmentLevels: LevelDisplayItem[] = levelNumbers.map((lvl) => {
@@ -116,7 +169,7 @@ export default function DashboardPage() {
       pastQuestionsCount: meta?.pqs || 4,
       solutionsCount: meta?.sols || 4,
       featuredCourse: meta?.featured || `${deptObj.code} ${lvl}1`,
-      link: `/colleges/${collegeObj.code}/${deptObj.id}/${lvl}`,
+      link: `/colleges/${collegeKey}/${deptObj.id || deptObj.code}/${lvl}`,
     };
   });
 
@@ -150,14 +203,14 @@ export default function DashboardPage() {
           <div className="w-full sm:w-auto">
             <div className="flex flex-wrap items-center gap-1.5 text-xs font-semibold text-text-muted">
               <Link href="/colleges" className="hover:text-primary transition-colors">
-                Colleges
+                {termPlural}
               </Link>
               <span>/</span>
               <Link
-                href={`/colleges/${collegeObj.code}`}
+                href={`/colleges/${collegeKey}`}
                 className="hover:text-primary transition-colors"
               >
-                {collegeObj.code}
+                {collegeDisplayName}
               </Link>
               <span>/</span>
               <span className="text-text-main font-bold">{deptObj.name}</span>
@@ -199,7 +252,7 @@ export default function DashboardPage() {
 
           <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
             <div className="space-y-3 max-w-2xl">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-blue-200 text-xs font-bold tracking-wide uppercase">
+              <div className="inline-flex items-center gap-2 px-3 py-1 text-blue-200 text-xs font-bold tracking-wide uppercase">
                 <Sparkles className="w-3.5 h-3.5 text-blue-300" />
                 <span>Your Departmental Vault</span>
               </div>
@@ -209,22 +262,22 @@ export default function DashboardPage() {
               </h2>
 
               <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
-                As a student of <strong className="text-white">{collegeObj.fullName} ({collegeObj.code})</strong>, you have direct access to all course lecture materials, past questions, and step-by-step solutions for 100L to {maxLevel}L.
+                As a student of <strong className="text-white">{collegeObj.fullName || collegeObj.name} {collegeObj.code ? `(${collegeObj.code})` : ''}</strong>, you have direct access to all course lecture materials, past questions, and step-by-step solutions for 100L to {maxLevel}L.
               </p>
 
               {/* Badges Row */}
               <div className="pt-2 flex flex-wrap items-center gap-3 text-xs text-blue-100">
-                <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/15">
+                <span className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white/10 border border-white/15">
                   <Calendar className="w-3.5 h-3.5 text-cyan-300" />
                   2025/2026 Academic Session
                 </span>
-                <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/15">
+                <span className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white/10 border border-white/15">
                   <Layers className="w-3.5 h-3.5 text-emerald-300" />
                   {levelNumbers.length} Academic Levels (100L – {maxLevel}L)
                 </span>
-                <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/15">
+                <span className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white/10 border border-white/15">
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />
-                  FUNAAB Verified Curriculum
+                  {user?.university || 'FUNAAB'} Verified Curriculum
                 </span>
               </div>
             </div>
@@ -234,7 +287,7 @@ export default function DashboardPage() {
               <Link href="/colleges">
                 <button className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-white hover:bg-slate-100 text-slate-900 font-bold text-xs sm:text-sm shadow-md transition-all cursor-pointer flex items-center justify-center gap-2 group">
                   <Compass className="w-4 h-4 text-primary" />
-                  <span>Explore Other Colleges</span>
+                  <span>Explore All {termPlural}</span>
                   <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                 </button>
               </Link>
@@ -253,7 +306,7 @@ export default function DashboardPage() {
             </p>
           </div>
           <span className="text-xs font-semibold text-primary bg-primary-light border border-primary-subtle px-3 py-1 rounded-full">
-            {filteredLevels.length} Levels Available (100L – {maxLevel}L)
+            {/* {filteredLevels.length} Levels Available (100L – {maxLevel}L) */}
           </span>
         </div>
 
@@ -285,9 +338,6 @@ export default function DashboardPage() {
                     </div>
                   </div>
 
-                  <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
-                    3 Repositories
-                  </span>
                 </div>
 
                 {/* Level Title & Desc */}
@@ -349,13 +399,13 @@ export default function DashboardPage() {
             <div>
               <h4 className="text-sm font-bold text-text-main">Looking for other department materials?</h4>
               <p className="text-xs text-text-muted mt-0.5">
-                Browse through all 10 FUNAAB Colleges and their departmental archives anytime.
+                Browse through all {user?.university || 'university'} {termPlural.toLowerCase()} and their departmental archives anytime.
               </p>
             </div>
           </div>
           <Link href="/colleges" className="shrink-0">
             <button className="px-5 py-2.5 rounded-full border border-primary/30 text-primary hover:bg-primary-light text-xs font-bold transition cursor-pointer">
-              Browse College Directory
+              Browse {termSingular} Directory
             </button>
           </Link>
         </section>

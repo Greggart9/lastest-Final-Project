@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -9,7 +9,6 @@ import {
   EyeOff,
   ArrowRight,
   ArrowLeft,
-  ShieldCheck,
   CheckCircle2,
   AlertCircle,
   Check,
@@ -23,30 +22,24 @@ import {
 } from 'lucide-react';
 import { z } from 'zod';
 import { BrandLogo } from '@/components/ui';
+import Navbar from '@/components/sections/Navbar';
 import { STARTER_COLLEGES, College } from '@/data/funaabStructure';
-import { apiSignUp } from '@/lib/api';
+import { apiSignUp, apiGetUniversities } from '@/lib/api';
 
-// =====================================================
+
 // Zod Sign-Up Validation Schema
-// =====================================================
+
 const signUpStepOneSchema = z
   .object({
     firstName: z
-      .string()
-      .trim()
-      .min(2, 'First name must be at least 2 characters long'),
+      .string().trim().min(2, 'First name must be at least 2 characters long'),
     lastName: z
-      .string()
-      .trim()
-      .min(2, 'Last name must be at least 2 characters long'),
+      .string().trim().min(2, 'Last name must be at least 2 characters long'),
     email: z
-      .string()
-      .trim()
-      .email('Please enter a valid email address')
+      .string().trim().email('Please enter a valid email address')
       .toLowerCase(),
     password: z
-      .string()
-      .min(7, 'Password must be at least 7 characters long')
+      .string().min(7, 'Password must be at least 7 characters long')
       .regex(/[a-zA-Z]/, 'Password must contain at least one letter')
       .regex(/[0-9]/, 'Password must contain at least one number'),
     confirmPassword: z.string(),
@@ -75,33 +68,112 @@ export default function SignUpPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Step 2: Academic Details (FUNAAB)
-  const university = 'Federal University of Agriculture, Abeokuta (FUNAAB)';
-  const colleges: College[] = STARTER_COLLEGES;
-  const [selectedCollegeCode, setSelectedCollegeCode] = useState<string>('COLPHYS');
-  const [selectedDepartment, setSelectedDepartment] = useState<string>('Computer Science');
+  // Step 2: Academic Details (Dynamic Institutions & Divisions)
+  const [universities, setUniversities] = useState<any[]>([]);
+  const [selectedUniId, setSelectedUniId] = useState<string>('');
+  const [selectedCollegeCode, setSelectedCollegeCode] = useState<string>('');
+  const [selectedDepartment, setSelectedDepartment] = useState<string>('');
+
+  // Load universities from live database
+  useEffect(() => {
+    async function loadUniversities() {
+      try {
+        const data = await apiGetUniversities();
+        const list = data.universities || [];
+        if (list.length > 0) {
+          setUniversities(list);
+          const initialUni = list[0];
+          setSelectedUniId(initialUni.id || initialUni.code);
+          const initialDivisions = initialUni.colleges || [];
+          if (initialDivisions.length > 0) {
+            const firstDiv = initialDivisions[0];
+            setSelectedCollegeCode(firstDiv.code || firstDiv.id);
+            if (firstDiv.departments && firstDiv.departments.length > 0) {
+              setSelectedDepartment(firstDiv.departments[0].name);
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load universities:', err);
+      }
+    }
+    loadUniversities();
+  }, []);
 
   // Form Status
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [generalError, setGeneralError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Current college departments lookup
-  const currentCollege = colleges.find((c) => c.code === selectedCollegeCode) || colleges[0];
+  // Resolved active University
+  const currentUni =
+    universities.find(
+      (u) =>
+        u.id?.toLowerCase() === selectedUniId.toLowerCase() ||
+        u.code?.toLowerCase() === selectedUniId.toLowerCase()
+    ) || null;
+
+  const isFaculty = currentUni?.academicTerm === 'faculty';
+  const termSingular = isFaculty ? 'Faculty' : 'College';
+  const termPlural = isFaculty ? 'Faculties' : 'Colleges';
+
+  // Resolved Divisions for active University
+  const currentColleges: any[] =
+    currentUni?.colleges && currentUni.colleges.length > 0
+      ? currentUni.colleges
+      : currentUni?.code === 'FUNAAB'
+      ? STARTER_COLLEGES
+      : [];
+
+  const currentCollege =
+    currentColleges.find(
+      (c: any) =>
+        (c.code && c.code.toLowerCase() === selectedCollegeCode.toLowerCase()) ||
+        (c.id && c.id.toLowerCase() === selectedCollegeCode.toLowerCase())
+    ) || currentColleges[0] || null;
+
   const departmentsForCollege = currentCollege?.departments || [];
+
+  const handleUniChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newUniId = e.target.value;
+    setSelectedUniId(newUniId);
+    const matchedUni = universities.find(
+      (u) =>
+        u.id?.toLowerCase() === newUniId.toLowerCase() ||
+        u.code?.toLowerCase() === newUniId.toLowerCase()
+    );
+    const matchedDivisions = matchedUni?.colleges || [];
+    if (matchedDivisions.length > 0) {
+      const firstDiv = matchedDivisions[0];
+      setSelectedCollegeCode(firstDiv.code || firstDiv.id);
+      if (firstDiv.departments && firstDiv.departments.length > 0) {
+        setSelectedDepartment(firstDiv.departments[0].name);
+      } else {
+        setSelectedDepartment('');
+      }
+    } else {
+      setSelectedCollegeCode('');
+      setSelectedDepartment('');
+    }
+  };
 
   const handleCollegeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newCode = e.target.value;
     setSelectedCollegeCode(newCode);
-    const matched = colleges.find((c) => c.code === newCode);
-    if (matched && matched.departments.length > 0) {
+    const matched = currentColleges.find(
+      (c: any) =>
+        (c.code && c.code.toLowerCase() === newCode.toLowerCase()) ||
+        (c.id && c.id.toLowerCase() === newCode.toLowerCase())
+    );
+    if (matched && matched.departments && matched.departments.length > 0) {
       setSelectedDepartment(matched.departments[0].name);
+    } else {
+      setSelectedDepartment('');
     }
   };
 
-  // =====================================================
   // Real-Time Password Strength Calculation
-  // =====================================================
+
   const passwordStrength = useMemo(() => {
     if (!password) {
       return { score: 0, label: '', color: 'bg-surface-muted', hint: '' };
@@ -146,9 +218,8 @@ export default function SignUpPage() {
     };
   }, [password]);
 
-  // =====================================================
   // Real-Time Confirm Password Match Status
-  // =====================================================
+
   const matchStatus = useMemo(() => {
     if (!confirmPassword) return null;
     if (confirmPassword === password) {
@@ -157,9 +228,8 @@ export default function SignUpPage() {
     return { matches: false, message: 'Passwords do not match' };
   }, [password, confirmPassword]);
 
-  // =====================================================
   // Step 1 Validation & Proceed to Step 2
-  // =====================================================
+
   const handleProceedToStepTwo = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setGeneralError('');
@@ -190,24 +260,15 @@ export default function SignUpPage() {
     setStep(2);
   };
 
-  // =====================================================
   // Step 2 Final Submission (NO OTP REQUIRED)
-  // =====================================================
+
   const handleFinalSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setGeneralError('');
 
-    const fullUserData = {
-      firstName: firstName.trim(),
-      lastName: lastName.trim(),
-      name: `${firstName.trim()} ${lastName.trim()}`,
-      email: email.trim().toLowerCase(),
-      password,
-      university: 'FUNAAB',
-      college: selectedCollegeCode,
-      department: selectedDepartment,
-    };
+    const uniCode = currentUni?.code || universities[0]?.code || '';
+    const divisionVal = selectedCollegeCode || currentCollege?.code || currentCollege?.name || '';
 
     try {
       // Connect to live secured backend
@@ -216,95 +277,75 @@ export default function SignUpPage() {
         lastName: lastName.trim(),
         email: email.trim().toLowerCase(),
         password,
-        college: selectedCollegeCode,
+        university: uniCode,
+        college: divisionVal,
         department: selectedDepartment,
       });
 
       // Direct transition to Success state (No OTP)
       setStep(3);
     } catch (err: any) {
-      if (err.message && err.message.includes('Failed to fetch')) {
-        // Offline fallback: save locally and show success
-        const { password: _, ...safeProfile } = fullUserData;
-        localStorage.setItem('auth_user', JSON.stringify(safeProfile));
-        setStep(3);
-      } else {
-        setGeneralError(err.message || 'Failed to create account. Please try again.');
-      }
+      setGeneralError(err.message || 'Failed to create account. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex selection:bg-primary-subtle selection:text-primary-active">
-      {/* =====================================================================
-          LEFT SIDE: Fixed Branding & Feature Showcase Panel
-      ====================================================================== */}
-      <div className="hidden lg:block lg:w-1/2 relative bg-slate-950 overflow-hidden">
-        <img
-          src="/Images/img10.png"
-          alt="EduCollab Sign up"
-          className="w-full h-full object-cover opacity-80"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent flex flex-col justify-between p-12 text-white">
-          <Link href="/" className="inline-block">
-            <BrandLogo className="h-10 w-10" showText={true} textClassName="text-2xl font-bold tracking-tight text-white" />
-          </Link>
+    <div className="min-h-screen flex flex-col selection:bg-primary-subtle selection:text-primary-active">
+      <Navbar />
 
-          <div className="space-y-4 max-w-md">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/20 border border-primary/40 text-primary-subtle text-xs font-semibold">
-              <ShieldCheck className="w-4 h-4 text-primary-accent" />
-              <span>FUNAAB Academic Repository</span>
-            </div>
-            <h2 className="text-3xl font-extrabold tracking-tight">
-              Start Your Semester with Verified Study Notes
-            </h2>
-            <p className="text-slate-300 text-sm leading-relaxed">
-              Join thousands of undergraduates across COLPHYS, COLBIOS, and other colleges. Share lecture outlines, past questions, and excel in finals.
-            </p>
-            <div className="pt-2 flex items-center gap-4 text-xs text-slate-400">
-              <span className="flex items-center gap-1.5">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                Vetted Course Outlines
-              </span>
-              <span className="flex items-center gap-1.5">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                No Level Restrictions
-              </span>
+      <div className="flex-1 flex flex-col lg:flex-row">
+        {/* LEFT SIDE: Fixed Branding & Feature Showcase Panel */}
+        <div className="hidden lg:block lg:w-1/2 relative bg-slate-950 overflow-hidden min-h-[calc(100vh-5rem)]">
+          <img
+            src="/Images/img10.png"
+            alt="EduCollab Sign up"
+            className="w-full h-full object-cover opacity-80"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent flex flex-col justify-end p-12 text-white">
+            <div className="space-y-4 max-w-md">
+              <h2 className="text-3xl font-extrabold tracking-tight">
+                Start Your Semester with Verified Study Notes
+              </h2>
+              <p className="text-slate-300 text-sm leading-relaxed">
+                Join thousands of undergraduates across accredited universities and departments. Share verified lecture notes, archived past questions, and excel in your exams.
+              </p>
+              <div className="pt-2 flex items-center gap-4 text-xs text-slate-400">
+                <span className="flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                  Vetted Course Outlines
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                  No Level Restrictions
+                </span>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* =====================================================================
-          RIGHT SIDE: Interactive Multi-Step Form with Transitions
-      ====================================================================== */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-10 md:p-14 bg-surface-bg">
-        <div className="max-w-md w-full space-y-6">
-          <AnimatePresence mode="wait">
-            {/* ---------------------------------------------------------------
-                STEP 1: Student Credentials (First Name, Last Name, Email, Password)
-            ---------------------------------------------------------------- */}
-            {step === 1 && (
-              <motion.div
-                key="step-1"
-                initial={{ opacity: 0, x: -16 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -16 }}
-                transition={{ duration: 0.25 }}
-                className="space-y-6"
-              >
-                <div>
-                  <Link href="/" className="lg:hidden inline-block mb-4">
-                    <BrandLogo className="h-9 w-9" showText={true} />
-                  </Link>
-                  <h1 className="text-3xl font-extrabold text-text-main tracking-tight">
-                    Create Your Account
-                  </h1>
-                  <p className="text-sm text-text-muted mt-1.5">
-                    Enter your basic student credentials to get started.
-                  </p>
+        {/* RIGHT SIDE: Interactive Multi-Step Form with Transitions */}
+        <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-10 md:p-14 bg-surface-bg">
+          <div className="max-w-md w-full space-y-6">
+            <AnimatePresence mode="wait">
+              {/* STEP 1: Student Credentials (First Name, Last Name, Email, Password) */}
+              {step === 1 && (
+                <motion.div
+                  key="step-1"
+                  initial={{ opacity: 0, x: -16 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -16 }}
+                  transition={{ duration: 0.25 }}
+                  className="space-y-6"
+                >
+                  <div>
+                    <h1 className="text-3xl font-extrabold text-text-main tracking-tight">
+                      Create Your Account
+                    </h1>
+                    <p className="text-sm text-text-muted mt-1.5">
+                      Enter your basic student credentials to get started.
+                    </p>
 
                   {/* Stepper Progress */}
                   <div className="mt-5">
@@ -344,7 +385,7 @@ export default function SignUpPage() {
                         id="firstName"
                         type="text"
                         required
-                        placeholder="e.g. Oluwadamilare"
+                        placeholder="e.g. John"
                         value={firstName}
                         onChange={(e) => {
                           setFirstName(e.target.value);
@@ -373,7 +414,7 @@ export default function SignUpPage() {
                         id="lastName"
                         type="text"
                         required
-                        placeholder="e.g. Ogundare"
+                        placeholder="e.g. Doe"
                         value={lastName}
                         onChange={(e) => {
                           setLastName(e.target.value);
@@ -400,7 +441,7 @@ export default function SignUpPage() {
                       id="email"
                       type="email"
                       required
-                      placeholder="e.g. student@funaab.edu.ng"
+                      placeholder="e.g. student@university.edu.ng"
                       value={email}
                       onChange={(e) => {
                         setEmail(e.target.value);
@@ -585,7 +626,7 @@ export default function SignUpPage() {
             )}
 
             {/* ---------------------------------------------------------------
-                STEP 2: Academic Profile (FUNAAB, College, Cascading Department)
+                STEP 2: Academic Profile (University, Division, Cascading Department)
             ---------------------------------------------------------------- */}
             {step === 2 && (
               <motion.div
@@ -597,7 +638,7 @@ export default function SignUpPage() {
                 className="space-y-6"
               >
                 <div>
-                  <div className="flex items-center justify-between mb-3">
+                  <div className="mb-3">
                     <button
                       type="button"
                       onClick={() => setStep(1)}
@@ -606,7 +647,6 @@ export default function SignUpPage() {
                       <ArrowLeft className="w-3.5 h-3.5" />
                       <span>Back to Step 1</span>
                     </button>
-                    <BrandLogo className="h-8 w-8 lg:hidden" showText={false} />
                   </div>
 
                   <h1 className="text-3xl font-extrabold text-text-main tracking-tight">
@@ -614,7 +654,7 @@ export default function SignUpPage() {
                   </h1>
                   <p className="text-sm text-text-muted mt-1.5">
                     {firstName ? `Welcome, ${firstName}! ` : ''}
-                    Select your college and department to configure your courses.
+                    Select your {termSingular.toLowerCase()} and department to configure your courses.
                   </p>
 
                   {/* Stepper Progress */}
@@ -630,36 +670,29 @@ export default function SignUpPage() {
                 </div>
 
                 <form onSubmit={handleFinalSignUp} className="space-y-4">
-                  {/* Institution / University (FUNAAB) */}
+                  {/* Institution / University Selector */}
                   <div>
                     <label htmlFor="university" className="block text-xs font-bold uppercase tracking-wider text-text-muted mb-1.5 flex items-center gap-1.5">
                       <Building2 className="w-3.5 h-3.5 text-primary" />
                       <span>University / Institution</span>
                     </label>
-                    <div className="p-3.5 bg-surface-card border border-border-subtle rounded-xl text-text-main text-sm font-semibold">
-                      {university}
-                    </div>
-                  </div>
-
-                  {/* College / Faculty (COLPHYS, COLBIOS, etc.) */}
-                  <div>
-                    <label htmlFor="college" className="block text-xs font-bold uppercase tracking-wider text-text-muted mb-1.5 flex items-center gap-1.5">
-                      <GraduationCap className="w-3.5 h-3.5 text-primary" />
-                      <span>College / Faculty</span>
-                    </label>
                     <div className="relative group">
                       <select
-                        id="college"
-                        value={selectedCollegeCode}
-                        onChange={handleCollegeChange}
+                        id="university"
+                        value={selectedUniId}
+                        onChange={handleUniChange}
                         className="w-full appearance-none pl-4 pr-11 py-3.5 bg-surface-card border border-border-subtle rounded-xl focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/10 text-text-main transition text-sm font-medium cursor-pointer hover:border-slate-300 shadow-2xs"
                         required
                       >
-                        {colleges.map((col) => (
-                          <option key={col.id} value={col.code}>
-                            {col.code} — {col.fullName}
-                          </option>
-                        ))}
+                        {universities.length > 0 ? (
+                          universities.map((u) => (
+                            <option key={u.id} value={u.id}>
+                              {u.name} ({u.code})
+                            </option>
+                          ))
+                        ) : (
+                          <option value="">Select an institution...</option>
+                        )}
                       </select>
                       <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-text-muted group-hover:text-primary transition-colors">
                         <ChevronDown className="w-4 h-4" />
@@ -667,37 +700,81 @@ export default function SignUpPage() {
                     </div>
                   </div>
 
-                  {/* Department (Cascades from chosen College) */}
+                  {/* College / Faculty Selector */}
+                  <div>
+                    <label htmlFor="college" className="block text-xs font-bold uppercase tracking-wider text-text-muted mb-1.5 flex items-center gap-1.5">
+                      <GraduationCap className="w-3.5 h-3.5 text-primary" />
+                      <span>{termSingular}</span>
+                    </label>
+                    {currentColleges.length > 0 ? (
+                      <div className="relative group">
+                        <select
+                          id="college"
+                          value={selectedCollegeCode}
+                          onChange={handleCollegeChange}
+                          className="w-full appearance-none pl-4 pr-11 py-3.5 bg-surface-card border border-border-subtle rounded-xl focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/10 text-text-main transition text-sm font-medium cursor-pointer hover:border-slate-300 shadow-2xs"
+                          required
+                        >
+                          {currentColleges.map((col: any) => {
+                            const val = col.code || col.id;
+                            const label = col.fullName || col.name || col.code;
+                            return (
+                              <option key={val} value={val}>
+                                {col.code ? `${col.code} — ` : ''}{label}
+                              </option>
+                            );
+                          })}
+                        </select>
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-text-muted group-hover:text-primary transition-colors">
+                          <ChevronDown className="w-4 h-4" />
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800">
+                        No {termPlural.toLowerCase()} registered under {currentUni?.name || 'this institution'} yet.
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Department (Cascades from chosen College/Faculty) */}
                   <div>
                     <label htmlFor="department" className="block text-xs font-bold uppercase tracking-wider text-text-muted mb-1.5 flex items-center gap-1.5">
                       <BookOpen className="w-3.5 h-3.5 text-primary" />
                       <span>Department</span>
                     </label>
-                    <div className="relative group">
-                      <select
-                        id="department"
-                        value={selectedDepartment}
-                        onChange={(e) => setSelectedDepartment(e.target.value)}
-                        className="w-full appearance-none pl-4 pr-11 py-3.5 bg-surface-card border border-border-subtle rounded-xl focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/10 text-text-main transition text-sm font-medium cursor-pointer hover:border-slate-300 shadow-2xs"
-                        required
-                      >
-                        {departmentsForCollege.map((dept) => (
-                          <option key={dept.id} value={dept.name}>
-                            {dept.name} ({dept.code})
-                          </option>
-                        ))}
-                      </select>
-                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-text-muted group-hover:text-primary transition-colors">
-                        <ChevronDown className="w-4 h-4" />
+                    {departmentsForCollege.length > 0 ? (
+                      <div className="relative group">
+                        <select
+                          id="department"
+                          value={selectedDepartment}
+                          onChange={(e) => setSelectedDepartment(e.target.value)}
+                          className="w-full appearance-none pl-4 pr-11 py-3.5 bg-surface-card border border-border-subtle rounded-xl focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/10 text-text-main transition text-sm font-medium cursor-pointer hover:border-slate-300 shadow-2xs"
+                          required
+                        >
+                          {departmentsForCollege.map((dept: any) => (
+                            <option key={dept.id || dept.code || dept.name} value={dept.name}>
+                              {dept.name} {dept.code ? `(${dept.code})` : ''}
+                            </option>
+                          ))}
+                        </select>
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-text-muted group-hover:text-primary transition-colors">
+                          <ChevronDown className="w-4 h-4" />
+                        </div>
                       </div>
-                    </div>
+                    ) : (
+                      <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-500">
+                        {currentColleges.length > 0
+                          ? 'No departments listed in this division yet.'
+                          : 'Select an institution with registered divisions.'}
+                      </div>
+                    )}
                   </div>
 
                   {/* Full Access Note */}
                   <div className="p-3.5 rounded-xl bg-blue-50/70 border border-blue-200/70 text-xs text-blue-900 flex items-start gap-2.5">
                     <CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" />
                     <p className="leading-relaxed">
-                      <strong>Full Level Access Enabled:</strong> You will have unrestricted access across 100L, 200L, 300L, 400L, and 500L past questions and lecture materials for {selectedDepartment}.
+                      <strong>Full Curriculum Access:</strong> You will have unrestricted access across all study levels, past questions, and lecture materials for {selectedDepartment || 'your department'}.
                     </p>
                   </div>
 
@@ -782,6 +859,7 @@ export default function SignUpPage() {
             )}
           </AnimatePresence>
         </div>
+      </div>
       </div>
     </div>
   );

@@ -44,6 +44,7 @@ export default function SettingsPage() {
   const [resendCooldown, setResendCooldown] = useState(0);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [toastMsg, setToastMsg] = useState<string | null>(null);
 
   // 2FA & Notification Toggles
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
@@ -596,7 +597,24 @@ export default function SettingsPage() {
                     </p>
                   </div>
                   <button
-                    onClick={() => alert('Student academic profile archive exported successfully.')}
+                    onClick={() => {
+                      const exportData = {
+                        profile: user,
+                        exportedAt: new Date().toISOString(),
+                        institution: user?.university || 'FUNAAB',
+                      };
+                      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+                      const url = URL.createObjectURL(blob);
+                      const link = document.createElement('a');
+                      link.href = url;
+                      link.download = `academic_record_${user?.matricNo?.replace(/\//g, '_') || 'student'}.json`;
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+                      URL.revokeObjectURL(url);
+                      setToastMsg('Student academic record exported successfully!');
+                      setTimeout(() => setToastMsg(null), 3000);
+                    }}
                     className="px-4 py-2 rounded-xl bg-white hover:bg-slate-50 text-text-main text-xs font-bold border border-border-subtle transition cursor-pointer shrink-0"
                   >
                     Export Data
@@ -607,6 +625,14 @@ export default function SettingsPage() {
           </div>
         )}
       </main>
+
+      {/* Floating Toast Notification */}
+      {toastMsg && (
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 bg-slate-900 text-white text-xs font-semibold rounded-2xl shadow-2xl border border-slate-700 animate-in fade-in slide-in-from-bottom-3 duration-200">
+          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+          <span>{toastMsg}</span>
+        </div>
+      )}
     </div>
   );
 }

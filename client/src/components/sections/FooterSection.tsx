@@ -19,9 +19,8 @@ interface SocialLink {
 }
 
 const socialLinks: SocialLink[] = [
-  { icon: <FaInstagram className="w-4 h-4" />, href: '#', label: 'Instagram' },
+
   { icon: <FaLinkedinIn className="w-4 h-4" />, href: '#', label: 'LinkedIn' },
-  { icon: <FaYoutube className="w-4 h-4" />, href: '#', label: 'YouTube' },
   { icon: <FaXTwitter className="w-4 h-4" />, href: '#', label: 'X / Twitter' },
   { icon: <FaGithub className="w-4 h-4" />, href: '#', label: 'GitHub' },
 ];
@@ -82,18 +81,18 @@ export default function FooterSection() {
                   </Link>
                 </li>
                 <li>
-                  <Link href="/collegeboard" className="hover:text-primary transition-colors">
-                    All Courses
+                  <Link href="/#faq" className="hover:text-primary transition-colors">
+                    FAQs & Guide
                   </Link>
                 </li>
                 <li>
-                  <Link href="/colphysdept" className="hover:text-primary transition-colors">
-                    Departments
+                  <Link href="/colleges" className="hover:text-primary transition-colors">
+                    Departments & Faculties
                   </Link>
                 </li>
                 <li>
-                  <Link href="/fourhundred" className="hover:text-primary transition-colors">
-                    400L Curriculum
+                  <Link href="/dashboard" className="hover:text-primary transition-colors">
+                    Student Dashboard
                   </Link>
                 </li>
               </ul>
@@ -106,28 +105,28 @@ export default function FooterSection() {
               </h3>
               <ul className="space-y-3 text-sm text-text-body">
                 <li>
-                  <Link href="/fourhundred" className="hover:text-primary transition-colors">
-                    Past Questions
+                  <Link href="/colleges" className="hover:text-primary transition-colors">
+                    Past Question Archive
                   </Link>
                 </li>
                 <li>
-                  <Link href="/formalmethod" className="hover:text-primary transition-colors">
-                    Lecture Notes
+                  <Link href="/colleges" className="hover:text-primary transition-colors">
+                    Lecture Notes Vault
                   </Link>
                 </li>
                 <li>
-                  <Link href="/formalmethod" className="hover:text-primary transition-colors">
-                    Formal Methods (CSC 405)
+                  <Link href="/upload" className="hover:text-primary transition-colors">
+                    Upload Study Material
                   </Link>
                 </li>
                 <li>
-                  <Link href="/level" className="hover:text-primary transition-colors">
+                  <Link href="/colleges" className="hover:text-primary transition-colors">
                     Academic Levels
                   </Link>
                 </li>
                 <li>
-                  <Link href="/registeruni" className="hover:text-primary transition-colors">
-                    Register University
+                  <Link href="/signup" className="hover:text-primary transition-colors">
+                    Student Registration
                   </Link>
                 </li>
               </ul>

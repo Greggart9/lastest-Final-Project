@@ -15,10 +15,10 @@ export default function CtaSection() {
 
         <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8 lg:gap-12">
           {/* Left Content */}
-          <div className="max-w-2xl space-y-4">
+          <div className="max-w-3xl space-y-4">
             {/* Pill Badge */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-400/15 border border-emerald-400/30 text-emerald-300 text-xs font-bold tracking-wider uppercase">
-              <Sparkles className="w-3.5 h-3.5 text-emerald-300" />
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 text-primary text-xs font-bold tracking-wider uppercase">
+              <Sparkles className="w-3.5 h-3.5" />
               <span>Start Learning Today</span>
             </div>
 
@@ -37,7 +37,7 @@ export default function CtaSection() {
 
           {/* Right Action Button */}
           <div className="w-full lg:w-auto shrink-0 flex items-center">
-            <Link href="/collegeboard" className="w-full sm:w-auto">
+            <Link href="/colleges" className="w-full sm:w-auto">
               <motion.button
                 whileHover={{ scale: 1.05, boxShadow: '0 20px 25px -5px rgba(255, 255, 255, 0.2)' }}
                 whileTap={{ scale: 0.98 }}

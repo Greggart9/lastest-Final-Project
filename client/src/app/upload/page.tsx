@@ -21,11 +21,13 @@ import {
   GraduationCap,
   FolderOpen,
   ChevronDown,
+  Eye,
 } from 'lucide-react';
 import DashboardSidebar from '@/components/sections/DashboardSidebar';
+import StudentDocumentPreviewModal from '@/components/ui/StudentDocumentPreviewModal';
 import { useAuth } from '@/hooks/useAuth';
-import { ALL_COLLEGES, College, Department } from '@/data/funaabStructure';
-import { apiUploadMaterial, apiGetSubmissions } from '@/lib/api';
+import { ALL_COLLEGES, College, Department, StudyDocument } from '@/data/funaabStructure';
+import { apiUploadMaterial, apiGetSubmissions, apiGetColleges, apiGetUniversities } from '@/lib/api';
 
 export interface StudentSubmission {
   id: string;
@@ -34,6 +36,7 @@ export interface StudentSubmission {
   courseTitle: string;
   fileName: string;
   fileSize: string;
+  fileUrl?: string;
   collegeCode: string;
   departmentName: string;
   departmentId: string;
@@ -54,24 +57,103 @@ export default function MaterialUploadPage() {
   // Active view tab: 'upload_form' | 'my_submissions'
   const [activeTab, setActiveTab] = useState<'upload_form' | 'my_submissions'>('upload_form');
 
-  // Colleges & dynamic departments
-  const defaultCollege = ALL_COLLEGES.find(
-    (c) => c.code.toLowerCase() === (user?.college || 'COLPHYS').toLowerCase()
-  ) || ALL_COLLEGES[0];
+  // Dynamic universities, colleges/faculties & departments
+  const [universities, setUniversities] = useState<any[]>([]);
+  const [selectedUniId, setSelectedUniId] = useState<string>('funaab');
+  const [collegesList, setCollegesList] = useState<any[]>(ALL_COLLEGES);
+  const [academicTerm, setAcademicTerm] = useState<'college' | 'faculty'>('college');
 
-  const [selectedCollegeCode, setSelectedCollegeCode] = useState<string>(defaultCollege.code);
-  const activeCollege = ALL_COLLEGES.find((c) => c.code === selectedCollegeCode) || ALL_COLLEGES[0];
+  // Load universities
+  useEffect(() => {
+    async function loadUnis() {
+      try {
+        const data = await apiGetUniversities();
+        const list = data.universities || [];
+        if (list.length > 0) {
+          setUniversities(list);
+          const userUni = user?.university?.toLowerCase();
+          const matched = list.find((u: any) => u.id?.toLowerCase() === userUni || u.code?.toLowerCase() === userUni);
+          if (matched) {
+            setSelectedUniId(matched.id || matched.code);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load universities:', err);
+      }
+    }
+    loadUnis();
+  }, [user]);
 
-  const defaultDept = activeCollege.departments.find(
-    (d) => d.name.toLowerCase() === (user?.department || 'Computer Science').toLowerCase()
-  ) || activeCollege.departments[0];
+  const userUniCode = (user?.university || 'FUNAAB').toLowerCase();
+  const effectiveUniId = user?.role === 'admin' ? selectedUniId : userUniCode;
+
+  // Load colleges/faculties for effective university
+  useEffect(() => {
+    async function loadLiveColleges() {
+      try {
+        const data = await apiGetColleges(effectiveUniId);
+        if (data?.colleges && data.colleges.length > 0) {
+          setCollegesList(data.colleges);
+          if (data.academicTerm) {
+            setAcademicTerm(data.academicTerm === 'faculty' ? 'faculty' : 'college');
+          }
+          const matchingUserCol = data.colleges.find(
+            (c: any) =>
+              c.code?.toLowerCase() === (user?.college || '').toLowerCase() ||
+              c.name?.toLowerCase() === (user?.college || '').toLowerCase()
+          );
+          const initialDiv = matchingUserCol || data.colleges[0];
+          setSelectedCollegeCode(initialDiv.code || initialDiv.id);
+
+          const matchingUserDept = (initialDiv.departments || []).find(
+            (d: any) => d.name?.toLowerCase() === (user?.department || '').toLowerCase()
+          );
+          const initialDept = matchingUserDept || initialDiv.departments?.[0];
+          if (initialDept) {
+            setSelectedDeptId(initialDept.id || initialDept.code || initialDept.name);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load colleges in upload page:', err);
+      }
+    }
+    loadLiveColleges();
+  }, [effectiveUniId, user]);
+
+  const activeUni = universities.find(
+    (u) =>
+      u.id?.toLowerCase() === effectiveUniId.toLowerCase() ||
+      u.code?.toLowerCase() === effectiveUniId.toLowerCase()
+  ) || null;
+
+  const isFaculty = academicTerm === 'faculty' || activeUni?.academicTerm === 'faculty';
+  const termSingular = isFaculty ? 'Faculty' : 'College';
+  const termPlural = isFaculty ? 'Faculties' : 'Colleges';
+
+  const [selectedCollegeCode, setSelectedCollegeCode] = useState<string>('COLPHYS');
+  const activeCollege = collegesList.find(
+    (c) =>
+      (c.code && c.code.toLowerCase() === selectedCollegeCode.toLowerCase()) ||
+      (c.id && c.id.toLowerCase() === selectedCollegeCode.toLowerCase())
+  ) || collegesList[0] || ALL_COLLEGES[0];
+
+  const collegeDepts = activeCollege?.departments || [];
+  const defaultDept = collegeDepts.find(
+    (d: any) => d.name?.toLowerCase() === (user?.department || 'Computer Science').toLowerCase()
+  ) || collegeDepts[0];
 
   const [selectedDeptId, setSelectedDeptId] = useState<string>(defaultDept?.id || 'computer-science');
-  const activeDept = activeCollege.departments.find((d) => d.id === selectedDeptId) || activeCollege.departments[0];
+  const activeDept = collegeDepts.find(
+    (d: any) =>
+      d.id === selectedDeptId ||
+      d.code?.toLowerCase() === selectedDeptId?.toLowerCase() ||
+      d.name?.toLowerCase() === selectedDeptId?.toLowerCase()
+  ) || collegeDepts[0] || { id: 'default', name: 'General', levels: [100, 200, 300, 400] };
 
   // Upload Form Fields
   const [level, setLevel] = useState<number>(100);
   const [semester, setSemester] = useState<'First Semester' | 'Second Semester'>('First Semester');
+  const [toastMsg, setToastMsg] = useState<string | null>(null);
   const [category, setCategory] = useState<'course_materials' | 'past_questions' | 'solutions'>('course_materials');
   const [courseCode, setCourseCode] = useState('');
   const [title, setTitle] = useState('');
@@ -87,6 +169,7 @@ export default function MaterialUploadPage() {
 
   // Submissions State (persisted to localStorage)
   const [submissions, setSubmissions] = useState<StudentSubmission[]>([]);
+  const [selectedPreviewDoc, setSelectedPreviewDoc] = useState<StudyDocument | null>(null);
 
   // Initialize submissions from live backend API or fallback to localStorage
   useEffect(() => {
@@ -207,9 +290,13 @@ export default function MaterialUploadPage() {
   // Sync department when college changes
   const handleCollegeChange = (cCode: string) => {
     setSelectedCollegeCode(cCode);
-    const col = ALL_COLLEGES.find((c) => c.code === cCode);
-    if (col && col.departments.length > 0) {
-      setSelectedDeptId(col.departments[0].id);
+    const col = collegesList.find(
+      (c) =>
+        (c.code && c.code.toLowerCase() === cCode.toLowerCase()) ||
+        (c.id && c.id.toLowerCase() === cCode.toLowerCase())
+    );
+    if (col && col.departments && col.departments.length > 0) {
+      setSelectedDeptId(col.departments[0].id || col.departments[0].code || col.departments[0].name);
     }
   };
 
@@ -220,11 +307,13 @@ export default function MaterialUploadPage() {
       const ext = file.name.split('.').pop()?.toLowerCase();
       const allowed = ['pdf', 'png', 'jpg', 'jpeg', 'docx'];
       if (!ext || !allowed.includes(ext)) {
-        alert('Invalid file format. Only PDF, PNG, JPEG, and DOCX files are accepted.');
+        setToastMsg('Invalid file format. Only PDF, PNG, JPEG, and DOCX files are accepted.');
+        setTimeout(() => setToastMsg(null), 3500);
         return;
       }
       if (file.size > 10 * 1024 * 1024) {
-        alert('File size exceeds the 10MB limit. Please upload a file under 10MB.');
+        setToastMsg('File size exceeds the 10MB limit. Please upload a file under 10MB.');
+        setTimeout(() => setToastMsg(null), 3500);
         return;
       }
       setSelectedFile(file);
@@ -251,12 +340,14 @@ export default function MaterialUploadPage() {
     e.preventDefault();
 
     if (!selectedFile) {
-      alert('Please choose a file (PDF, PNG, JPEG, or DOCX) to upload.');
+      setToastMsg('Please choose a file (PDF, PNG, JPEG, or DOCX) to upload.');
+      setTimeout(() => setToastMsg(null), 3500);
       return;
     }
 
     if (!courseCode.trim() || !title.trim()) {
-      alert('Please enter the course code and material title.');
+      setToastMsg('Please enter the course code and material title.');
+      setTimeout(() => setToastMsg(null), 3500);
       return;
     }
 
@@ -292,21 +383,39 @@ export default function MaterialUploadPage() {
       const updated = [newSubmission, ...submissions];
       saveSubmissions(updated);
 
-      // Persist to live secured backend
-      apiUploadMaterial({
-        courseCode: courseCode.trim().toUpperCase(),
-        title: title.trim(),
-        college: selectedCollegeCode,
-        department: activeDept?.name || 'Computer Science',
-        level: `${level} Level`,
-        semester,
-        category: category === 'past_questions' ? 'Past Questions' : category === 'solutions' ? 'Solutions' : 'Course Materials',
-        fileName: selectedFile.name,
-        fileSize: `${(selectedFile.size / (1024 * 1024)).toFixed(1)} MB`,
-        fileType: selectedFile.type,
-        authorName: user?.name,
-        authorEmail: user?.email,
-      }).catch(() => null);
+      // Persist to live secured backend (Cloudflare R2 + Supabase)
+      apiUploadMaterial(
+        {
+          university: activeUni?.code || 'FUNAAB',
+          courseCode: courseCode.trim().toUpperCase(),
+          title: title.trim(),
+          college: selectedCollegeCode,
+          department: activeDept?.name || 'Computer Science',
+          level: `${level} Level`,
+          semester,
+          category: category === 'past_questions' ? 'Past Questions' : category === 'solutions' ? 'Solutions' : 'Course Materials',
+          fileName: selectedFile.name,
+          fileSize: `${(selectedFile.size / (1024 * 1024)).toFixed(1)} MB`,
+          fileType: selectedFile.type,
+          authorName: user?.name,
+          authorEmail: user?.email,
+        },
+        selectedFile
+      )
+        .then((res) => {
+          if (res?.submission) {
+            setSubmissions((prev) => {
+              const updatedWithCloud = prev.map((s) =>
+                s.id === newSubmission.id
+                  ? { ...s, id: res.submission.id, fileUrl: res.submission.fileUrl }
+                  : s
+              );
+              saveSubmissions(updatedWithCloud);
+              return updatedWithCloud;
+            });
+          }
+        })
+        .catch(() => null);
 
       setIsUploading(false);
       setSelectedFile(null);
@@ -322,43 +431,6 @@ export default function MaterialUploadPage() {
     }, 1100);
   };
 
-  // Admin Simulator Handlers
-  const handleSimulateApprove = (id: string) => {
-    const updated = submissions.map((sub) => {
-      if (sub.id === id) {
-        return {
-          ...sub,
-          status: 'approved' as const,
-          progress: 100,
-          adminComment: 'Approved by Course Rep. Verified and published to the academic vault for all students.',
-        };
-      }
-      return sub;
-    });
-    saveSubmissions(updated);
-  };
-
-  const handleSimulateReject = (id: string) => {
-    const reason = prompt(
-      'Enter Admin Rejection Comment (or leave default):',
-      'The uploaded PDF is missing complete syllabus sections or has unverified marking answers. Please review and re-upload.'
-    );
-    if (reason === null) return;
-
-    const updated = submissions.map((sub) => {
-      if (sub.id === id) {
-        return {
-          ...sub,
-          status: 'rejected' as const,
-          progress: 100,
-          adminComment: reason.trim() || 'Rejected: Please provide clear, complete document pages.',
-        };
-      }
-      return sub;
-    });
-    saveSubmissions(updated);
-  };
-
   const handlePrefillForResubmit = (sub: StudentSubmission) => {
     setSelectedCollegeCode(sub.collegeCode);
     setSelectedDeptId(sub.departmentId);
@@ -371,6 +443,22 @@ export default function MaterialUploadPage() {
     setActiveTab('upload_form');
   };
 
+  const availableLevels: number[] =
+    Array.isArray((activeDept as any)?.levels) && (activeDept as any).levels.length > 0
+      ? [...(activeDept as any).levels].sort((a: number, b: number) => a - b)
+      : (activeDept?.maxLevel === 600 ? [100, 200, 300, 400, 500, 600] : activeDept?.maxLevel === 500 ? [100, 200, 300, 400, 500] : [100, 200, 300, 400]);
+
+  // Keep selected level valid whenever department or availableLevels changes
+  useEffect(() => {
+    if (availableLevels.length > 0 && !availableLevels.includes(level)) {
+      setLevel(availableLevels[0]);
+    }
+  }, [availableLevels, level]);
+
+  const inProgressCount = submissions.filter((s) => s.status === 'in_progress').length;
+  const approvedCount = submissions.filter((s) => s.status === 'approved').length;
+  const rejectedCount = submissions.filter((s) => s.status === 'rejected').length;
+
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
@@ -378,13 +466,6 @@ export default function MaterialUploadPage() {
       </div>
     );
   }
-
-  const maxLevelForDept = activeDept?.maxLevel || 400;
-  const availableLevels = maxLevelForDept === 500 ? [100, 200, 300, 400, 500] : [100, 200, 300, 400];
-
-  const inProgressCount = submissions.filter((s) => s.status === 'in_progress').length;
-  const approvedCount = submissions.filter((s) => s.status === 'approved').length;
-  const rejectedCount = submissions.filter((s) => s.status === 'rejected').length;
 
   return (
     <div className="flex flex-col lg:flex-row min-h-screen bg-slate-50 selection:bg-primary-subtle selection:text-primary-active">
@@ -477,21 +558,70 @@ export default function MaterialUploadPage() {
                 <span>Tailored Material Demarcation</span>
               </div>
               <h2 className="text-xl sm:text-2xl font-bold text-text-main">
-                Contribute Academic Materials to FUNAAB
+                Contribute Academic Materials to {activeUni?.name || 'Academic Vault'}
               </h2>
               <p className="text-xs sm:text-sm text-text-muted leading-relaxed">
-                Specify the exact college, department, level, semester, and category for this material. Once submitted, your upload will be sent to the admin for verification before going live.
+                Specify the exact institution, {termSingular.toLowerCase()}, department, level, semester, and category for this material. Once submitted, your upload will be sent to the admin for verification before going live.
               </p>
             </div>
 
             <form onSubmit={handleSubmitUpload} className="space-y-6">
+              {/* Institution Display (For students: Locked to their enrolled campus; For Admin: Selector) */}
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-text-muted mb-1.5 flex items-center gap-1.5">
+                  <Building2 className="w-3.5 h-3.5 text-primary" />
+                  <span>Target University / Institution</span>
+                </label>
+                {user?.role === 'admin' ? (
+                  <div className="relative group">
+                    <select
+                      value={selectedUniId}
+                      onChange={(e) => setSelectedUniId(e.target.value)}
+                      className="w-full appearance-none pl-4 pr-11 py-3 bg-surface-card border border-border-subtle rounded-xl text-text-main text-sm font-semibold focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition cursor-pointer hover:border-slate-300 shadow-2xs"
+                    >
+                      {universities.length > 0 ? (
+                        universities.map((u) => (
+                          <option key={u.id} value={u.id || u.code}>
+                            {u.name} ({u.code})
+                          </option>
+                        ))
+                      ) : (
+                        <option value="funaab">Federal University of Agriculture, Abeokuta (FUNAAB)</option>
+                      )}
+                    </select>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-text-muted group-hover:text-primary transition-colors">
+                      <ChevronDown className="w-4 h-4" />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-800 flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold text-xs shrink-0">
+                        {activeUni?.code || user?.university || 'UNI'}
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-slate-900">
+                          {activeUni?.name || user?.university || 'Federal University of Agriculture, Abeokuta'}
+                        </p>
+                        <p className="text-[11px] text-slate-500 font-medium">
+                          Enrolled Campus: {activeUni?.code || user?.university || 'FUNAAB'}
+                        </p>
+                      </div>
+                    </div>
+                    <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-blue-50 border border-blue-200 text-primary text-[11px] font-bold">
+                      Enrolled Campus
+                    </span>
+                  </div>
+                )}
+              </div>
+
               {/* College & Department Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                {/* College Selector */}
+                {/* College / Faculty Selector */}
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-wider text-text-muted mb-1.5 flex items-center gap-1.5">
                     <Building2 className="w-3.5 h-3.5 text-primary" />
-                    <span>Target College / Faculty</span>
+                    <span>Target {termSingular}</span>
                   </label>
                   <div className="relative group">
                     <select
@@ -499,11 +629,15 @@ export default function MaterialUploadPage() {
                       onChange={(e) => handleCollegeChange(e.target.value)}
                       className="w-full appearance-none pl-4 pr-11 py-3 bg-surface-card border border-border-subtle rounded-xl text-text-main text-sm font-semibold focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition cursor-pointer hover:border-slate-300 shadow-2xs"
                     >
-                      {ALL_COLLEGES.map((c) => (
-                        <option key={c.id} value={c.code}>
-                          {c.code} — {c.fullName}
-                        </option>
-                      ))}
+                      {collegesList.map((c) => {
+                        const val = c.code || c.id;
+                        const label = c.fullName || c.name || c.code;
+                        return (
+                          <option key={val} value={val}>
+                            {c.code ? `${c.code} — ` : ''}{label}
+                          </option>
+                        );
+                      })}
                     </select>
                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-text-muted group-hover:text-primary transition-colors">
                       <ChevronDown className="w-4 h-4" />
@@ -523,11 +657,14 @@ export default function MaterialUploadPage() {
                       onChange={(e) => setSelectedDeptId(e.target.value)}
                       className="w-full appearance-none pl-4 pr-11 py-3 bg-surface-card border border-border-subtle rounded-xl text-text-main text-sm font-semibold focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition cursor-pointer hover:border-slate-300 shadow-2xs"
                     >
-                      {activeCollege.departments.map((d) => (
-                        <option key={d.id} value={d.id}>
-                          {d.name} ({d.code})
-                        </option>
-                      ))}
+                      {(activeCollege.departments || []).map((d: any) => {
+                        const val = d.id || d.code || d.name;
+                        return (
+                          <option key={val} value={val}>
+                            {d.name} {d.code ? `(${d.code})` : ''}
+                          </option>
+                        );
+                      })}
                     </select>
                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-text-muted group-hover:text-primary transition-colors">
                       <ChevronDown className="w-4 h-4" />
@@ -899,14 +1036,52 @@ export default function MaterialUploadPage() {
                     </div>
 
                     {/* File info banner */}
-                    <div className="flex items-center justify-between text-xs text-text-muted px-1">
-                      <div className="flex items-center gap-2 font-mono">
+                    <div className="flex flex-wrap items-center justify-between text-xs text-text-muted px-1 gap-2">
+                      <div className="flex items-center gap-2 font-mono flex-wrap">
                         <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${getFileBadge(sub.fileName).bg}`}>
                           {getFileBadge(sub.fileName).label}
                         </span>
-                        <span>{sub.fileName}</span>
+                        <span className="truncate max-w-[180px] sm:max-w-xs">{sub.fileName}</span>
                         <span>•</span>
                         <span>{sub.fileSize}</span>
+                        {sub.fileUrl && (
+                          <div className="flex items-center gap-2 ml-2">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setSelectedPreviewDoc({
+                                  id: sub.id,
+                                  title: sub.title,
+                                  courseCode: sub.courseCode,
+                                  courseTitle: sub.courseTitle,
+                                  fileName: sub.fileName,
+                                  fileSize: sub.fileSize,
+                                  category: sub.category,
+                                  semester: sub.semester,
+                                  year: sub.academicYear,
+                                  uploadedBy: user?.name || 'You',
+                                  verified: sub.status === 'approved',
+                                  downloads: 48,
+                                  previewSnippet: sub.title,
+                                  fileUrl: sub.fileUrl,
+                                })
+                              }
+                              className="inline-flex items-center gap-1 font-sans text-xs font-bold text-primary hover:underline cursor-pointer"
+                            >
+                              <Eye className="w-3.5 h-3.5" />
+                              <span>Preview</span>
+                            </button>
+                            <a
+                              href={sub.fileUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 font-sans text-xs font-bold text-slate-500 hover:text-slate-800 hover:underline"
+                            >
+                              <ExternalLink className="w-3.5 h-3.5" />
+                              <span>Open Full</span>
+                            </a>
+                          </div>
+                        )}
                       </div>
                       <span>Submitted: {sub.uploadedAt}</span>
                     </div>
@@ -955,28 +1130,16 @@ export default function MaterialUploadPage() {
                       </div>
                     )}
 
-                    {/* Interactive Admin Review Simulator (For quick testing/demo) */}
+                    {/* Status note when pending review */}
                     {isInProgress && (
-                      <div className="pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs bg-slate-50/70 p-3 rounded-2xl">
-                        <span className="text-text-muted font-medium">
-                          Simulate Admin Action (Testing / Verification):
+                      <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-text-muted">
+                        <span className="flex items-center gap-1.5 font-medium">
+                          <Clock className="w-3.5 h-3.5 text-amber-500" />
+                          <span>Submitted for verification by Department Course Rep / Admin</span>
                         </span>
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => handleSimulateApprove(sub.id)}
-                            className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition cursor-pointer flex items-center gap-1"
-                          >
-                            <CheckCircle2 className="w-3.5 h-3.5" />
-                            <span>Simulate Approval</span>
-                          </button>
-                          <button
-                            onClick={() => handleSimulateReject(sub.id)}
-                            className="px-3.5 py-1.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 font-bold text-xs transition cursor-pointer flex items-center gap-1"
-                          >
-                            <X className="w-3.5 h-3.5" />
-                            <span>Simulate Rejection</span>
-                          </button>
-                        </div>
+                        <span className="text-[11px] font-semibold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                          In Queue
+                        </span>
                       </div>
                     )}
                   </motion.div>
@@ -986,6 +1149,20 @@ export default function MaterialUploadPage() {
           </section>
         )}
       </main>
+
+      {/* Floating Toast Notification */}
+      {toastMsg && (
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 bg-slate-900 text-white text-xs font-semibold rounded-2xl shadow-2xl border border-slate-700 animate-in fade-in slide-in-from-bottom-3 duration-200">
+          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+          <span>{toastMsg}</span>
+        </div>
+      )}
+
+      {/* In-App Document Preview Modal */}
+      <StudentDocumentPreviewModal
+        document={selectedPreviewDoc}
+        onClose={() => setSelectedPreviewDoc(null)}
+      />
     </div>
   );
 }

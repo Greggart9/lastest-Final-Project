@@ -46,6 +46,7 @@ export async function apiSignUp(payload: {
   lastName: string;
   email: string;
   password: string;
+  university?: string;
   college?: string;
   department?: string;
   matricNo?: string;
@@ -145,23 +146,41 @@ export async function apiResetPassword(email: string, code: string, newPassword:
 // --------------------------------------------------------
 // Material Upload & Submissions
 // --------------------------------------------------------
-export async function apiUploadMaterial(payload: {
-  courseCode: string;
-  title: string;
-  college: string;
-  department: string;
-  level: string;
-  semester: string;
-  category: string;
-  fileName: string;
-  fileSize?: string;
-  fileType?: string;
-  authorName?: string;
-  authorEmail?: string;
-}) {
+export async function apiUploadMaterial(
+  payload: {
+    courseCode: string;
+    title: string;
+    college: string;
+    department: string;
+    level: string;
+    semester: string;
+    category: string;
+    fileName: string;
+    fileSize?: string;
+    fileType?: string;
+    authorName?: string;
+    authorEmail?: string;
+    university?: string;
+  },
+  file?: File | Blob
+) {
+  let body: BodyInit;
+  if (file) {
+    const formData = new FormData();
+    formData.append('file', file);
+    Object.entries(payload).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        formData.append(key, String(value));
+      }
+    });
+    body = formData;
+  } else {
+    body = JSON.stringify(payload);
+  }
+
   const res = await apiFetch('/api/materials/upload', {
     method: 'POST',
-    body: JSON.stringify(payload),
+    body,
   });
 
   const data = await res.json();
@@ -182,12 +201,60 @@ export async function apiGetSubmissions() {
 // --------------------------------------------------------
 // Admin Services
 // --------------------------------------------------------
+export async function apiGetColleges(universityId = 'funaab') {
+  const res = await apiFetch(`/api/academic/colleges?universityId=${encodeURIComponent(universityId)}`);
+  if (!res.ok) {
+    throw new Error('Failed to fetch academic colleges.');
+  }
+  return res.json();
+}
+
 export async function apiGetAdminStats() {
   const res = await apiFetch('/api/admin/stats');
   if (!res.ok) {
     throw new Error('Failed to fetch admin stats.');
   }
   return res.json();
+}
+
+export async function apiAdminUploadMaterial(
+  payload: {
+    courseCode: string;
+    title: string;
+    college: string;
+    department: string;
+    level: string;
+    semester: string;
+    category: string;
+    fileName: string;
+    fileSize?: string;
+    fileType?: string;
+  },
+  file?: File | Blob
+) {
+  let body: BodyInit;
+  if (file) {
+    const formData = new FormData();
+    formData.append('file', file);
+    Object.entries(payload).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        formData.append(key, String(value));
+      }
+    });
+    body = formData;
+  } else {
+    body = JSON.stringify(payload);
+  }
+
+  const res = await apiFetch('/api/admin/materials/upload', {
+    method: 'POST',
+    body,
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.error || 'Failed to upload admin material.');
+  }
+  return data;
 }
 
 export async function apiGetAdminSubmissions(params?: {
@@ -296,6 +363,27 @@ export async function apiDeleteUser(id: string) {
   return data;
 }
 
+export async function apiCreateAdminUser(payload: {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  matricNo?: string;
+  role?: string;
+  college?: string;
+  department?: string;
+}) {
+  const res = await apiFetch('/api/admin/users', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.error || 'Failed to create user.');
+  }
+  return data;
+}
+
 export async function apiGetUniversities() {
   const res = await apiFetch('/api/admin/universities');
   if (!res.ok) {
@@ -304,7 +392,12 @@ export async function apiGetUniversities() {
   return res.json();
 }
 
-export async function apiCreateUniversity(payload: { name: string; code: string; shortName?: string }) {
+export async function apiCreateUniversity(payload: {
+  name: string;
+  code: string;
+  shortName?: string;
+  academicTerm?: 'college' | 'faculty';
+}) {
   const res = await apiFetch('/api/admin/universities', {
     method: 'POST',
     body: JSON.stringify(payload),
@@ -341,8 +434,8 @@ export async function apiDeleteUniversity(id: string) {
 
 export async function apiCreateCollege(payload: {
   universityId?: string;
-  code: string;
-  name: string;
+  code?: string;
+  name?: string;
   fullName?: string;
 }) {
   const res = await apiFetch('/api/admin/colleges', {
@@ -434,4 +527,38 @@ export async function apiDeleteDepartment(
     throw new Error(data.error || 'Failed to delete department.');
   }
   return data;
+}
+
+export async function apiSetCollegeLevels(
+  collegeCode: string,
+  levels: number[],
+  universityId: string = 'funaab'
+) {
+  const res = await apiFetch(`/api/admin/colleges/${collegeCode}/levels`, {
+    method: 'PUT',
+    body: JSON.stringify({ levels, universityId }),
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.error || 'Failed to set college levels.');
+  }
+  return data;
+}
+
+export async function apiGetVaultMaterials(filters: {
+  college?: string;
+  department?: string;
+  level?: string | number;
+  category?: string;
+  university?: string;
+} = {}) {
+  const params = new URLSearchParams();
+  if (filters.college) params.set('college', filters.college);
+  if (filters.department) params.set('department', filters.department);
+  if (filters.level) params.set('level', String(filters.level));
+  if (filters.category && filters.category !== 'all') params.set('category', filters.category);
+  if (filters.university) params.set('university', filters.university);
+
+  const res = await apiFetch(`/api/materials?${params.toString()}`);
+  return res.json();
 }

@@ -14,6 +14,8 @@ import {
   Menu,
   X,
   ChevronRight,
+  ShieldCheck,
+  Building2,
 } from 'lucide-react';
 import BrandLogo from '../ui/BrandLogo';
 import { useAuth } from '@/hooks/useAuth';
@@ -52,7 +54,7 @@ export default function DashboardSidebar() {
         pathname === '/formalmethod',
     },
     {
-      label: 'Colleges',
+      label: user?.academicTerm === 'faculty' ? 'Faculties' : 'Colleges',
       href: '/colleges',
       icon: <GraduationCap className="w-5 h-5" />,
       active:
@@ -78,6 +80,16 @@ export default function DashboardSidebar() {
       icon: <Settings className="w-5 h-5" />,
       active: pathname === '/settings' || pathname === '/updatepw',
     },
+    ...(user?.role === 'admin'
+      ? [
+          {
+            label: 'Admin Portal',
+            href: '/admin',
+            icon: <ShieldCheck className="w-5 h-5 text-emerald-500" />,
+            active: pathname.startsWith('/admin'),
+          },
+        ]
+      : []),
   ];
 
   const displayName = user?.firstName || user?.name?.split(' ')[0] || 'Student';
@@ -180,13 +192,17 @@ export default function DashboardSidebar() {
 
                 {/* Campus Student Badge */}
                 <div className="mb-6 flex items-center gap-3 px-3.5 py-2.5 rounded-2xl bg-slate-900 border border-slate-800 text-xs text-slate-300 shadow-2xs">
-                  <img
-                    src="/Images/funaab.png"
-                    alt="FUNAAB logo"
-                    className="h-5 w-auto object-contain shrink-0"
-                  />
+                  {user?.university?.toUpperCase() === 'FUNAAB' || !user?.university ? (
+                    <img
+                      src="/Images/funaab.png"
+                      alt="FUNAAB logo"
+                      className="h-5 w-auto object-contain shrink-0"
+                    />
+                  ) : (
+                    <Building2 className="w-5 h-5 text-primary shrink-0" />
+                  )}
                   <div className="overflow-hidden">
-                    <p className="font-bold text-white truncate">FUNAAB Campus</p>
+                    <p className="font-bold text-white truncate">{user?.university || 'FUNAAB'} Campus</p>
                     <p className="text-[11px] text-slate-400 truncate">
                       {displayCollege} • {displayDept}
                     </p>
@@ -279,15 +295,19 @@ export default function DashboardSidebar() {
             />
           </Link>
 
-          {/* FUNAAB Campus Badge */}
+          {/* Campus Badge */}
           <div className="mb-6 flex items-center gap-2.5 px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-300 shadow-2xs">
-            <img
-              src="/Images/funaab.png"
-              alt="FUNAAB logo"
-              className="h-4 w-auto object-contain shrink-0"
-            />
+            {user?.university?.toUpperCase() === 'FUNAAB' || !user?.university ? (
+              <img
+                src="/Images/funaab.png"
+                alt="FUNAAB logo"
+                className="h-4 w-auto object-contain shrink-0"
+              />
+            ) : (
+              <Building2 className="w-4 h-4 text-primary shrink-0" />
+            )}
             <div className="overflow-hidden">
-              <p className="font-semibold text-white truncate">FUNAAB Campus</p>
+              <p className="font-semibold text-white truncate">{user?.university || 'FUNAAB'} Campus</p>
               <p className="text-[10px] text-slate-400 truncate">
                 {displayCollege} • {displayDept}
               </p>

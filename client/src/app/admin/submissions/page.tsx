@@ -16,6 +16,7 @@ import {
   FileText,
   AlertCircle,
   ExternalLink,
+  ChevronDown,
 } from 'lucide-react';
 import {
   apiGetAdminSubmissions,
@@ -32,6 +33,7 @@ export default function AdminSubmissionsPage() {
   const [categoryFilter, setCategoryFilter] = useState<'all' | 'course_materials' | 'past_questions' | 'solutions'>('all');
   const [selectedDoc, setSelectedDoc] = useState<DocumentItem | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [toastMsg, setToastMsg] = useState<string | null>(null);
 
   const loadSubmissions = async () => {
     try {
@@ -72,8 +74,11 @@ export default function AdminSubmissionsPage() {
             : s
         )
       );
+      setToastMsg(`Approved "${doc.title || doc.courseCode}" successfully.`);
+      setTimeout(() => setToastMsg(null), 3000);
     } catch (err: any) {
-      alert(err.message || 'Failed to approve');
+      setToastMsg(err.message || 'Failed to approve');
+      setTimeout(() => setToastMsg(null), 3500);
     }
   };
 
@@ -87,8 +92,11 @@ export default function AdminSubmissionsPage() {
           s.id === doc.id ? { ...s, status: 'rejected', reviewNotes: reason || 'Rejected.' } : s
         )
       );
+      setToastMsg(`Rejected "${doc.title || doc.courseCode}".`);
+      setTimeout(() => setToastMsg(null), 3000);
     } catch (err: any) {
-      alert(err.message || 'Failed to reject');
+      setToastMsg(err.message || 'Failed to reject');
+      setTimeout(() => setToastMsg(null), 3500);
     }
   };
 
@@ -97,8 +105,11 @@ export default function AdminSubmissionsPage() {
     try {
       await apiDeleteSubmission(id);
       setSubmissions((prev) => prev.filter((s) => s.id !== id));
+      setToastMsg('Material permanently deleted.');
+      setTimeout(() => setToastMsg(null), 3000);
     } catch (err: any) {
-      alert(err.message || 'Failed to delete');
+      setToastMsg(err.message || 'Failed to delete');
+      setTimeout(() => setToastMsg(null), 3500);
     }
   };
 
@@ -123,11 +134,11 @@ export default function AdminSubmissionsPage() {
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-extrabold text-white tracking-tight flex items-center gap-2.5">
-            <FileCheck2 className="h-6 w-6 text-emerald-400" />
+          <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2.5">
+            <FileCheck2 className="h-6 w-6 text-blue-600" />
             <span>Materials Verification Desk</span>
           </h2>
-          <p className="text-sm text-slate-400 mt-1">
+          <p className="text-xs sm:text-sm text-slate-500 mt-1">
             Review uploaded lecture notes, examination archives, and solutions in-app without downloading.
           </p>
         </div>
@@ -135,49 +146,49 @@ export default function AdminSubmissionsPage() {
         <button
           onClick={loadSubmissions}
           disabled={refreshing}
-          className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition-colors self-start sm:self-auto disabled:opacity-50"
+          className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-50 shadow-xs transition-colors self-start sm:self-auto disabled:opacity-50 cursor-pointer"
         >
-          <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? 'animate-spin text-emerald-400' : ''}`} />
+          <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? 'animate-spin text-blue-600' : ''}`} />
           <span>Sync Desk</span>
         </button>
       </div>
 
-      {/* Tabs & Filters */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 rounded-2xl bg-slate-900/80 border border-slate-800">
+      {/* Tabs & Filters Ribbon (Light Palette & Spaced Select Dropdowns) */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 rounded-2xl bg-white border border-slate-200/90 shadow-xs">
         {/* Status Tab buttons */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0">
           <button
             onClick={() => setStatusFilter('all')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors ${
               statusFilter === 'all'
-                ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
-                : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                ? 'bg-blue-600 text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
             All Submissions
           </button>
           <button
             onClick={() => setStatusFilter('pending')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap flex items-center gap-1.5 transition-colors ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap flex items-center gap-1.5 transition-colors ${
               statusFilter === 'pending'
-                ? 'bg-amber-500 text-slate-950 font-bold'
-                : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                ? 'bg-amber-500 text-white font-bold shadow-xs'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
             <Clock className="h-3 w-3" />
             <span>Pending Review</span>
             {pendingCount > 0 && (
-              <span className="px-1.5 py-0.2 rounded-full bg-slate-950/30 text-[10px]">
+              <span className="px-1.5 py-0.2 rounded-full bg-white/30 text-[10px]">
                 {pendingCount}
               </span>
             )}
           </button>
           <button
             onClick={() => setStatusFilter('approved')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap flex items-center gap-1.5 transition-colors ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap flex items-center gap-1.5 transition-colors ${
               statusFilter === 'approved'
-                ? 'bg-emerald-500 text-slate-950 font-bold'
-                : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                ? 'bg-emerald-600 text-white font-bold shadow-xs'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
             <CheckCircle2 className="h-3 w-3" />
@@ -185,10 +196,10 @@ export default function AdminSubmissionsPage() {
           </button>
           <button
             onClick={() => setStatusFilter('rejected')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap flex items-center gap-1.5 transition-colors ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap flex items-center gap-1.5 transition-colors ${
               statusFilter === 'rejected'
-                ? 'bg-rose-500 text-white font-bold'
-                : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                ? 'bg-rose-600 text-white font-bold shadow-xs'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
             <XCircle className="h-3 w-3" />
@@ -196,7 +207,7 @@ export default function AdminSubmissionsPage() {
           </button>
         </div>
 
-        {/* Search & Category dropdown */}
+        {/* Search & Spaced Category Select */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
           <div className="relative">
             <Search className="h-4 w-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -205,39 +216,42 @@ export default function AdminSubmissionsPage() {
               placeholder="Search course, title, student..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full sm:w-64 pl-9 pr-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-emerald-500"
+              className="w-full sm:w-64 pl-9 pr-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-500"
             />
           </div>
 
-          <select
-            value={categoryFilter}
-            onChange={(e: any) => setCategoryFilter(e.target.value)}
-            className="px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-200 focus:outline-none focus:border-emerald-500"
-          >
-            <option value="all">All Categories</option>
-            <option value="course_materials">Course Materials</option>
-            <option value="past_questions">Past Questions</option>
-            <option value="solutions">Solutions & Tutorials</option>
-          </select>
+          <div className="relative">
+            <select
+              value={categoryFilter}
+              onChange={(e: any) => setCategoryFilter(e.target.value)}
+              className="w-full appearance-none pl-3.5 pr-10 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-800 font-medium focus:outline-none focus:border-blue-500 cursor-pointer"
+            >
+              <option value="all">All Categories</option>
+              <option value="course_materials">Course Materials</option>
+              <option value="past_questions">Past Questions</option>
+              <option value="solutions">Solutions & Tutorials</option>
+            </select>
+            <ChevronDown className="h-3.5 w-3.5 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          </div>
         </div>
       </div>
 
-      {/* Submissions List / Grid */}
+      {/* Submissions Grid (Light Palette) */}
       {loading ? (
-        <div className="p-16 text-center text-slate-400">
-          <RefreshCw className="h-8 w-8 animate-spin text-emerald-400 mx-auto mb-3" />
+        <div className="p-16 text-center text-slate-500">
+          <RefreshCw className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-3" />
           <p className="text-sm font-semibold">Loading submissions desk...</p>
         </div>
       ) : submissions.length === 0 ? (
-        <div className="p-16 text-center bg-slate-900/60 rounded-2xl border border-slate-800 text-slate-400">
-          <FileText className="h-10 w-10 text-slate-600 mx-auto mb-3" />
-          <p className="text-base font-semibold text-slate-300">No matching submissions found</p>
+        <div className="p-16 text-center bg-white rounded-2xl border border-slate-200 text-slate-500 shadow-xs">
+          <FileText className="h-10 w-10 text-slate-300 mx-auto mb-3" />
+          <p className="text-base font-bold text-slate-800">No matching submissions found</p>
           <p className="text-xs text-slate-500 mt-1">
             Try adjusting your search query, status tab, or category filter.
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {submissions.map((doc) => {
             const isPending = doc.status === 'pending' || doc.status === 'in_progress';
             const isApproved = doc.status === 'approved';
@@ -246,21 +260,21 @@ export default function AdminSubmissionsPage() {
             return (
               <div
                 key={doc.id}
-                className="rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 p-5 flex flex-col justify-between transition-all group shadow-lg"
+                className="rounded-2xl bg-white border border-slate-200/90 hover:border-blue-400 p-5 flex flex-col justify-between transition-all group shadow-xs hover:shadow-md"
               >
                 <div>
                   {/* Top Bar: Status pill & course code */}
                   <div className="flex items-center justify-between gap-2 mb-3">
-                    <span className="font-mono font-bold text-sm text-emerald-400 px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20">
+                    <span className="font-mono font-bold text-xs text-blue-700 px-2.5 py-0.5 rounded-lg bg-blue-50 border border-blue-200">
                       {doc.courseCode}
                     </span>
                     <span
-                      className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full border ${
+                      className={`text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full border ${
                         isApproved
-                          ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                          ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
                           : isRejected
-                          ? 'bg-rose-500/20 text-rose-300 border-rose-500/30'
-                          : 'bg-amber-500/20 text-amber-300 border-amber-500/30'
+                          ? 'bg-rose-50 text-rose-800 border-rose-200'
+                          : 'bg-amber-50 text-amber-800 border-amber-200'
                       }`}
                     >
                       {isPending ? 'Pending Review' : doc.status}
@@ -268,47 +282,47 @@ export default function AdminSubmissionsPage() {
                   </div>
 
                   {/* Title */}
-                  <h4 className="text-sm font-bold text-white line-clamp-2 leading-snug group-hover:text-emerald-300 transition-colors">
+                  <h4 className="text-sm font-bold text-slate-900 line-clamp-2 leading-snug group-hover:text-blue-700 transition-colors">
                     {doc.title}
                   </h4>
 
                   {/* File & Meta */}
-                  <div className="mt-3 space-y-1.5 text-xs text-slate-400">
-                    <div className="flex items-center gap-1.5 text-slate-300">
+                  <div className="mt-3 space-y-1.5 text-xs text-slate-500">
+                    <div className="flex items-center gap-1.5 text-slate-700 font-medium">
                       <FileText className="h-3.5 w-3.5 text-slate-400 shrink-0" />
                       <span className="truncate">{doc.fileName}</span>
                     </div>
 
                     <div className="flex items-center gap-1.5">
-                      <Building2 className="h-3.5 w-3.5 text-slate-500 shrink-0" />
+                      <Building2 className="h-3.5 w-3.5 text-slate-400 shrink-0" />
                       <span className="truncate">
                         {doc.college || doc.collegeCode || 'COLPHYS'} &bull;{' '}
                         {doc.department || doc.departmentName || 'Computer Science'} ({doc.level}L)
                       </span>
                     </div>
 
-                    <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1">
+                    <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1 border-t border-slate-100">
                       <span>Uploader: {doc.authorName || 'Student'}</span>
                       <span>{doc.uploadedAt}</span>
                     </div>
                   </div>
 
-                  {/* Review comment preview if exists */}
+                  {/* Review comment preview */}
                   {(doc.reviewNotes || doc.adminComment) && (
-                    <div className="mt-3 p-2.5 rounded-xl bg-slate-950/60 border border-slate-800 text-[11px] text-slate-300">
-                      <span className="font-semibold text-slate-400">Note: </span>
+                    <div className="mt-3 p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-[11px] text-slate-700">
+                      <span className="font-bold text-slate-900">Note: </span>
                       {doc.reviewNotes || doc.adminComment}
                     </div>
                   )}
                 </div>
 
-                {/* Card Action Footer */}
-                <div className="mt-5 pt-3 border-t border-slate-800 flex items-center justify-between gap-2">
+                {/* Card Footer */}
+                <div className="mt-5 pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
                   <button
                     onClick={() => setSelectedDoc(doc)}
-                    className="flex-1 py-1.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 hover:text-white flex items-center justify-center gap-1.5 transition-colors"
+                    className="flex-1 py-1.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-700 hover:text-slate-900 flex items-center justify-center gap-1.5 transition-colors"
                   >
-                    <Eye className="h-3.5 w-3.5 text-emerald-400" />
+                    <Eye className="h-3.5 w-3.5 text-blue-600" />
                     <span>In-App Preview</span>
                   </button>
 
@@ -316,7 +330,7 @@ export default function AdminSubmissionsPage() {
                     {!isApproved && (
                       <button
                         onClick={() => handleQuickApprove(doc)}
-                        className="p-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-slate-950 border border-emerald-500/30 transition-colors"
+                        className="p-2 rounded-xl bg-emerald-50 hover:bg-emerald-600 hover:text-white text-emerald-700 border border-emerald-200 transition-colors"
                         title="Approve Material"
                       >
                         <CheckCircle2 className="h-4 w-4" />
@@ -325,7 +339,7 @@ export default function AdminSubmissionsPage() {
                     {!isRejected && (
                       <button
                         onClick={() => handleQuickReject(doc)}
-                        className="p-2 rounded-xl bg-rose-600/20 hover:bg-rose-600 text-rose-300 hover:text-white border border-rose-500/30 transition-colors"
+                        className="p-2 rounded-xl bg-rose-50 hover:bg-rose-600 hover:text-white text-rose-700 border border-rose-200 transition-colors"
                         title="Reject Material"
                       >
                         <XCircle className="h-4 w-4" />
@@ -333,7 +347,7 @@ export default function AdminSubmissionsPage() {
                     )}
                     <button
                       onClick={() => handleDelete(doc.id)}
-                      className="p-2 rounded-xl text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
+                      className="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
                       title="Delete"
                     >
                       <Trash2 className="h-4 w-4" />
@@ -353,6 +367,14 @@ export default function AdminSubmissionsPage() {
         onUpdated={handleDocUpdated}
         onDeleted={handleDocDeleted}
       />
+
+      {/* Floating Toast Notification */}
+      {toastMsg && (
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 bg-slate-900 text-white text-xs font-semibold rounded-2xl shadow-2xl border border-slate-700 animate-in fade-in slide-in-from-bottom-3 duration-200">
+          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+          <span>{toastMsg}</span>
+        </div>
+      )}
     </div>
   );
 }

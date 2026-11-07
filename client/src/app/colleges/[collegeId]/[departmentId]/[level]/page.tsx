@@ -1,7 +1,8 @@
 'use client';
 
-import React, { use, useState } from 'react';
+import React, { use, useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   GraduationCap,
@@ -22,6 +23,7 @@ import {
   Bookmark,
 } from 'lucide-react';
 import DashboardSidebar from '@/components/sections/DashboardSidebar';
+import StudentDocumentPreviewModal from '@/components/ui/StudentDocumentPreviewModal';
 import { useAuth } from '@/hooks/useAuth';
 import {
   getCollegeByCodeOrId,
@@ -30,6 +32,7 @@ import {
   StudyDocument,
   ALL_COLLEGES,
 } from '@/data/funaabStructure';
+import { apiGetVaultMaterials, apiGetUniversities, apiGetColleges } from '@/lib/api';
 
 interface LevelPageProps {
   params: Promise<{
@@ -42,14 +45,74 @@ interface LevelPageProps {
 export default function LevelRepositoryPage({ params }: LevelPageProps) {
   const resolvedParams = use(params);
   const { collegeId, departmentId, level: levelStr } = resolvedParams;
+  const router = useRouter();
 
   const levelNumber = parseInt(levelStr.replace(/[^0-9]/g, ''), 10) || 100;
   const { user, loading } = useAuth(true);
 
-  const college = getCollegeByCodeOrId(collegeId) || ALL_COLLEGES[0];
+  const [liveCollege, setLiveCollege] = useState<any>(
+    getCollegeByCodeOrId(collegeId) || ALL_COLLEGES[0]
+  );
+  const [academicTerm, setAcademicTerm] = useState<'college' | 'faculty'>('college');
+  const college = liveCollege;
+
+  useEffect(() => {
+    async function loadStructure() {
+      try {
+        const uniData = await apiGetUniversities();
+        const unis = uniData?.universities || [];
+        const userUniKey = (user?.university || 'FUNAAB').toLowerCase();
+
+        // Scope to student's enrolled university (admins can inspect all)
+        const targetUnis = (user?.role === 'admin')
+          ? unis
+          : unis.filter((u: any) => u.id?.toLowerCase() === userUniKey || u.code?.toLowerCase() === userUniKey);
+
+        for (const u of targetUnis) {
+          const found = (u.colleges || []).find(
+            (c: any) =>
+              c.code?.toLowerCase() === decodeURIComponent(collegeId).toLowerCase() ||
+              c.id?.toLowerCase() === decodeURIComponent(collegeId).toLowerCase() ||
+              c.name?.toLowerCase() === decodeURIComponent(collegeId).toLowerCase()
+          );
+          if (found) {
+            setLiveCollege(found);
+            if (u.academicTerm === 'faculty') setAcademicTerm('faculty');
+            return;
+          }
+        }
+
+        // If user is a student and division is not in their enrolled university, redirect to their colleges directory
+        if (user && user.role !== 'admin' && targetUnis.length > 0) {
+          router.replace('/colleges');
+          return;
+        }
+
+        const data = await apiGetColleges(userUniKey);
+        if (data?.colleges) {
+          const found = data.colleges.find(
+            (c: any) =>
+              c.code?.toLowerCase() === decodeURIComponent(collegeId).toLowerCase() ||
+              c.id?.toLowerCase() === decodeURIComponent(collegeId).toLowerCase() ||
+              c.name?.toLowerCase() === decodeURIComponent(collegeId).toLowerCase()
+          );
+          if (found) setLiveCollege(found);
+        }
+      } catch {}
+    }
+    loadStructure();
+  }, [collegeId, user, router]);
+
   const department =
+    liveCollege?.departments?.find(
+      (d: any) =>
+        d.id?.toLowerCase() === decodeURIComponent(departmentId).toLowerCase() ||
+        d.code?.toLowerCase() === decodeURIComponent(departmentId).toLowerCase() ||
+        d.name?.toLowerCase() === decodeURIComponent(departmentId).toLowerCase() ||
+        d.name?.toLowerCase().replace(/\s+/g, '-') === decodeURIComponent(departmentId).toLowerCase()
+    ) ||
     getDepartmentBySlug(college, departmentId) ||
-    college.departments[0] || {
+    college.departments?.[0] || {
       id: departmentId,
       name: departmentId.replace(/-/g, ' ').toUpperCase(),
       code: 'DEP',
@@ -64,6 +127,54 @@ export default function LevelRepositoryPage({ params }: LevelPageProps) {
   const [previewDoc, setPreviewDoc] = useState<StudyDocument | null>(null);
   const [downloadToast, setDownloadToast] = useState<string | null>(null);
 
+  // Fetch live materials from database + R2
+  const [liveMaterials, setLiveMaterials] = useState<StudyDocument[]>([]);
+
+  useEffect(() => {
+    async function fetchLiveMaterials() {
+      try {
+        const data = await apiGetVaultMaterials({
+          college: college.code || college.id || collegeId,
+          department: department.name,
+          level: levelNumber,
+          university: user?.university || 'FUNAAB',
+        });
+        if (data?.materials && Array.isArray(data.materials)) {
+          const mapped: StudyDocument[] = data.materials.map((m: any) => {
+            const rawCat = (m.category || '').toLowerCase().replace(/[\s_-]+/g, '');
+            let normCat: 'course_materials' | 'past_questions' | 'solutions' = 'course_materials';
+            if (rawCat.includes('past') || rawCat.includes('question') || rawCat.includes('exam')) {
+              normCat = 'past_questions';
+            } else if (rawCat.includes('solution') || rawCat.includes('answer')) {
+              normCat = 'solutions';
+            }
+
+            return {
+              id: m.id,
+              title: m.title,
+              courseCode: m.courseCode,
+              courseTitle: m.title,
+              category: normCat,
+              semester: m.semester || 'First Semester',
+              fileName: m.fileName || `${m.courseCode}.pdf`,
+              fileSize: m.fileSize || '3.2 MB',
+              uploadedBy: m.authorName || 'Student',
+              verified: true,
+              downloads: typeof m.downloads === 'number' ? m.downloads : 48,
+              year: m.academicYear || '2025/2026',
+              fileUrl: m.fileUrl,
+              previewSnippet: `Official curriculum document for ${m.courseCode} (${m.title}). Approved for student study and review.`,
+            };
+          });
+          setLiveMaterials(mapped);
+        }
+      } catch (err) {
+        console.error('Failed to load live vault materials:', err);
+      }
+    }
+    fetchLiveMaterials();
+  }, [collegeId, department.name, levelNumber]);
+
   // Fetch materials for this specific department & level
   const rawMaterials = getMaterialsForLevel(
     department.name,
@@ -71,19 +182,26 @@ export default function LevelRepositoryPage({ params }: LevelPageProps) {
     levelNumber
   );
 
+  const combinedMaterials = [
+    ...liveMaterials,
+    ...rawMaterials.filter(
+      (rm) => !liveMaterials.some((lm) => lm.id === rm.id || (lm.courseCode === rm.courseCode && lm.title.toLowerCase() === rm.title.toLowerCase()))
+    ),
+  ];
+
   // Count items for each folder
-  const courseMaterialsCount = rawMaterials.filter(
+  const courseMaterialsCount = combinedMaterials.filter(
     (m) => m.category === 'course_materials'
   ).length;
-  const pastQuestionsCount = rawMaterials.filter(
+  const pastQuestionsCount = combinedMaterials.filter(
     (m) => m.category === 'past_questions'
   ).length;
-  const solutionsCount = rawMaterials.filter(
+  const solutionsCount = combinedMaterials.filter(
     (m) => m.category === 'solutions'
   ).length;
 
   // Filter current active folder
-  const currentDocs = rawMaterials.filter((doc) => {
+  const currentDocs = combinedMaterials.filter((doc) => {
     if (doc.category !== activeTab) return false;
     if (
       selectedSemester !== 'all' &&
@@ -104,6 +222,22 @@ export default function LevelRepositoryPage({ params }: LevelPageProps) {
   });
 
   const handleDownload = (doc: StudyDocument) => {
+    const fileUrl = (doc as any).fileUrl;
+    if (fileUrl) {
+      const link = document.createElement('a');
+      link.href = fileUrl;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.download = doc.fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setDownloadToast(`Downloaded ${doc.fileName}`);
+      setTimeout(() => {
+        setDownloadToast(null);
+      }, 3500);
+      return;
+    }
     // Simulate real browser PDF download
     const dummyPdfContent = `%PDF-1.4\n% EduCollab FUNAAB Academic Document\n% Department of ${department.name}\n% Course: ${doc.courseCode} - ${doc.courseTitle}\n% Title: ${doc.title}\n% Category: ${doc.category}\n\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R >>\nendobj\n4 0 obj\n<< /Length 120 >>\nstream\nBT\n/F1 14 Tf\n50 720 Td\n(${doc.title}) Tj\n0 -20 Td\n(${doc.previewSnippet}) Tj\nET\nendstream\nendobj\nxref\n0 5\n0000000000 65535 f\n0000000018 00000 n\n0000000077 00000 n\n0000000133 00000 n\n0000000216 00000 n\ntrailer\n<< /Size 5 /Root 1 0 R >>\nstartxref\n388\n%%EOF`;
 
@@ -143,18 +277,18 @@ export default function LevelRepositoryPage({ params }: LevelPageProps) {
           <div className="w-full sm:w-auto">
             <div className="flex flex-wrap items-center gap-1.5 text-xs font-semibold text-text-muted">
               <Link href="/colleges" className="hover:text-primary transition-colors">
-                Colleges
+                {academicTerm === 'faculty' ? 'Faculties' : 'Colleges'}
               </Link>
               <span>/</span>
               <Link
-                href={`/colleges/${college.code}`}
+                href={`/colleges/${encodeURIComponent(college.code || college.id || collegeId)}`}
                 className="hover:text-primary transition-colors"
               >
-                {college.code}
+                {college.code || college.shortName || college.name}
               </Link>
               <span>/</span>
               <Link
-                href={`/colleges/${college.code}/${department.id}`}
+                href={`/colleges/${encodeURIComponent(college.code || college.id || collegeId)}/${encodeURIComponent(department.id || department.code || department.name)}`}
                 className="hover:text-primary transition-colors flex items-center gap-1"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
@@ -177,7 +311,7 @@ export default function LevelRepositoryPage({ params }: LevelPageProps) {
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
             {/* 1-Step Back to Department Button */}
             <Link
-              href={`/colleges/${college.code}/${department.id}`}
+              href={`/colleges/${encodeURIComponent(college.code || college.id || collegeId)}/${encodeURIComponent(department.id || department.code || department.name)}`}
               className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-white border border-border-subtle hover:bg-slate-100 text-text-main text-xs font-bold transition shadow-2xs"
             >
               <ArrowLeft className="w-4 h-4 text-primary" />
@@ -377,7 +511,7 @@ export default function LevelRepositoryPage({ params }: LevelPageProps) {
                   </div>
                   <div className="flex items-center justify-between text-[11px] pt-1 border-t border-slate-200/60">
                     <span>{doc.semester} {doc.year ? `• ${doc.year}` : ''}</span>
-                    <span>{doc.downloads.toLocaleString()} downloads</span>
+                    <span>{(doc.downloads ?? 0).toLocaleString()} downloads</span>
                   </div>
                 </div>
 
@@ -428,132 +562,12 @@ export default function LevelRepositoryPage({ params }: LevelPageProps) {
         )}
       </main>
 
-      {/* PDF Document Preview Modal */}
-      <AnimatePresence>
-        {previewDoc && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 15 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 15 }}
-              className="bg-white rounded-3xl border border-border-subtle shadow-2xl max-w-2xl w-full overflow-hidden flex flex-col max-h-[90vh]"
-            >
-              {/* Modal Top Bar */}
-              <div className="p-5 border-b border-border-light flex items-center justify-between bg-slate-900 text-white">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-red-500/20 text-red-400 flex items-center justify-center font-black text-xs">
-                    PDF
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-sm text-white line-clamp-1">
-                      {previewDoc.title}
-                    </h4>
-                    <p className="text-[11px] text-slate-400 font-mono">
-                      {previewDoc.fileName} • {previewDoc.fileSize}
-                    </p>
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => setPreviewDoc(null)}
-                  className="p-1.5 rounded-xl hover:bg-white/10 text-slate-400 hover:text-white transition cursor-pointer"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              {/* Modal Body / Preview Sheet */}
-              <div className="p-6 overflow-y-auto space-y-5 flex-1 bg-slate-50">
-                {/* Meta details */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-                  <div className="p-3 bg-white rounded-xl border border-border-light">
-                    <span className="text-[10px] text-text-muted font-bold block uppercase">
-                      Course Code
-                    </span>
-                    <span className="font-bold text-primary">{previewDoc.courseCode}</span>
-                  </div>
-                  <div className="p-3 bg-white rounded-xl border border-border-light">
-                    <span className="text-[10px] text-text-muted font-bold block uppercase">
-                      Semester
-                    </span>
-                    <span className="font-semibold text-text-main">{previewDoc.semester}</span>
-                  </div>
-                  <div className="p-3 bg-white rounded-xl border border-border-light">
-                    <span className="text-[10px] text-text-muted font-bold block uppercase">
-                      Category
-                    </span>
-                    <span className="font-semibold text-text-main capitalize">
-                      {previewDoc.category.replace('_', ' ')}
-                    </span>
-                  </div>
-                  <div className="p-3 bg-white rounded-xl border border-border-light">
-                    <span className="text-[10px] text-text-muted font-bold block uppercase">
-                      Verification
-                    </span>
-                    <span className="font-bold text-emerald-600 flex items-center gap-1">
-                      <CheckCircle2 className="w-3.5 h-3.5" /> Verified
-                    </span>
-                  </div>
-                </div>
-
-                {/* PDF Content Sheet Mockup */}
-                <div className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-xs font-serif space-y-4">
-                  <div className="text-center pb-4 border-b border-slate-200 space-y-1">
-                    <p className="text-[11px] font-sans font-bold tracking-widest uppercase text-slate-500">
-                      Federal University of Agriculture, Abeokuta
-                    </p>
-                    <p className="text-xs font-sans font-bold text-slate-700">
-                      Department of {department.name} • {levelNumber} Level
-                    </p>
-                    <h3 className="text-base sm:text-lg font-bold text-slate-900 font-sans mt-1">
-                      {previewDoc.courseTitle} ({previewDoc.courseCode})
-                    </h3>
-                  </div>
-
-                  <div className="pt-2">
-                    <p className="text-xs font-sans font-bold uppercase tracking-wider text-slate-400 mb-2">
-                      Document Excerpt & Syllabus Focus:
-                    </p>
-                    <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 text-xs font-mono leading-relaxed text-slate-800 whitespace-pre-wrap">
-                      {previewDoc.previewSnippet}
-                    </div>
-                  </div>
-
-                  <div className="text-[11px] font-sans text-slate-400 text-center pt-4 border-t border-slate-100 flex items-center justify-center gap-2">
-                    <FileCheck className="w-4 h-4 text-emerald-600" />
-                    <span>Official EduCollab Academic Archive • Full PDF available for offline review</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Modal Footer */}
-              <div className="p-4 border-t border-border-light bg-white flex items-center justify-between gap-3">
-                <span className="text-xs text-text-muted font-medium">
-                  Uploaded by: <strong className="text-text-main">{previewDoc.uploadedBy}</strong>
-                </span>
-
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setPreviewDoc(null)}
-                    className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-text-main text-xs font-bold transition cursor-pointer"
-                  >
-                    Close Preview
-                  </button>
-                  <button
-                    onClick={() => {
-                      handleDownload(previewDoc);
-                    }}
-                    className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl bg-primary hover:bg-primary-hover text-white text-xs font-bold shadow transition cursor-pointer"
-                  >
-                    <Download className="w-4 h-4" />
-                    <span>Download {previewDoc.fileName}</span>
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+      {/* Real In-App Document Preview Modal */}
+      <StudentDocumentPreviewModal
+        document={previewDoc}
+        onClose={() => setPreviewDoc(null)}
+        onDownload={handleDownload}
+      />
 
       {/* Floating Download Toast Feedback */}
       <AnimatePresence>

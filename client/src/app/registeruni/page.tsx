@@ -87,8 +87,8 @@ export default function RegisterUniPage() {
             </form>
 
             <p className="text-center text-sm text-text-muted pt-2">
-              <Link href="/collegeboard" className="text-primary font-bold hover:underline">
-                Back to Dashboard
+              <Link href="/colleges" className="text-primary font-bold hover:underline">
+                Back to Academic Directory
               </Link>
             </p>
           </div>

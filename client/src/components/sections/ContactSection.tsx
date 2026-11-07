@@ -82,7 +82,7 @@ export default function ContactSection() {
                 </div>
                 <h3 className="font-bold text-text-main text-sm">General Support</h3>
                 <a href="mailto:info@greg.com" className="text-primary hover:underline text-sm font-semibold block mt-0.5">
-                  info@greg.com
+                  info@oluwadamilare.com
                 </a>
                 <p className="text-text-placeholder text-xs mt-1">Replies in under 2 hours</p>
               </div>
@@ -94,7 +94,7 @@ export default function ContactSection() {
                 </div>
                 <h3 className="font-bold text-text-main text-sm">Course Rep Desk</h3>
                 <p className="text-text-main text-sm font-semibold mt-0.5">
-                  reps@campushub.xyz
+                  reps@educollab.xyz
                 </p>
                 <p className="text-text-placeholder text-xs mt-1">Material upload verification</p>
               </div>
@@ -118,7 +118,7 @@ export default function ContactSection() {
                 </div>
                 <h3 className="font-bold text-text-main text-sm">Desk Hours</h3>
                 <p className="text-text-body text-sm font-semibold mt-0.5">
-                  Mon - Sat (8am - 8pm)
+                  Mon - Sat (8am - 6pm)
                 </p>
                 <p className="text-text-placeholder text-xs mt-1">Academic semester support</p>
               </div>
@@ -156,7 +156,7 @@ export default function ContactSection() {
                       key={cat}
                       type="button"
                       onClick={() => setSelectedCategory(cat)}
-                      className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-all cursor-pointer ${
+                      className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
                         selectedCategory === cat
                           ? 'bg-primary text-white shadow-xs'
                           : 'bg-surface-muted text-text-muted hover:text-text-main hover:bg-border-subtle'
@@ -190,7 +190,7 @@ export default function ContactSection() {
                       id="name"
                       type="text"
                       required
-                      placeholder="Ogundare Oluwadamilare"
+                      placeholder="John Doe"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       className="w-full px-4 py-3 bg-surface-card border border-border-subtle rounded-xl text-text-main placeholder-text-placeholder focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/10 transition-all text-sm"

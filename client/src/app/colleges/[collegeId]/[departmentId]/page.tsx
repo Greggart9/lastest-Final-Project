@@ -1,7 +1,8 @@
 'use client';
 
-import React, { use, useState } from 'react';
+import React, { use, useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import {
   GraduationCap,
@@ -21,6 +22,7 @@ import {
   getDepartmentBySlug,
   ALL_COLLEGES,
 } from '@/data/funaabStructure';
+import { apiGetColleges, apiGetUniversities } from '@/lib/api';
 
 interface DepartmentPageProps {
   params: Promise<{ collegeId: string; departmentId: string }>;
@@ -29,23 +31,85 @@ interface DepartmentPageProps {
 export default function DepartmentLevelsPage({ params }: DepartmentPageProps) {
   const resolvedParams = use(params);
   const { collegeId, departmentId } = resolvedParams;
+  const router = useRouter();
 
   const { user, loading } = useAuth(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [liveCollege, setLiveCollege] = useState<any>(
+    getCollegeByCodeOrId(collegeId) || ALL_COLLEGES[0]
+  );
+  const [academicTerm, setAcademicTerm] = useState<'college' | 'faculty'>('college');
+  const college = liveCollege;
 
-  const college = getCollegeByCodeOrId(collegeId) || ALL_COLLEGES[0];
+  useEffect(() => {
+    async function loadLiveStructure() {
+      try {
+        const uniData = await apiGetUniversities();
+        const unis = uniData?.universities || [];
+        const userUniKey = (user?.university || 'FUNAAB').toLowerCase();
+
+        // Scope to student's enrolled university (admins can inspect all)
+        const targetUnis = (user?.role === 'admin')
+          ? unis
+          : unis.filter((u: any) => u.id?.toLowerCase() === userUniKey || u.code?.toLowerCase() === userUniKey);
+
+        for (const u of targetUnis) {
+          const found = (u.colleges || []).find(
+            (c: any) =>
+              c.code?.toLowerCase() === decodeURIComponent(collegeId).toLowerCase() ||
+              c.id?.toLowerCase() === decodeURIComponent(collegeId).toLowerCase() ||
+              c.name?.toLowerCase() === decodeURIComponent(collegeId).toLowerCase()
+          );
+          if (found) {
+            setLiveCollege(found);
+            if (u.academicTerm === 'faculty') setAcademicTerm('faculty');
+            return;
+          }
+        }
+
+        // If user is a student and division is not in their enrolled university, redirect to their colleges directory
+        if (user && user.role !== 'admin' && targetUnis.length > 0) {
+          router.replace('/colleges');
+          return;
+        }
+
+        const data = await apiGetColleges(userUniKey);
+        if (data?.colleges) {
+          const found = data.colleges.find(
+            (c: any) =>
+              c.code?.toLowerCase() === decodeURIComponent(collegeId).toLowerCase() ||
+              c.id?.toLowerCase() === decodeURIComponent(collegeId).toLowerCase() ||
+              c.name?.toLowerCase() === decodeURIComponent(collegeId).toLowerCase()
+          );
+          if (found) setLiveCollege(found);
+        }
+      } catch {}
+    }
+    loadLiveStructure();
+  }, [collegeId, user, router]);
+
   const department =
-    getDepartmentBySlug(college, departmentId) ||
-    college.departments[0] || {
+    liveCollege?.departments?.find(
+      (d: any) =>
+        d.id?.toLowerCase() === departmentId.toLowerCase() ||
+        d.code?.toLowerCase() === departmentId.toLowerCase() ||
+        d.name?.toLowerCase() === departmentId.toLowerCase() ||
+        d.name?.toLowerCase().replace(/\s+/g, '-') === departmentId.toLowerCase()
+    ) ||
+    getDepartmentBySlug(liveCollege, departmentId) ||
+    liveCollege?.departments?.[0] || {
       id: departmentId,
       name: departmentId.replace(/-/g, ' ').toUpperCase(),
       code: 'DEP',
-      maxLevel: 400,
+      levels: [100, 200, 300, 400],
     };
 
-  const maxLevel = department.maxLevel || 400;
-  const levelNumbers =
-    maxLevel === 500 ? [100, 200, 300, 400, 500] : [100, 200, 300, 400];
+  const levelNumbers: number[] =
+    Array.isArray(department.levels) && department.levels.length > 0
+      ? [...department.levels].sort((a: number, b: number) => a - b)
+      : department.maxLevel === 500
+      ? [100, 200, 300, 400, 500]
+      : [100, 200, 300, 400];
 
   const levelDescriptions: Record<
     number,
@@ -80,6 +144,12 @@ export default function DepartmentLevelsPage({ params }: DepartmentPageProps) {
       desc: 'Extended engineering, veterinary clinical rotations, and specialized research defense compendiums.',
       courses: `${department.code} 501, ${department.code} 502, Research Capstone`,
       color: 'from-slate-700 to-slate-900',
+    },
+    600: {
+      title: 'Clinical Rotations & Practicum',
+      desc: 'Advanced veterinary clinical rotations, surgical diagnostics, and institutional defense.',
+      courses: `${department.code} 601, ${department.code} 605`,
+      color: 'from-rose-600 to-pink-700',
     },
   };
 
@@ -116,15 +186,15 @@ export default function DepartmentLevelsPage({ params }: DepartmentPageProps) {
                 href="/colleges"
                 className="hover:text-primary transition-colors flex items-center gap-1"
               >
-                Colleges
+                {academicTerm === 'faculty' ? 'Faculties' : 'Colleges'}
               </Link>
               <span>/</span>
               <Link
-                href={`/colleges/${college.code}`}
+                href={`/colleges/${encodeURIComponent(college.code || college.id || collegeId)}`}
                 className="hover:text-primary transition-colors flex items-center gap-1"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
-                <span>{college.code}</span>
+                <span>{college.code || college.shortName || college.name}</span>
               </Link>
               <span>/</span>
               <span className="text-text-main font-bold">
@@ -144,11 +214,11 @@ export default function DepartmentLevelsPage({ params }: DepartmentPageProps) {
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
             {/* 1-Step Back Button */}
             <Link
-              href={`/colleges/${college.code}`}
+              href={`/colleges/${encodeURIComponent(college.code || college.id || collegeId)}`}
               className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-white border border-border-subtle hover:bg-slate-100 text-text-main text-xs font-bold transition shadow-2xs"
             >
               <ArrowLeft className="w-4 h-4 text-primary" />
-              <span>Back to {college.code}</span>
+              <span>Back to {college.code || college.shortName || college.name}</span>
             </Link>
 
             <div className="relative flex-1 sm:w-64">
@@ -284,7 +354,7 @@ export default function DepartmentLevelsPage({ params }: DepartmentPageProps) {
                   </span>
 
                   <Link
-                    href={`/colleges/${college.code}/${department.id}/${lvl}`}
+                    href={`/colleges/${encodeURIComponent(college.code || college.id || collegeId)}/${encodeURIComponent(department.id || department.code || department.name)}/${lvl}`}
                     className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-white text-xs font-bold hover:bg-primary-hover shadow-sm hover:shadow transition group-hover:translate-x-0.5"
                   >
                     <span>Open {lvl}L Vault</span>

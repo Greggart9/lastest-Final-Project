@@ -79,8 +79,8 @@ export default function TestimonialsSection() {
       <div className="site-container relative">
         {/* Header */}
         <div className="text-center space-y-3 mb-12 sm:mb-16">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold tracking-wider uppercase">
-            <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 text-primary text-xs font-bold tracking-wider uppercase">
+            <Sparkles className="w-3.5 h-3.5" />
             <span>Success Stories</span>
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-text-main tracking-tight leading-[1.15]">
@@ -120,7 +120,7 @@ export default function TestimonialsSection() {
                           {item.name}
                         </h4>
                         <p className="text-text-placeholder text-xs font-mono mt-0.5">
-                          {item.id} • {item.faculty}
+                          {item.faculty}
                         </p>
                       </div>
                     </div>
@@ -149,7 +149,7 @@ export default function TestimonialsSection() {
                           {item.name}
                         </h4>
                         <p className="text-text-placeholder text-xs font-mono mt-0.5">
-                          {item.id} • {item.faculty}
+                          {item.faculty}
                         </p>
                       </div>
                     </div>
@@ -178,7 +178,7 @@ export default function TestimonialsSection() {
                           {item.name}
                         </h4>
                         <p className="text-text-placeholder text-xs font-mono mt-0.5">
-                          {item.id} • {item.faculty}
+                          {item.faculty}
                         </p>
                       </div>
                     </div>

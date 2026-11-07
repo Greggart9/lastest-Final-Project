@@ -189,6 +189,22 @@ export function initDb() {
     fs.mkdirSync(dir, { recursive: true });
   }
 
+  // Preserve existing database file if it already exists and is non-empty!
+  if (fs.existsSync(DB_FILE)) {
+    try {
+      const raw = fs.readFileSync(DB_FILE, 'utf-8');
+      if (raw && raw.trim().length > 0) {
+        const parsed = JSON.parse(raw);
+        if (parsed.universities && parsed.universities.length > 0) {
+          console.log('[DB] Using existing database file at', DB_FILE);
+          return parsed;
+        }
+      }
+    } catch (e) {
+      console.warn('[DB] Existing DB file unreadable, will re-seed:', e.message);
+    }
+  }
+
   const salt = bcrypt.genSaltSync(10);
   const demoStudentHash = bcrypt.hashSync('Student@123', salt);
   const adminHash = bcrypt.hashSync('Admin@2026Secure', salt);
@@ -377,16 +393,25 @@ export function deleteUser(id) {
 // ----------------------------------------------------------------------
 export function getUniversities() {
   const db = readDb();
-  return db.universities || DEFAULT_UNIVERSITIES;
+  const list = db.universities || DEFAULT_UNIVERSITIES;
+  return list.map((u) => ({
+    ...u,
+    academicTerm: u.academicTerm || 'college',
+  }));
 }
 
 export function getUniversityById(id) {
   const db = readDb();
   const normalizedId = id.trim().toLowerCase();
-  return db.universities?.find((u) => u.id.toLowerCase() === normalizedId || u.code.toLowerCase() === normalizedId) || null;
+  const uni = db.universities?.find((u) => u.id.toLowerCase() === normalizedId || u.code.toLowerCase() === normalizedId) || null;
+  if (!uni) return null;
+  return {
+    ...uni,
+    academicTerm: uni.academicTerm || 'college',
+  };
 }
 
-export function createUniversity({ name, code, shortName }) {
+export function createUniversity({ name, code, shortName, academicTerm = 'college' }) {
   const db = readDb();
   if (!name || !code) throw new Error('University name and code are required.');
 
@@ -401,6 +426,7 @@ export function createUniversity({ name, code, shortName }) {
     name: name.trim(),
     shortName: shortName?.trim() || normalizedCode,
     status: 'active',
+    academicTerm: academicTerm === 'faculty' ? 'faculty' : 'college',
     colleges: [],
     createdAt: new Date().toISOString(),
   };
@@ -419,6 +445,7 @@ export function updateUniversity(id, updates) {
   if (updates.shortName) uni.shortName = updates.shortName.trim();
   if (updates.code) uni.code = updates.code.trim().toUpperCase();
   if (updates.status) uni.status = updates.status;
+  if (updates.academicTerm) uni.academicTerm = updates.academicTerm === 'faculty' ? 'faculty' : 'college';
 
   writeDb(db);
   return uni;
@@ -451,24 +478,45 @@ export function getColleges(universityId = 'funaab') {
   return db.colleges || [];
 }
 
-export function addCollege({ universityId = 'funaab', code, name, fullName }) {
+export function addCollege({ universityId = 'funaab', code = '', name = '', fullName = '' }) {
   const db = readDb();
   const uni = db.universities?.find(
     (u) => u.id.toLowerCase() === universityId.toLowerCase() || u.code.toLowerCase() === universityId.toLowerCase()
   );
 
   const targetUni = uni || db.universities[0];
-  const normalizedCode = code.trim().toUpperCase();
+  const normalizedCode = code ? code.trim().toUpperCase() : '';
+  const trimmedName = name ? name.trim() : '';
+  const trimmedFullName = fullName ? fullName.trim() : '';
 
-  if (targetUni.colleges.some((c) => c.code.toUpperCase() === normalizedCode)) {
-    throw new Error(`College ${normalizedCode} already exists in ${targetUni.code}.`);
+  // Generate unique internal ID without inventing a user-facing code
+  const colId = normalizedCode
+    ? normalizedCode.toLowerCase()
+    : (trimmedName || trimmedFullName || 'division')
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, '-')
+        .slice(0, 30) + '-' + Date.now().toString(36);
+
+  // Check if existing by code (if provided) or exact name/fullName
+  const existing = targetUni.colleges.find((c) =>
+    (normalizedCode && c.code && c.code.toUpperCase() === normalizedCode) ||
+    (trimmedName && c.name && c.name.toLowerCase() === trimmedName.toLowerCase()) ||
+    (trimmedFullName && c.fullName && c.fullName.toLowerCase() === trimmedFullName.toLowerCase())
+  );
+
+  if (existing) {
+    if (trimmedName) existing.name = trimmedName;
+    if (trimmedFullName) existing.fullName = trimmedFullName;
+    if (normalizedCode) existing.code = normalizedCode;
+    writeDb(db);
+    return existing;
   }
 
   const newCol = {
-    id: normalizedCode.toLowerCase(),
-    code: normalizedCode,
-    name: name.trim(),
-    fullName: fullName?.trim() || `College of ${name.trim()}`,
+    id: colId,
+    code: normalizedCode, // only what user provided, never fabricated
+    name: trimmedName,     // only what user provided
+    fullName: trimmedFullName, // only what user provided
     departments: [],
   };
 
@@ -489,12 +537,14 @@ export function updateCollege(collegeId, updates, universityId = 'funaab') {
     (u) => u.id.toLowerCase() === universityId.toLowerCase() || u.code.toLowerCase() === universityId.toLowerCase()
   );
   const targetUni = uni || db.universities[0];
-  const col = targetUni.colleges.find((c) => c.id === collegeId || c.code.toLowerCase() === collegeId.toLowerCase());
+  const col = targetUni.colleges.find(
+    (c) => c.id?.toLowerCase() === collegeId.toLowerCase() || (c.code && c.code.toLowerCase() === collegeId.toLowerCase())
+  );
   if (!col) return null;
 
-  if (updates.name) col.name = updates.name.trim();
-  if (updates.fullName) col.fullName = updates.fullName.trim();
-  if (updates.code) col.code = updates.code.trim().toUpperCase();
+  if (updates.name !== undefined) col.name = updates.name.trim();
+  if (updates.fullName !== undefined) col.fullName = updates.fullName.trim();
+  if (updates.code !== undefined) col.code = updates.code.trim().toUpperCase();
 
   if (targetUni.code === 'FUNAAB') {
     db.colleges = targetUni.colleges;
@@ -511,7 +561,7 @@ export function deleteCollege(collegeId, universityId = 'funaab') {
   );
   const targetUni = uni || db.universities[0];
   const index = targetUni.colleges.findIndex(
-    (c) => c.id === collegeId || c.code.toLowerCase() === collegeId.toLowerCase()
+    (c) => c.id?.toLowerCase() === collegeId.toLowerCase() || (c.code && c.code.toLowerCase() === collegeId.toLowerCase())
   );
   if (index === -1) return false;
 
@@ -532,14 +582,46 @@ export function addDepartment({ universityId = 'funaab', collegeCode, name, code
     (u) => u.id.toLowerCase() === universityId.toLowerCase() || u.code.toLowerCase() === universityId.toLowerCase()
   );
   const targetUni = uni || db.universities[0];
-  const college = targetUni.colleges.find((c) => c.code.toUpperCase() === collegeCode.trim().toUpperCase());
+  const normalizedCode = collegeCode.trim().toUpperCase();
+
+  let college = targetUni.colleges.find(
+    (c) => c.code.toUpperCase() === normalizedCode || c.id?.toLowerCase() === collegeCode.trim().toLowerCase()
+  );
   if (!college) {
-    throw new Error(`College ${collegeCode} not found in ${targetUni.code}.`);
+    college = {
+      id: normalizedCode.toLowerCase(),
+      code: normalizedCode,
+      name: normalizedCode,
+      fullName: `College of ${normalizedCode}`,
+      departments: [],
+    };
+    targetUni.colleges.push(college);
+  }
+
+  if (!college.departments) {
+    college.departments = [];
+  }
+
+  const deptCode = (code || name.slice(0, 3)).trim().toUpperCase();
+  const deptId = (code ? code.toLowerCase() : name.toLowerCase().replace(/[^a-z0-9]/g, '-')).trim();
+
+  // Check if department already exists in this college
+  const existingDept = college.departments.find(
+    (d) => d.id === deptId || d.code.toUpperCase() === deptCode || d.name.toLowerCase() === name.trim().toLowerCase()
+  );
+
+  if (existingDept) {
+    existingDept.name = name.trim();
+    existingDept.code = deptCode;
+    if (Array.isArray(levels) && levels.length > 0) existingDept.levels = levels;
+    if (targetUni.code === 'FUNAAB') db.colleges = targetUni.colleges;
+    writeDb(db);
+    return existingDept;
   }
 
   const newDept = {
-    id: (code || name).toLowerCase().replace(/\s+/g, '-'),
-    code: (code || name.slice(0, 3)).toUpperCase(),
+    id: deptId,
+    code: deptCode,
     name: name.trim(),
     levels: Array.isArray(levels) && levels.length > 0 ? levels : [100, 200, 300, 400],
   };
@@ -558,7 +640,10 @@ export function updateDepartment(deptId, updates, collegeCode, universityId = 'f
     (u) => u.id.toLowerCase() === universityId.toLowerCase() || u.code.toLowerCase() === universityId.toLowerCase()
   );
   const targetUni = uni || db.universities[0];
-  const college = targetUni.colleges.find((c) => c.code.toUpperCase() === collegeCode.trim().toUpperCase());
+  const normalizedCode = collegeCode.trim().toUpperCase();
+  const college = targetUni.colleges.find(
+    (c) => (c.code && c.code.toUpperCase() === normalizedCode) || c.id?.toLowerCase() === collegeCode.trim().toLowerCase()
+  );
   if (!college) return null;
 
   const dept = college.departments.find((d) => d.id === deptId || d.code.toLowerCase() === deptId.toLowerCase());
@@ -575,13 +660,39 @@ export function updateDepartment(deptId, updates, collegeCode, universityId = 'f
   return dept;
 }
 
+export function setCollegeLevels(collegeCode, levels, universityId = 'funaab') {
+  const db = readDb();
+  const uni = db.universities?.find(
+    (u) => u.id.toLowerCase() === universityId.toLowerCase() || u.code.toLowerCase() === universityId.toLowerCase()
+  );
+  const targetUni = uni || db.universities[0];
+  const normalizedCode = collegeCode.trim().toUpperCase();
+  const college = targetUni.colleges.find(
+    (c) => (c.code && c.code.toUpperCase() === normalizedCode) || c.id?.toLowerCase() === collegeCode.trim().toLowerCase()
+  );
+  if (!college) return false;
+
+  const sortedLevels = [...levels].sort((a, b) => a - b);
+  for (const dept of college.departments || []) {
+    dept.levels = sortedLevels;
+  }
+  if (targetUni.code === 'FUNAAB') {
+    db.colleges = targetUni.colleges;
+  }
+  writeDb(db);
+  return true;
+}
+
 export function deleteDepartment(deptId, collegeCode, universityId = 'funaab') {
   const db = readDb();
   const uni = db.universities?.find(
     (u) => u.id.toLowerCase() === universityId.toLowerCase() || u.code.toLowerCase() === universityId.toLowerCase()
   );
   const targetUni = uni || db.universities[0];
-  const college = targetUni.colleges.find((c) => c.code.toUpperCase() === collegeCode.trim().toUpperCase());
+  const normalizedCode = collegeCode.trim().toUpperCase();
+  const college = targetUni.colleges.find(
+    (c) => (c.code && c.code.toUpperCase() === normalizedCode) || c.id?.toLowerCase() === collegeCode.trim().toLowerCase()
+  );
   if (!college) return false;
 
   const index = college.departments.findIndex(
@@ -605,6 +716,30 @@ export function getSubmissions(filter = {}) {
   let list = db.submissions || [];
   if (filter.userId) {
     list = list.filter((s) => s.userId === filter.userId);
+  }
+  if (filter.university && filter.university !== 'all') {
+    const uniQ = filter.university.trim().toLowerCase();
+    list = list.filter((s) => (s.university || 'FUNAAB').toLowerCase() === uniQ);
+  }
+  if (filter.college && filter.college !== 'all') {
+    const colQ = filter.college.trim().toLowerCase();
+    list = list.filter((s) => s.college?.toLowerCase() === colQ);
+  }
+  if (filter.department && filter.department !== 'all') {
+    const rawDept = filter.department.trim().toLowerCase();
+    const cleanDept = rawDept.replace(/[-_\s]+/g, '');
+    list = list.filter((s) => {
+      const sRaw = (s.department || '').toLowerCase();
+      const sClean = sRaw.replace(/[-_\s]+/g, '');
+      return sRaw === rawDept || sClean === cleanDept || sRaw.includes(rawDept) || sClean.includes(cleanDept);
+    });
+  }
+  if (filter.level && filter.level !== 'all') {
+    const targetLvl = String(filter.level).replace(/[^0-9]/g, '');
+    list = list.filter((s) => {
+      const sLvl = String(s.level || '').replace(/[^0-9]/g, '');
+      return (targetLvl && sLvl === targetLvl) || String(s.level).toLowerCase() === String(filter.level).toLowerCase();
+    });
   }
   if (filter.status && filter.status !== 'all') {
     list = list.filter((s) => s.status?.toLowerCase() === filter.status.toLowerCase());
@@ -636,7 +771,7 @@ export function createSubmission(sub) {
   const newSub = {
     id: `sub_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
     ...sub,
-    status: 'pending',
+    status: sub.status || 'pending',
     submittedAt: new Date().toISOString(),
   };
   db.submissions.unshift(newSub);
@@ -694,48 +829,85 @@ export function getAdminStats() {
 
   const approvalRate = totalMaterials > 0 ? Math.round((approvedCount / (approvedCount + rejectedCount || 1)) * 100) : 100;
 
-  // Monthly activity trend
+  // Dynamic monthly activity trend (past 6 calendar months)
   const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  const monthlyActivity = [
-    { month: 'Jun', submissions: 14, approvals: 12, pending: 2 },
-    { month: 'Jul', submissions: 22, approvals: 19, pending: 3 },
-    { month: 'Aug', submissions: 35, approvals: 30, pending: 5 },
-    { month: 'Sep', submissions: 48, approvals: 41, pending: 7 },
-    { month: 'Oct', submissions: 65, approvals: 58, pending: 7 },
-    { month: 'Nov', submissions: totalMaterials, approvals: approvedCount, pending: pendingCount },
-  ];
+  const now = new Date();
+  const last6Months = [];
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    last6Months.push({
+      year: d.getFullYear(),
+      monthIndex: d.getMonth(),
+      month: monthNames[d.getMonth()],
+      uploads: 0,
+      approved: 0,
+      submissions: 0,
+      approvals: 0,
+    });
+  }
 
-  // Category breakdown for Pie Chart
-  const pastQuestionsCount = submissions.filter((s) => s.category?.toLowerCase().includes('past') || s.category === 'Past Questions').length;
-  const courseMaterialsCount = submissions.filter((s) => s.category?.toLowerCase().includes('course') || s.category === 'Course Materials').length;
-  const solutionsCount = submissions.filter((s) => s.category?.toLowerCase().includes('solution') || s.category === 'Solutions').length;
+  submissions.forEach((s) => {
+    const dateStr = s.createdAt || s.created_at;
+    if (dateStr) {
+      const d = new Date(dateStr);
+      if (!isNaN(d.getTime())) {
+        const target = last6Months.find(
+          (m) => m.year === d.getFullYear() && m.monthIndex === d.getMonth()
+        );
+        if (target) {
+          target.uploads += 1;
+          target.submissions += 1;
+          if (s.status === 'approved') {
+            target.approved += 1;
+            target.approvals += 1;
+          }
+        }
+      }
+    }
+  });
+
+  const monthlyActivity = last6Months.map(({ month, uploads, approved, submissions, approvals }) => ({
+    month,
+    uploads,
+    approved,
+    submissions,
+    approvals,
+  }));
+
+  // Real category breakdown for Pie Chart
+  const pastQuestionsCount = submissions.filter((s) => (s.category || '').toLowerCase().includes('past')).length;
+  const courseMaterialsCount = submissions.filter((s) => (s.category || '').toLowerCase().includes('course')).length;
+  const solutionsCount = submissions.filter((s) => (s.category || '').toLowerCase().includes('solution')).length;
 
   const categoryBreakdown = [
-    { name: 'Course Materials', count: courseMaterialsCount || 1, color: '#3b82f6' },
-    { name: 'Past Questions', count: pastQuestionsCount || 1, color: '#10b981' },
-    { name: 'Answers & Solutions', count: solutionsCount || 1, color: '#f59e0b' },
+    { name: 'Course Materials', value: courseMaterialsCount, count: courseMaterialsCount, color: '#3b82f6' },
+    { name: 'Past Questions', value: pastQuestionsCount, count: pastQuestionsCount, color: '#10b981' },
+    { name: 'Answers & Solutions', value: solutionsCount, count: solutionsCount, color: '#f59e0b' },
   ];
 
-  // Top Colleges activity distribution
+  // Real college & faculty breakdown
   const collegeMap = {};
+  (db.universities || []).forEach((u) => {
+    (u.colleges || []).forEach((c) => {
+      const label = c.code || c.name;
+      if (label && !collegeMap[label]) {
+        collegeMap[label] = 0;
+      }
+    });
+  });
+
   submissions.forEach((s) => {
-    const col = s.college?.toUpperCase() || 'COLPHYS';
+    const col = s.college?.toUpperCase() || s.college || 'Other';
     collegeMap[col] = (collegeMap[col] || 0) + 1;
   });
 
   const collegeBreakdown = Object.keys(collegeMap).map((col) => ({
+    code: col,
     college: col,
+    count: collegeMap[col],
     materials: collegeMap[col],
-    students: users.filter((u) => u.college?.toUpperCase() === col).length || 1,
+    students: users.filter((u) => (u.college || '').toUpperCase() === col.toUpperCase()).length,
   }));
-
-  if (collegeBreakdown.length === 0) {
-    collegeBreakdown.push(
-      { college: 'COLPHYS', materials: 5, students: 8 },
-      { college: 'COLENG', materials: 3, students: 6 },
-      { college: 'COLBIOS', materials: 2, students: 4 }
-    );
-  }
 
   return {
     totalStudents,

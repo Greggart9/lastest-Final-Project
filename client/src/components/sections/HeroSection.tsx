@@ -56,7 +56,7 @@ export default function HeroSection() {
                 </motion.button>
               </Link>
 
-              <Link href="/collegeboard">
+              <Link href="/colleges">
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { apiGetProfile, getAuthToken, clearAuthSession } from '@/lib/api';
 
 export interface UserProfile {
   id?: string;
@@ -11,6 +12,7 @@ export interface UserProfile {
   name?: string;
   email?: string;
   university?: string;
+  academicTerm?: 'college' | 'faculty';
   college?: string;
   department?: string;
   role?: string;
@@ -22,30 +24,68 @@ export function useAuth(requireAuth = true) {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Load and parse user from localStorage
+  // Authenticate user directly against live database via API
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem('auth_user');
-      if (stored) {
-        const parsed: UserProfile = JSON.parse(stored);
-        // Normalize name / firstName
-        if (!parsed.firstName && parsed.name) {
-          parsed.firstName = parsed.name.split(' ')[0];
-        }
-        if (!parsed.college) parsed.college = 'COLPHYS';
-        if (!parsed.department) parsed.department = 'Computer Science';
-        if (!parsed.university) parsed.university = 'FUNAAB';
+    let isCancelled = false;
 
-        setUser(parsed);
-      } else if (requireAuth) {
-        // If not logged in, redirect to sign-in page
-        router.replace('/signin');
+    async function verifyUser() {
+      const token = getAuthToken();
+
+      if (!token) {
+        if (!isCancelled) {
+          setUser(null);
+          setLoading(false);
+          if (requireAuth) router.replace('/signin');
+        }
+        return;
       }
-    } catch {
-      if (requireAuth) router.replace('/signin');
-    } finally {
-      setLoading(false);
+
+      try {
+        const data = await apiGetProfile();
+        if (!isCancelled && data?.user) {
+          const liveUser = data.user;
+          if (!liveUser.firstName && liveUser.name) {
+            liveUser.firstName = liveUser.name.split(' ')[0];
+          }
+          if (!liveUser.college) liveUser.college = 'COLPHYS';
+          if (!liveUser.department) liveUser.department = 'Computer Science';
+          if (!liveUser.university) liveUser.university = 'FUNAAB';
+
+          setUser(liveUser);
+          localStorage.setItem('auth_user', JSON.stringify(liveUser));
+        } else if (!isCancelled && requireAuth) {
+          clearAuthSession();
+          setUser(null);
+          router.replace('/signin');
+        }
+      } catch {
+        if (!isCancelled) {
+          // Fall back to cached user only if network is offline, else redirect if strictly required
+          const stored = localStorage.getItem('auth_user');
+          if (stored) {
+            try {
+              setUser(JSON.parse(stored));
+            } catch {
+              if (requireAuth) {
+                clearAuthSession();
+                router.replace('/signin');
+              }
+            }
+          } else if (requireAuth) {
+            clearAuthSession();
+            router.replace('/signin');
+          }
+        }
+      } finally {
+        if (!isCancelled) setLoading(false);
+      }
     }
+
+    verifyUser();
+
+    return () => {
+      isCancelled = true;
+    };
   }, [requireAuth, router]);
 
   // Update profile in localStorage and state
@@ -59,9 +99,7 @@ export function useAuth(requireAuth = true) {
 
   // Logout handler
   const logout = useCallback(() => {
-    localStorage.removeItem('auth_user');
-    localStorage.removeItem('auth_token');
-    sessionStorage.clear();
+    clearAuthSession();
     setUser(null);
     router.replace('/signin');
   }, [router]);

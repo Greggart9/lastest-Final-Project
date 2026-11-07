@@ -40,16 +40,22 @@ import {
 } from '@/lib/api';
 import DocumentPreviewModal, { DocumentItem } from '@/components/admin/DocumentPreviewModal';
 
-const CATEGORY_COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#8b5cf6'];
+const CATEGORY_COLORS = ['#2563eb', '#059669', '#d97706', '#7c3aed'];
 
 export default function AdminOverviewPage() {
   const [stats, setStats] = useState<any>(null);
   const [pendingSubmissions, setPendingSubmissions] = useState<DocumentItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+  const [toastMsg, setToastMsg] = useState<string | null>(null);
 
   // Selected document for preview modal
   const [selectedDoc, setSelectedDoc] = useState<DocumentItem | null>(null);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const fetchData = async () => {
     try {
@@ -70,7 +76,7 @@ export default function AdminOverviewPage() {
 
   useEffect(() => {
     fetchData();
-    const interval = setInterval(fetchData, 20000); // 20s live sync
+    const interval = setInterval(fetchData, 20000); // 20s sync
     return () => clearInterval(interval);
   }, []);
 
@@ -85,8 +91,11 @@ export default function AdminOverviewPage() {
           approvedCount: stats.approvedCount + 1,
         });
       }
+      setToastMsg(`Approved "${doc.title || doc.courseCode}" successfully.`);
+      setTimeout(() => setToastMsg(null), 3000);
     } catch (err: any) {
-      alert(err.message || 'Failed to approve');
+      setToastMsg(err.message || 'Failed to approve submission.');
+      setTimeout(() => setToastMsg(null), 3500);
     }
   };
 
@@ -101,8 +110,11 @@ export default function AdminOverviewPage() {
           rejectedCount: stats.rejectedCount + 1,
         });
       }
+      setToastMsg(`Rejected "${doc.title || doc.courseCode}".`);
+      setTimeout(() => setToastMsg(null), 3000);
     } catch (err: any) {
-      alert(err.message || 'Failed to reject');
+      setToastMsg(err.message || 'Failed to reject submission.');
+      setTimeout(() => setToastMsg(null), 3500);
     }
   };
 
@@ -122,47 +134,33 @@ export default function AdminOverviewPage() {
     fetchData();
   };
 
-  // Default fallback chart data if empty
-  const monthlyData = stats?.monthlyActivity?.length
-    ? stats.monthlyActivity
-    : [
-        { month: 'Oct', uploads: 12, approved: 10 },
-        { month: 'Nov', uploads: 28, approved: 24 },
-        { month: 'Dec', uploads: 19, approved: 17 },
-        { month: 'Jan', uploads: 35, approved: 30 },
-        { month: 'Feb', uploads: 48, approved: 42 },
-        { month: 'Mar', uploads: 54, approved: 49 },
-      ];
+  const monthlyData = (stats?.monthlyActivity || []).map((m: any) => ({
+    month: m.month,
+    uploads: Number(m.uploads ?? m.submissions ?? 0),
+    approved: Number(m.approved ?? m.approvals ?? 0),
+  }));
 
-  const categoryData = stats?.categoryBreakdown?.length
-    ? stats.categoryBreakdown
-    : [
-        { name: 'Course Materials', value: 45 },
-        { name: 'Past Questions', value: 35 },
-        { name: 'Solutions & Notes', value: 20 },
-      ];
+  const categoryData = (stats?.categoryBreakdown || []).map((c: any) => ({
+    name: c.name,
+    value: Number(c.value ?? c.count ?? 0),
+    color: c.color,
+  }));
 
-  const collegeData = stats?.collegeBreakdown?.length
-    ? stats.collegeBreakdown
-    : [
-        { code: 'COLPHYS', count: 28 },
-        { code: 'COLBIOS', count: 18 },
-        { code: 'COLENG', count: 22 },
-        { code: 'COLAMRUD', count: 12 },
-        { code: 'COLPLANT', count: 9 },
-        { code: 'COLVET', count: 6 },
-      ];
+  const collegeData = (stats?.collegeBreakdown || []).map((col: any) => ({
+    code: col.code || col.college || 'COLPHYS',
+    count: Number(col.count ?? col.materials ?? 0),
+  }));
 
   return (
     <div className="space-y-8">
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-extrabold text-white tracking-tight flex items-center gap-2.5">
+          <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2.5">
             Institutional Governance Dashboard
           </h2>
-          <p className="text-sm text-slate-400 mt-1">
-            Real-time verification queue, document analytics, and FUNAAB curriculum oversight.
+          <p className="text-xs sm:text-sm text-slate-500 mt-1">
+            Real-time verification queue, document analytics, and academic curriculum oversight across institutions.
           </p>
         </div>
 
@@ -170,9 +168,9 @@ export default function AdminOverviewPage() {
           <button
             onClick={fetchData}
             disabled={refreshing}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition-colors disabled:opacity-50"
+            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-50 shadow-xs transition-colors disabled:opacity-50 cursor-pointer"
           >
-            <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? 'animate-spin text-emerald-400' : ''}`} />
+            <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? 'animate-spin text-blue-600' : ''}`} />
             <span>{refreshing ? 'Refreshing...' : 'Refresh Live Data'}</span>
           </button>
         </div>
@@ -181,57 +179,57 @@ export default function AdminOverviewPage() {
       {/* Top 4 Stats Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Students */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900/90 to-slate-900/40 p-5 border border-slate-800 hover:border-slate-700 transition-all">
+        <div className="relative overflow-hidden rounded-2xl bg-white p-5 border border-slate-200/90 shadow-xs hover:shadow-md transition-all">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
               Registered Students
             </span>
-            <div className="h-9 w-9 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400">
+            <div className="h-9 w-9 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600">
               <Users className="h-5 w-5" />
             </div>
           </div>
-          <div className="text-3xl font-extrabold text-white">
+          <div className="text-3xl font-extrabold text-slate-900">
             {stats ? stats.totalStudents : '...'}
           </div>
-          <div className="flex items-center gap-1.5 mt-2 text-xs text-sky-400 font-medium">
+          <div className="flex items-center gap-1.5 mt-2 text-xs text-blue-700 font-semibold">
             <TrendingUp className="h-3.5 w-3.5" />
             <span>Across 8 FUNAAB Colleges</span>
           </div>
         </div>
 
         {/* Total Uploaded Materials */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900/90 to-slate-900/40 p-5 border border-slate-800 hover:border-slate-700 transition-all">
+        <div className="relative overflow-hidden rounded-2xl bg-white p-5 border border-slate-200/90 shadow-xs hover:shadow-md transition-all">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
               Vault Materials
             </span>
-            <div className="h-9 w-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+            <div className="h-9 w-9 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600">
               <FileText className="h-5 w-5" />
             </div>
           </div>
-          <div className="text-3xl font-extrabold text-white">
+          <div className="text-3xl font-extrabold text-slate-900">
             {stats ? stats.totalMaterials : '...'}
           </div>
-          <div className="flex items-center gap-1.5 mt-2 text-xs text-emerald-400 font-medium">
+          <div className="flex items-center gap-1.5 mt-2 text-xs text-emerald-700 font-semibold">
             <CheckCircle2 className="h-3.5 w-3.5" />
             <span>{stats?.approvedCount ?? 0} Live & Verified</span>
           </div>
         </div>
 
         {/* Pending In Queue */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900/90 to-slate-900/40 p-5 border border-slate-800 hover:border-amber-500/30 transition-all">
+        <div className="relative overflow-hidden rounded-2xl bg-white p-5 border border-slate-200/90 shadow-xs hover:border-amber-300 hover:shadow-md transition-all">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
               Pending in Queue
             </span>
-            <div className="h-9 w-9 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
+            <div className="h-9 w-9 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600">
               <Clock className="h-5 w-5 animate-pulse" />
             </div>
           </div>
-          <div className="text-3xl font-extrabold text-amber-300">
+          <div className="text-3xl font-extrabold text-amber-600">
             {stats ? stats.pendingCount : '...'}
           </div>
-          <div className="flex items-center gap-1.5 mt-2 text-xs text-amber-400 font-medium">
+          <div className="flex items-center gap-1.5 mt-2 text-xs text-amber-700 font-semibold">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
@@ -241,19 +239,19 @@ export default function AdminOverviewPage() {
         </div>
 
         {/* Approval Rate */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900/90 to-slate-900/40 p-5 border border-slate-800 hover:border-slate-700 transition-all">
+        <div className="relative overflow-hidden rounded-2xl bg-white p-5 border border-slate-200/90 shadow-xs hover:shadow-md transition-all">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
               Approval Rate
             </span>
-            <div className="h-9 w-9 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
+            <div className="h-9 w-9 rounded-xl bg-purple-50 border border-purple-200 flex items-center justify-center text-purple-600">
               <CheckCircle2 className="h-5 w-5" />
             </div>
           </div>
-          <div className="text-3xl font-extrabold text-white">
+          <div className="text-3xl font-extrabold text-slate-900">
             {stats ? `${stats.approvalRate}%` : '...'}
           </div>
-          <div className="flex items-center gap-1.5 mt-2 text-xs text-purple-400 font-medium">
+          <div className="flex items-center gap-1.5 mt-2 text-xs text-purple-700 font-semibold">
             <span>Verified syllabus compliance</span>
           </div>
         </div>
@@ -262,106 +260,116 @@ export default function AdminOverviewPage() {
       {/* Main Visualizations Row: Area Line Chart & Donut Chart */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left: Monthly Trend Area Chart (8 Cols) */}
-        <div className="lg:col-span-8 rounded-2xl bg-slate-900/80 border border-slate-800 p-6 flex flex-col justify-between">
+        <div className="lg:col-span-8 rounded-2xl bg-white border border-slate-200/90 p-6 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
-                <span>Uploads & Verification Activity</span>
+              <h3 className="text-base font-bold text-slate-900">
+                Uploads & Verification Activity
               </h3>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-500 mt-0.5">
                 Monthly volume of student submissions vs. approved academic documents
               </p>
             </div>
           </div>
 
           <div className="h-72 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={monthlyData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="colorUploads" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.4} />
-                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
-                  </linearGradient>
-                  <linearGradient id="colorApproved" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.4} />
-                    <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                <XAxis dataKey="month" stroke="#64748b" fontSize={12} tickLine={false} />
-                <YAxis stroke="#64748b" fontSize={12} tickLine={false} />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: '#0f172a',
-                    borderColor: '#334155',
-                    borderRadius: '0.75rem',
-                    color: '#f8fafc',
-                    fontSize: '12px',
-                  }}
-                />
-                <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
-                <Area
-                  type="monotone"
-                  dataKey="uploads"
-                  name="Student Submissions"
-                  stroke="#3b82f6"
-                  strokeWidth={2}
-                  fillOpacity={1}
-                  fill="url(#colorUploads)"
-                />
-                <Area
-                  type="monotone"
-                  dataKey="approved"
-                  name="Approved to Vault"
-                  stroke="#10b981"
-                  strokeWidth={2}
-                  fillOpacity={1}
-                  fill="url(#colorApproved)"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
+            {isMounted ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={monthlyData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="colorUploadsLight" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#2563eb" stopOpacity={0.25} />
+                      <stop offset="95%" stopColor="#2563eb" stopOpacity={0} />
+                    </linearGradient>
+                    <linearGradient id="colorApprovedLight" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#059669" stopOpacity={0.25} />
+                      <stop offset="95%" stopColor="#059669" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                  <XAxis dataKey="month" stroke="#94a3b8" fontSize={12} tickLine={false} />
+                  <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: '#ffffff',
+                      borderColor: '#cbd5e1',
+                      borderRadius: '0.75rem',
+                      color: '#0f172a',
+                      fontSize: '12px',
+                      boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                    }}
+                  />
+                  <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
+                  <Area
+                    type="monotone"
+                    dataKey="uploads"
+                    name="Student Submissions"
+                    stroke="#2563eb"
+                    strokeWidth={2}
+                    fillOpacity={1}
+                    fill="url(#colorUploadsLight)"
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="approved"
+                    name="Approved to Vault"
+                    stroke="#059669"
+                    strokeWidth={2}
+                    fillOpacity={1}
+                    fill="url(#colorApprovedLight)"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-full w-full bg-slate-50 animate-pulse rounded-xl" />
+            )}
           </div>
         </div>
 
         {/* Right: Category Distribution Donut Chart (4 Cols) */}
-        <div className="lg:col-span-4 rounded-2xl bg-slate-900/80 border border-slate-800 p-6 flex flex-col justify-between">
+        <div className="lg:col-span-4 rounded-2xl bg-white border border-slate-200/90 p-6 shadow-xs flex flex-col justify-between">
           <div className="mb-2">
-            <h3 className="text-base font-bold text-white">Content Breakdown</h3>
-            <p className="text-xs text-slate-400">Distribution by study material classification</p>
+            <h3 className="text-base font-bold text-slate-900">Content Breakdown</h3>
+            <p className="text-xs text-slate-500 mt-0.5">Distribution by study material category</p>
           </div>
 
           <div className="h-64 w-full flex items-center justify-center">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={categoryData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={85}
-                  paddingAngle={5}
-                  dataKey="value"
-                >
-                  {categoryData.map((_, index) => (
-                    <Cell key={`cell-${index}`} fill={CATEGORY_COLORS[index % CATEGORY_COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: '#0f172a',
-                    borderColor: '#334155',
-                    borderRadius: '0.75rem',
-                    color: '#f8fafc',
-                    fontSize: '12px',
-                  }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
+            {isMounted ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={categoryData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={85}
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    {categoryData.map((_, index) => (
+                      <Cell key={`cell-${index}`} fill={CATEGORY_COLORS[index % CATEGORY_COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: '#ffffff',
+                      borderColor: '#cbd5e1',
+                      borderRadius: '0.75rem',
+                      color: '#0f172a',
+                      fontSize: '12px',
+                      boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                    }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-44 w-44 rounded-full border-4 border-slate-100 border-t-blue-500 animate-spin" />
+            )}
           </div>
 
-          <div className="space-y-1.5 pt-2 border-t border-slate-800 text-xs">
+          <div className="space-y-2 pt-2 border-t border-slate-100 text-xs">
             {categoryData.map((item: any, idx: number) => (
-              <div key={item.name} className="flex items-center justify-between text-slate-300">
+              <div key={item.name} className="flex items-center justify-between text-slate-600">
                 <div className="flex items-center gap-2">
                   <span
                     className="h-2.5 w-2.5 rounded-full"
@@ -369,7 +377,7 @@ export default function AdminOverviewPage() {
                   />
                   <span>{item.name}</span>
                 </div>
-                <span className="font-semibold text-slate-200">{item.value} docs</span>
+                <span className="font-bold text-slate-900">{item.value} docs</span>
               </div>
             ))}
           </div>
@@ -377,17 +385,17 @@ export default function AdminOverviewPage() {
       </div>
 
       {/* College Breakdown Bar Chart */}
-      <div className="rounded-2xl bg-slate-900/80 border border-slate-800 p-6">
+      <div className="rounded-2xl bg-white border border-slate-200/90 p-6 shadow-xs">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h3 className="text-base font-bold text-white">Submissions by College</h3>
-            <p className="text-xs text-slate-400">
+            <h3 className="text-base font-bold text-slate-900">Submissions by College</h3>
+            <p className="text-xs text-slate-500 mt-0.5">
               Volume of academic materials archived per college across FUNAAB
             </p>
           </div>
           <Link
             href="/admin/academic"
-            className="text-xs font-semibold text-emerald-400 hover:text-emerald-300 flex items-center gap-1"
+            className="text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1"
           >
             <span>Manage Academic Units</span>
             <ArrowUpRight className="h-3.5 w-3.5" />
@@ -395,41 +403,46 @@ export default function AdminOverviewPage() {
         </div>
 
         <div className="h-64 w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={collegeData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-              <XAxis dataKey="code" stroke="#64748b" fontSize={12} tickLine={false} />
-              <YAxis stroke="#64748b" fontSize={12} tickLine={false} />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: '#0f172a',
-                  borderColor: '#334155',
-                  borderRadius: '0.75rem',
-                  color: '#f8fafc',
-                  fontSize: '12px',
-                }}
-              />
-              <Bar dataKey="count" name="Verified Materials" fill="#10b981" radius={[6, 6, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+          {isMounted ? (
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={collegeData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                <XAxis dataKey="code" stroke="#94a3b8" fontSize={12} tickLine={false} />
+                <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: '#ffffff',
+                    borderColor: '#cbd5e1',
+                    borderRadius: '0.75rem',
+                    color: '#0f172a',
+                    fontSize: '12px',
+                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                  }}
+                />
+                <Bar dataKey="count" name="Verified Materials" fill="#2563eb" radius={[6, 6, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="h-full w-full bg-slate-50 animate-pulse rounded-xl" />
+          )}
         </div>
       </div>
 
       {/* Live "Pending Approvals Queue" Table with In-App Preview */}
-      <div className="rounded-2xl bg-slate-900/80 border border-slate-800 overflow-hidden shadow-xl">
-        <div className="p-6 border-b border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#0d1426]">
+      <div className="rounded-2xl bg-white border border-slate-200/90 overflow-hidden shadow-xs">
+        <div className="p-6 border-b border-slate-200/90 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/70">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
+            <div className="h-10 w-10 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600">
               <ShieldAlert className="h-5 w-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-base font-bold text-white">Pending Verification Queue</h3>
-                <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                <h3 className="text-base font-bold text-slate-900">Pending Verification Queue</h3>
+                <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">
                   {pendingSubmissions.length} waiting
                 </span>
               </div>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-500 mt-0.5">
                 Click preview to inspect curriculum details without downloading. Approving or rejecting updates the student immediately.
               </p>
             </div>
@@ -437,7 +450,7 @@ export default function AdminOverviewPage() {
 
           <Link
             href="/admin/submissions"
-            className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 hover:text-white flex items-center gap-1.5 transition-colors self-start sm:self-auto"
+            className="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-700 hover:text-slate-900 flex items-center gap-1.5 transition-colors self-start sm:self-auto shadow-xs"
           >
             <span>Open Full Submissions Desk</span>
             <ArrowUpRight className="h-3.5 w-3.5" />
@@ -446,9 +459,9 @@ export default function AdminOverviewPage() {
 
         {/* Table / List */}
         {pendingSubmissions.length === 0 ? (
-          <div className="p-12 text-center text-slate-400">
-            <CheckCircle2 className="h-10 w-10 text-emerald-500/50 mx-auto mb-3" />
-            <p className="text-sm font-semibold text-slate-200">Verification Queue is Clear!</p>
+          <div className="p-12 text-center text-slate-500">
+            <CheckCircle2 className="h-10 w-10 text-emerald-500 mx-auto mb-3" />
+            <p className="text-sm font-bold text-slate-800">Verification Queue is Clear!</p>
             <p className="text-xs text-slate-500 mt-1">
               All student submissions have been reviewed and published to the vault.
             </p>
@@ -456,7 +469,7 @@ export default function AdminOverviewPage() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-slate-950/60 text-slate-400 font-semibold border-b border-slate-800 uppercase tracking-wider text-[11px]">
+              <thead className="bg-slate-50 text-slate-600 font-bold border-b border-slate-200 uppercase tracking-wider text-[11px]">
                 <tr>
                   <th className="py-3 px-4">Course / Material</th>
                   <th className="py-3 px-4">College / Dept</th>
@@ -466,33 +479,33 @@ export default function AdminOverviewPage() {
                   <th className="py-3 px-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/80">
+              <tbody className="divide-y divide-slate-100">
                 {pendingSubmissions.map((doc) => (
-                  <tr key={doc.id} className="hover:bg-slate-800/40 transition-colors">
+                  <tr key={doc.id} className="hover:bg-slate-50/80 transition-colors">
                     <td className="py-3 px-4">
-                      <div className="font-mono font-bold text-emerald-400">{doc.courseCode}</div>
-                      <div className="text-slate-200 font-medium truncate max-w-xs">{doc.title}</div>
-                      <div className="text-[10px] text-slate-500">{doc.fileName}</div>
+                      <div className="font-mono font-bold text-blue-600">{doc.courseCode}</div>
+                      <div className="text-slate-900 font-semibold truncate max-w-xs">{doc.title}</div>
+                      <div className="text-[10px] text-slate-400">{doc.fileName}</div>
                     </td>
                     <td className="py-3 px-4">
-                      <div className="text-slate-200 font-semibold">
+                      <div className="text-slate-800 font-bold">
                         {doc.college || doc.collegeCode || 'COLPHYS'}
                       </div>
-                      <div className="text-slate-400 text-[11px]">
+                      <div className="text-slate-500 text-[11px]">
                         {doc.department || doc.departmentName || 'Computer Science'} &bull; {doc.level}L
                       </div>
                     </td>
                     <td className="py-3 px-4">
-                      <div className="text-slate-200">{doc.authorName || 'Student'}</div>
-                      <div className="text-slate-500 text-[10px]">{doc.uploadedAt}</div>
+                      <div className="text-slate-800 font-medium">{doc.authorName || 'Student'}</div>
+                      <div className="text-slate-400 text-[10px]">{doc.uploadedAt}</div>
                     </td>
                     <td className="py-3 px-4">
-                      <span className="capitalize px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-medium text-[11px]">
+                      <span className="capitalize px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-semibold text-[11px]">
                         {doc.category.replace('_', ' ')}
                       </span>
                     </td>
                     <td className="py-3 px-4">
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-amber-100 text-amber-800 border border-amber-200">
                         In Queue
                       </span>
                     </td>
@@ -500,22 +513,22 @@ export default function AdminOverviewPage() {
                       <div className="flex items-center justify-end gap-1.5">
                         <button
                           onClick={() => setSelectedDoc(doc)}
-                          className="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs flex items-center gap-1 transition-colors"
+                          className="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 font-semibold text-xs flex items-center gap-1 transition-colors"
                           title="Preview Document in App"
                         >
-                          <Eye className="h-3.5 w-3.5 text-emerald-400" />
+                          <Eye className="h-3.5 w-3.5 text-blue-600" />
                           <span>Preview</span>
                         </button>
                         <button
                           onClick={() => handleQuickApprove(doc)}
-                          className="p-1.5 rounded-lg bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-slate-950 border border-emerald-500/30 transition-colors"
+                          className="p-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-600 hover:text-white text-emerald-700 border border-emerald-200 transition-colors"
                           title="Quick Approve"
                         >
                           <Check className="h-3.5 w-3.5" />
                         </button>
                         <button
                           onClick={() => handleQuickReject(doc)}
-                          className="p-1.5 rounded-lg bg-rose-600/20 hover:bg-rose-600 text-rose-300 hover:text-white border border-rose-500/30 transition-colors"
+                          className="p-1.5 rounded-xl bg-rose-50 hover:bg-rose-600 hover:text-white text-rose-700 border border-rose-200 transition-colors"
                           title="Quick Reject"
                         >
                           <X className="h-3.5 w-3.5" />
@@ -537,6 +550,14 @@ export default function AdminOverviewPage() {
         onUpdated={handleDocUpdated}
         onDeleted={handleDocDeleted}
       />
+
+      {/* Floating Toast Notification */}
+      {toastMsg && (
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 bg-slate-900 text-white text-xs font-semibold rounded-2xl shadow-2xl border border-slate-700 animate-in fade-in slide-in-from-bottom-3 duration-200">
+          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+          <span>{toastMsg}</span>
+        </div>
+      )}
     </div>
   );
 }

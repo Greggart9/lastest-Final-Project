@@ -29,11 +29,36 @@
   --color-dark-bg: #0b0f19;          /* Premium dark footer background */
   --color-dark-surface: #111827;     /* Dark cards */
   --color-dark-border: #1f2937;      /* Dark dividers */
+
+  /* Subtle Small Border Radius Across Entire Project */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 4px;
+  --radius-lg: 4px;
+  --radius-xl: 4px;
+  --radius-2xl: 6px;
+  --radius-3xl: 6px;
+  --radius-4xl: 6px;
 }
 
 :root {
   --background: var(--color-surface-bg);
   --foreground: var(--color-text-main);
+  --radius-sm: 4px;
+  --radius: 4px;
+}
+
+/* Ensure project-wide subtle border radius (border-radius-sm) */
+[class*="rounded-xl"],
+[class*="rounded-2xl"],
+[class*="rounded-3xl"] {
+  border-radius: 4px;
+}
+
+/* Preserve circular avatars, status dots, and badges where rounded-full is used */
+.rounded-full,
+[class*="rounded-full"] {
+  border-radius: 9999px;
 }
 
 body {

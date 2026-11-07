@@ -30,7 +30,7 @@ export default function AdminLayout({
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#070b19] text-slate-100 flex flex-col md:flex-row antialiased selection:bg-emerald-500 selection:text-slate-950">
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col md:flex-row antialiased selection:bg-blue-100 selection:text-blue-900">
       {/* Sidebar */}
       <AdminSidebar
         pendingCount={pendingCount}
@@ -42,11 +42,11 @@ export default function AdminLayout({
       <div className="flex-1 flex flex-col md:pl-64 min-w-0 min-h-screen">
         <AdminHeader
           title="Administrative Portal"
-          subtitle="FUNAAB Academic Vault Control Center"
+          subtitle="Academic Vault Control Center"
           pendingCount={pendingCount}
           onOpenMobile={() => setMobileOpen(true)}
         />
-        <main className="flex-1 p-4 md:p-8 overflow-x-hidden">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-x-hidden">
           {children}
         </main>
       </div>

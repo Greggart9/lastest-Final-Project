@@ -44,7 +44,7 @@ export default function FaqSection() {
     <section id="faq" className="py-20 md:py-28 bg-surface-bg scroll-mt-20">
       <div className="site-container max-w-5xl mx-auto">
         <div className="text-center space-y-3 mb-14">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary-light border border-primary-subtle text-primary text-xs font-bold tracking-wider uppercase">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 text-primary text-xs font-bold tracking-wider uppercase">
             <HelpCircle className="w-3.5 h-3.5" />
             <span>Got Questions?</span>
           </div>
@@ -71,7 +71,7 @@ export default function FaqSection() {
                   {faq.question}
                 </span>
                 <div
-                  className={`h-8 w-8 rounded-full bg-surface-muted flex items-center justify-center shrink-0 transition-transform duration-200 ${
+                  className={`h-8 w-8 flex items-center justify-center shrink-0 transition-transform duration-200 ${
                     openFaqIndex === idx ? 'rotate-180 bg-primary-light text-primary' : 'text-text-muted'
                   }`}
                 >

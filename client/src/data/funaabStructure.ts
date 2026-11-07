@@ -27,6 +27,8 @@ export interface StudyDocument {
   verified: boolean;
   downloads: number;
   previewSnippet: string;
+  fileUrl?: string;
+  fileType?: string;
 }
 
 export const ALL_COLLEGES: College[] = [
