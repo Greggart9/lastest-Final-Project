@@ -29,12 +29,19 @@ app.use('/uploads', express.static(path.resolve(__dirname, '../data/uploads')));
 const allowedOrigins = [
   process.env.FRONTEND_URL || 'http://localhost:3000',
   'http://127.0.0.1:3000',
+  'https://educollab.oluwadamilare.xyz',
+  'https://educollab-mu.vercel.app',
 ];
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
+      if (
+        !origin ||
+        allowedOrigins.includes(origin) ||
+        origin.endsWith('.vercel.app') ||
+        origin.endsWith('.oluwadamilare.xyz')
+      ) {
         return callback(null, true);
       }
       return callback(new Error(`Origin ${origin} not allowed by CORS security policy.`));
@@ -79,8 +86,10 @@ app.use((err, req, res, next) => {
 });
 
 // Start Server
-app.listen(PORT, () => {
-  console.log(`[CampusHub Backend] Server secured and running live on http://localhost:${PORT}`);
-});
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`[CampusHub Backend] Server secured and running live on http://localhost:${PORT}`);
+  });
+}
 
 export default app;

@@ -52,7 +52,7 @@ function getDefaultFrom() {
 }
 
 function getFrontendUrl() {
-  return process.env.FRONTEND_URL || 'http://localhost:3000';
+  return process.env.FRONTEND_URL || 'https://educollab.oluwadamilare.xyz';
 }
 
 // =============================================================
