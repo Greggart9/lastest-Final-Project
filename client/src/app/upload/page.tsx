@@ -167,16 +167,21 @@ export default function MaterialUploadPage() {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadSuccessToast, setUploadSuccessToast] = useState<string | null>(null);
 
-  // Submissions State (persisted to localStorage)
+  // Submissions State (persisted per user)
   const [submissions, setSubmissions] = useState<StudentSubmission[]>([]);
   const [selectedPreviewDoc, setSelectedPreviewDoc] = useState<StudyDocument | null>(null);
 
-  // Initialize submissions from live backend API or fallback to localStorage
+  // Initialize submissions from live backend API or fallback to user-scoped localStorage
   useEffect(() => {
     async function loadLiveSubmissions() {
+      // Clear legacy dummy mock submissions from localStorage if present
+      try {
+        localStorage.removeItem('funaab_student_uploads');
+      } catch {}
+
       try {
         const data = await apiGetSubmissions();
-        if (data && data.submissions && data.submissions.length > 0) {
+        if (data && Array.isArray(data.submissions)) {
           const mapped: StudentSubmission[] = data.submissions.map((s: any) => ({
             id: s.id,
             title: s.title,
@@ -197,94 +202,39 @@ export default function MaterialUploadPage() {
             adminComment: s.reviewNotes || s.adminComment,
           }));
           setSubmissions(mapped);
-          localStorage.setItem('funaab_student_uploads', JSON.stringify(mapped));
+          if (user?.id) {
+            localStorage.setItem(`educollab_student_uploads_${user.id}`, JSON.stringify(mapped));
+          }
           return;
         }
       } catch {
-        // Fallback to local storage
+        // Fallback to user-scoped local storage if offline
       }
 
       try {
-        const stored = localStorage.getItem('funaab_student_uploads');
-        if (stored) {
-          setSubmissions(JSON.parse(stored));
-        } else {
-          const initialSubmissions: StudentSubmission[] = [
-            {
-              id: 'sub-sample-1',
-              title: 'CSC 102 - Complete Modern JavaScript Handbook & DOM Guide',
-              courseCode: 'CSC 102',
-              courseTitle: 'Web Fundamentals & JavaScript',
-              fileName: 'CSC_102_JavaScript_Guide.pdf',
-              fileSize: '3.8 MB',
-              collegeCode: 'COLPHYS',
-              departmentName: 'Computer Science',
-              departmentId: 'computer-science',
-              level: 100,
-              semester: 'Second Semester',
-              category: 'course_materials',
-              academicYear: '2025/2026',
-              uploadedAt: 'Today at 09:30 AM',
-              status: 'approved',
-              progress: 100,
-              adminComment: 'Approved by Course Rep. Document verified against FUNAAB curriculum and published to the vault.',
-            },
-            {
-              id: 'sub-sample-2',
-              title: 'MTS 101 - 2023/2024 First Semester Examination Paper Archive',
-              courseCode: 'MTS 101',
-              courseTitle: 'Elementary Mathematics I (Calculus & Algebra)',
-              fileName: 'MTS_101_Exam_2023_2024.pdf',
-              fileSize: '2.1 MB',
-              collegeCode: 'COLPHYS',
-              departmentName: 'Computer Science',
-              departmentId: 'computer-science',
-              level: 100,
-              semester: 'First Semester',
-              category: 'past_questions',
-              academicYear: '2024/2025',
-              uploadedAt: 'Yesterday at 04:15 PM',
-              status: 'in_progress',
-              progress: 65,
-            },
-            {
-              id: 'sub-sample-3',
-              title: 'PHS 105 - 2022 General Physics Exam Paper & Solutions Draft',
-              courseCode: 'PHS 105',
-              courseTitle: 'General Physics I',
-              fileName: 'PHS_105_Exam_Draft_2022.pdf',
-              fileSize: '1.9 MB',
-              collegeCode: 'COLPHYS',
-              departmentName: 'Physics',
-              departmentId: 'physics',
-              level: 100,
-              semester: 'First Semester',
-              category: 'solutions',
-              academicYear: '2023/2024',
-              uploadedAt: '2 days ago',
-              status: 'rejected',
-              progress: 100,
-              adminComment: 'Rejected: Pages 3 and 4 are blurry and illegible. Please scan with adequate lighting and re-upload.',
-            },
-          ];
-          setSubmissions(initialSubmissions);
-          localStorage.setItem('funaab_student_uploads', JSON.stringify(initialSubmissions));
+        if (user?.id) {
+          const stored = localStorage.getItem(`educollab_student_uploads_${user.id}`);
+          if (stored) {
+            setSubmissions(JSON.parse(stored));
+            return;
+          }
         }
+        setSubmissions([]);
       } catch {
-        // Fallback
+        setSubmissions([]);
       }
     }
 
     loadLiveSubmissions();
-  }, []);
+  }, [user?.id]);
 
   const saveSubmissions = (newItems: StudentSubmission[]) => {
     setSubmissions(newItems);
     try {
-      localStorage.setItem('funaab_student_uploads', JSON.stringify(newItems));
-    } catch {
-      // Ignore
-    }
+      if (user?.id) {
+        localStorage.setItem(`educollab_student_uploads_${user.id}`, JSON.stringify(newItems));
+      }
+    } catch {}
   };
 
   // Sync department when college changes
@@ -931,8 +881,29 @@ export default function MaterialUploadPage() {
             </div>
 
             {/* Submissions List */}
-            <div className="space-y-5">
-              {submissions.map((sub) => {
+            {submissions.length === 0 ? (
+              <div className="bg-white border border-border-subtle rounded-3xl p-10 sm:p-14 text-center shadow-xs space-y-4">
+                <div className="w-14 h-14 rounded-2xl bg-primary-light text-primary mx-auto flex items-center justify-center">
+                  <FileText className="w-7 h-7" />
+                </div>
+                <div className="space-y-1">
+                  <h3 className="font-bold text-text-main text-base sm:text-lg">No Uploaded Submissions Yet</h3>
+                  <p className="text-xs text-text-muted max-w-sm mx-auto">
+                    You haven&apos;t submitted any study materials yet. When you upload lecture notes, past questions, or solutions, their approval and review status will appear here.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('upload_form')}
+                  className="px-5 py-2.5 rounded-xl bg-primary text-white text-xs font-bold hover:bg-primary-hover transition shadow-xs inline-flex items-center gap-1.5 cursor-pointer"
+                >
+                  <UploadCloud className="w-4 h-4" />
+                  <span>Upload Your First Material</span>
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-5">
+                {submissions.map((sub) => {
                 const isApproved = sub.status === 'approved';
                 const isRejected = sub.status === 'rejected';
                 const isInProgress = sub.status === 'in_progress';
@@ -1145,7 +1116,8 @@ export default function MaterialUploadPage() {
                   </motion.div>
                 );
               })}
-            </div>
+              </div>
+            )}
           </section>
         )}
       </main>
