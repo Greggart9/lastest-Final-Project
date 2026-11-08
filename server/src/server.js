@@ -1,7 +1,5 @@
-import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -11,7 +9,12 @@ import adminRoutes from './routes/adminRoutes.js';
 import materialRoutes from './routes/materialRoutes.js';
 import academicRoutes from './routes/academicRoutes.js';
 
-dotenv.config();
+if (!process.env.VERCEL) {
+  try {
+    const dotenv = await import('dotenv');
+    dotenv.default.config();
+  } catch {}
+}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -23,7 +26,8 @@ const PORT = process.env.PORT || 5001;
 initDb();
 
 // Serve local fallback uploaded PDFs
-app.use('/uploads', express.static(path.resolve(__dirname, '../data/uploads')));
+const uploadsDir = process.env.VERCEL ? '/tmp/uploads' : path.resolve(__dirname, '../data/uploads');
+app.use('/uploads', express.static(uploadsDir));
 
 // Secure CORS Policy
 const allowedOrigins = [

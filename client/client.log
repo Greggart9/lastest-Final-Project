@@ -846,3 +846,5 @@ Import traces:
 [browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
  GET /admin/upload 200 in 25ms (next.js: 5ms, application-code: 20ms)
  GET /admin/users 200 in 21ms (next.js: 3ms, application-code: 18ms)
+ GET / 200 in 62ms (next.js: 3ms, application-code: 59ms)
+[?25h

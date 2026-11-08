@@ -7,10 +7,16 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Local fallback storage directory if R2 credentials are not yet supplied
-const LOCAL_UPLOADS_DIR = path.resolve(__dirname, '../../data/uploads');
+const LOCAL_UPLOADS_DIR = process.env.VERCEL
+  ? '/tmp/uploads'
+  : path.resolve(__dirname, '../../data/uploads');
 
-if (!fs.existsSync(LOCAL_UPLOADS_DIR)) {
-  fs.mkdirSync(LOCAL_UPLOADS_DIR, { recursive: true });
+try {
+  if (!fs.existsSync(LOCAL_UPLOADS_DIR)) {
+    fs.mkdirSync(LOCAL_UPLOADS_DIR, { recursive: true });
+  }
+} catch (e) {
+  console.warn('[R2] Warning: Could not create local uploads dir:', e.message);
 }
 
 export function isR2Configured() {

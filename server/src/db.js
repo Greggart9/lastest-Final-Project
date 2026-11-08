@@ -5,7 +5,11 @@ import bcrypt from 'bcryptjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const DB_FILE = path.join(__dirname, '..', 'data', 'db.json');
+const DB_FILE = process.env.VERCEL
+  ? '/tmp/db.json'
+  : path.join(__dirname, '..', 'data', 'db.json');
+
+let inMemoryCache = null;
 
 const DEFAULT_LEVELS = [100, 200, 300, 400, 500];
 
@@ -123,10 +127,12 @@ const DEFAULT_UNIVERSITIES = [
 export function readDb() {
   try {
     if (!fs.existsSync(DB_FILE)) {
+      if (inMemoryCache) return inMemoryCache;
       return initDb();
     }
     const raw = fs.readFileSync(DB_FILE, 'utf-8');
     const data = JSON.parse(raw);
+    inMemoryCache = data;
 
     let needsWrite = false;
 
@@ -161,13 +167,15 @@ export function readDb() {
 
     return data;
   } catch (err) {
-    console.error('[DB] Read error, re-initializing database:', err);
+    if (inMemoryCache) return inMemoryCache;
+    console.warn('[DB] Read error, re-initializing database:', err.message);
     return initDb();
   }
 }
 
 // Helper to write DB atomically
 export function writeDb(data) {
+  inMemoryCache = data;
   try {
     const dir = path.dirname(DB_FILE);
     if (!fs.existsSync(dir)) {
@@ -177,16 +185,39 @@ export function writeDb(data) {
     fs.writeFileSync(tmpFile, JSON.stringify(data, null, 2), 'utf-8');
     fs.renameSync(tmpFile, DB_FILE);
   } catch (err) {
-    console.error('[DB] Write error:', err);
-    throw new Error('Database persistence error');
+    console.warn('[DB] Warning: Cannot persist to disk in serverless runtime:', err.message);
   }
 }
 
 // Initial DB Setup
 export function initDb() {
-  const dir = path.dirname(DB_FILE);
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
+  if (inMemoryCache) return inMemoryCache;
+
+  try {
+    const dir = path.dirname(DB_FILE);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+  } catch {}
+
+  // Seed from packaged data/db.json if available
+  const SEED_FILE = path.join(__dirname, '..', 'data', 'db.json');
+  if (!fs.existsSync(DB_FILE) && fs.existsSync(SEED_FILE)) {
+    try {
+      const rawSeed = fs.readFileSync(SEED_FILE, 'utf-8');
+      if (rawSeed && rawSeed.trim().length > 0) {
+        const parsedSeed = JSON.parse(rawSeed);
+        if (parsedSeed.universities && parsedSeed.universities.length > 0) {
+          inMemoryCache = parsedSeed;
+          try {
+            fs.writeFileSync(DB_FILE, rawSeed, 'utf-8');
+          } catch {}
+          return parsedSeed;
+        }
+      }
+    } catch (e) {
+      console.warn('[DB] Could not load seed file:', e.message);
+    }
   }
 
   // Preserve existing database file if it already exists and is non-empty!
@@ -197,6 +228,7 @@ export function initDb() {
         const parsed = JSON.parse(raw);
         if (parsed.universities && parsed.universities.length > 0) {
           console.log('[DB] Using existing database file at', DB_FILE);
+          inMemoryCache = parsed;
           return parsed;
         }
       }
@@ -306,8 +338,13 @@ export function initDb() {
     passwordOtps: [],
   };
 
-  fs.writeFileSync(DB_FILE, JSON.stringify(initialData, null, 2), 'utf-8');
-  console.log('[DB] Database seeded successfully at', DB_FILE);
+  inMemoryCache = initialData;
+  try {
+    fs.writeFileSync(DB_FILE, JSON.stringify(initialData, null, 2), 'utf-8');
+    console.log('[DB] Database seeded successfully at', DB_FILE);
+  } catch (e) {
+    console.warn('[DB] Could not write seed file to disk (read-only environment):', e.message);
+  }
   return initialData;
 }
 
