@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
@@ -8,13 +9,6 @@ import authRoutes from './routes/authRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import materialRoutes from './routes/materialRoutes.js';
 import academicRoutes from './routes/academicRoutes.js';
-
-if (!process.env.VERCEL) {
-  try {
-    const dotenv = await import('dotenv');
-    dotenv.default.config();
-  } catch {}
-}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -90,10 +84,8 @@ app.use((err, req, res, next) => {
 });
 
 // Start Server
-if (!process.env.VERCEL) {
-  app.listen(PORT, () => {
-    console.log(`[CampusHub Backend] Server secured and running live on http://localhost:${PORT}`);
-  });
-}
+app.listen(PORT, () => {
+  console.log(`[CampusHub Backend] Server secured and running live on port ${PORT}`);
+});
 
 export default app;

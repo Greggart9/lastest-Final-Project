@@ -32,6 +32,9 @@ out/
 client/.next/
 client/out/
 *.tsbuildinfo
+.vercel/
+server/.vercel/
+client/.vercel/
 
 # Logs & Debugging
 npm-debug.log*
