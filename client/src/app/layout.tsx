@@ -4,6 +4,15 @@ import './globals.css';
 export const metadata: Metadata = {
   title: 'EduCollab - Academic Collaboration Hub',
   description: 'The Ultimate Collaboration Hub for Students and Lecturers to Expand Knowledge and Sharpen Skills.',
+  icons: {
+    icon: [
+      { url: '/icon.svg', type: 'image/svg+xml' },
+      { url: '/favicon.ico', sizes: 'any' },
+    ],
+    apple: [
+      { url: '/icon.svg', type: 'image/svg+xml' },
+    ],
+  },
 };
 
 export default function RootLayout({
